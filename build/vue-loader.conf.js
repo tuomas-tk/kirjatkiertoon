@@ -1,5 +1,6 @@
 var utils = require('./utils')
 var config = require('../config')
+var path = require('path')
 var isProduction = process.env.NODE_ENV === 'production'
 
 module.exports = {
@@ -9,4 +10,7 @@ module.exports = {
       : config.dev.cssSourceMap,
     extract: isProduction
   })
+  /*stylus: {
+    import: [path.resolve(__dirname, '../src/styles/normalize.css')]
+  }*/
 }
