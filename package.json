@@ -12,14 +12,15 @@
     "postinstall": "db-migrate up"
   },
   "dependencies": {
-    "vue": "^2.2.2",
-    "vue-router": "^2.3.0",
+    "axios": "^0.16.1",
     "body-parser": "~1.15.2",
     "cookie-parser": "^1.4.3",
     "db-migrate": "^0.10.0-beta.20",
     "db-migrate-pg": "^0.1.11",
     "express": "^4.14.1",
-    "pg": "^6.1.2"
+    "pg": "^6.1.2",
+    "vue": "^2.2.2",
+    "vue-router": "^2.3.0"
   },
   "devDependencies": {
     "autoprefixer": "^6.7.2",
@@ -27,6 +28,7 @@
     "babel-eslint": "^7.1.1",
     "babel-loader": "^6.2.10",
     "babel-plugin-transform-runtime": "^6.22.0",
+    "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.2.1",
     "babel-preset-stage-2": "^6.22.0",
     "babel-register": "^6.22.0",
