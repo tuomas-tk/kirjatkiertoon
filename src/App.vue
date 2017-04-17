@@ -1,8 +1,9 @@
 <template>
   <div id="app">
-    <header>
+    <header :class="{active: menuActive}">
       <div id="header-container">
         <router-link to="/" exact><img id="logo" src="./assets/logo-nobg-200.png" /></router-link>
+        <i class="fa fa-bars fa-3x" id="nav-button" @click="toggleMenu"></i>
         <div class="nav-bar">
           <router-link to="/" exact>Etusivu</router-link>
           <router-link to="/buy" v-if="auth.status >= 1">Osta kirja</router-link>
@@ -12,7 +13,7 @@
         </div>
         <div class="nav-bar nav-bar-right">
           <router-link to="/login" v-if="auth.status == 0">Kirjaudu sisään</router-link>
-          <router-link to="/logout" v-else>Moi {{ auth.firstname }}!</router-link>
+          <router-link to="/logout" v-else>Kirjaudu ulos {{ auth.firstname }}!</router-link>
         </div>
       </div>
     </header>
@@ -34,7 +35,8 @@ export default {
   name: 'app',
   data: () => ({
     auth: auth,
-    loading: true
+    loading: true,
+    menuActive: false
   }),
   created () {
     EventBus.$on('setLoading', this.setLoading)
@@ -43,6 +45,9 @@ export default {
     setLoading: function (status) {
       console.log('setLoading: ' + status)
       this.loading = status
+    },
+    toggleMenu: function () {
+      this.menuActive = !this.menuActive
     }
   }
 }
@@ -57,6 +62,7 @@ html, body, #app
   margin 0
   padding 0
   background-color: #F0F0F0
+  overflow-x: hidden
 
 #app {
   font-family: 'Raleway', Arial, sans-serif
@@ -68,7 +74,7 @@ html, body, #app
 header {
   background-color: _color-deep-purple-500
   margin: 0
-  height: 80px
+  min-height: 80px
   box-shadow: 0 -10px 50px rgba(0,0,0, 1),
               0 0 5px rgba(0,0,0, 0.4)
 
@@ -83,6 +89,10 @@ header {
     height: 70px
     padding-top: 5px
     padding-right: 1em
+  }
+
+  #nav-button {
+    display: none;
   }
 
   .nav-bar {
@@ -126,6 +136,48 @@ header {
   .nav-bar-right {
     float: right;
   }
+
+
+  @media (max-width: _breakpoint-nav) {
+    #header-container {
+      padding: 0
+    }
+    img#logo {
+      padding-left: 1em
+    }
+    #nav-button {
+      display: inline-block;
+      color: #FFFFFF
+      vertical-align: top
+      line-height: 80px
+      float: right
+      padding-right: 0.5em
+      padding-left: 0.5em
+      cursor: pointer
+    }
+    .nav-bar, .nav-bar-right {
+      display: block
+      background-color: _color-deep-purple-500
+      float: none
+      width: 100%
+      height: 0
+      overflow: hidden
+      opacity: 0
+      transition:  opacity .5s
+
+      a {
+        display: block
+        line-height: 2em
+      }
+    }
+    .nav-bar-right {
+      border-top: 2px solid rgba(255,255,255,0.2)
+    }
+    &.active .nav-bar, &.active .nav-bar-right {
+      opacity: 1
+      height: auto
+    }
+  }
 }
 
 #page {
@@ -136,7 +188,7 @@ header {
   .maxwidth {
     padding: 3em 2em
     max-width: 1600px
-    margin: 0 auto    
+    margin: 0 auto
   }
 
   h1, h2 {
@@ -145,7 +197,7 @@ header {
   }
   h1 {
     font-size: 4em
-    line-height_ 1em
+    line-height: 1em
     color: _color-deep-purple-700
     margin-top: 0.8em
     margin-bottom: 0.8em

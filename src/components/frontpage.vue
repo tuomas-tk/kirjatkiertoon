@@ -118,7 +118,7 @@ export default {
   .text {
     display: inline-block
     vertical-align: middle
-    width: calc(100% - 6.5em)
+    width: calc(100% - 5.5em)
     font-size: 1.2em
     line-height: 1.5em
 
