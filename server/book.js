@@ -45,7 +45,7 @@ router.post('/get/', function(req, res) {
         data: err
       });
     } else {
-      client.query('SELECT * FROM books ORDER BY price ASC', [res.locals.user.id], function(err, result) {
+      client.query('SELECT * FROM books ORDER BY price ASC', [], function(err, result) {
         done();
         if (err) {
           console.error(err);

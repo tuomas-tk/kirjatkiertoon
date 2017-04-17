@@ -4,6 +4,7 @@ import { EventBus } from '../EventBus'
 
 import frontpage from '@/components/frontpage'
 import buyList from '@/components/buy-list'
+import buySingle from '@/components/buy-single'
 import sellList from '@/components/sell-list'
 import profile from '@/components/profile'
 import superConsole from '@/components/super'
@@ -24,6 +25,12 @@ var router = new Router({
       path: '/buy',
       name: 'buyList',
       component: buyList,
+      meta: { requiresAuthLevel: 1 }
+    },
+    {
+      path: '/buy/:id',
+      name: 'buySingle',
+      component: buySingle,
       meta: { requiresAuthLevel: 1 }
     },
     {
@@ -60,10 +67,10 @@ var router = new Router({
 router.beforeEach((to, from, next) => {
   console.log('[ROUTER] Current AUTH-level: ' + auth.status)
   EventBus.$emit('setLoading', true)
+  EventBus.$emit('hideNavigation')
 
   auth.checkAuth()
   .then(() => {
-    console.log('checkAuth() SUCCESS!')
     if (to.meta.requiresAuthLevel != null && to.meta.requiresAuthLevel > auth.status) {
       console.log('Unsufficient AUTH-level (' + auth.status + ')')
       next({
@@ -75,7 +82,6 @@ router.beforeEach((to, from, next) => {
     }
   })
   .catch(error => {
-    console.log('checkAuth() FAIL!!')
     if (error === 500) {
       console.log('SERVER ERROR')
       next(false)

@@ -29,30 +29,30 @@ export default {
   getToken: () => localStorage.getItem(LOCALSTORAGE_TOKEN),
 
   checkAuth () {
-    console.log('[1] loadInformation() in App.vue')
+    console.log('[1] Checking authentication')
 
     if (this.getToken()) {
-      console.log('[2] Token found, fetching user information')
+      console.log('  [2] Token found, fetching user information')
       return axios.post('/user/get/profile', {token: this.getToken()})
       .then(response => {
         this.status = response.data.data.type
         this.firstname = response.data.data.firstname
         this.lastname = response.data.data.lastname
-        console.log('[3] Token valid -> AUTH-level ' + this.status)
+        console.log('    [3] Token valid -> AUTH-level ' + this.status)
       })
       .catch(error => {
         if (error.response.status === 400) {
-          console.log('[3] Invalid token')
+          console.log('    [3] Invalid token')
           this.removeToken()
           return new Promise((resolve, reject) => { reject(500) })
         } else if (error.response.status === 500) {
-          console.log('[3] Server Error 500')
+          console.log('    [3] Server Error 500')
           console.log(error)
           return new Promise((resolve, reject) => { reject(500) })
         }
       })
     } else {
-      console.log('[2] No token')
+      console.log('  [2] No token')
       this.removeToken()
       return new Promise((resolve, reject) => { reject('no token') })
     }

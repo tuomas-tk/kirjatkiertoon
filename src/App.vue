@@ -8,12 +8,12 @@
           <router-link to="/" exact>Etusivu</router-link>
           <router-link to="/buy" v-if="auth.status >= 1">Osta kirja</router-link>
           <router-link to="/sell" v-if="auth.status >= 2">Myy kirja</router-link>
-          <router-link to="/profile" v-if="auth.status >= 1">Profiili</router-link>
           <router-link to="/super" v-if="auth.status >= 3">SuperConsole</router-link>
         </div>
         <div class="nav-bar nav-bar-right">
           <router-link to="/login" v-if="auth.status == 0">Kirjaudu sisään</router-link>
-          <router-link to="/logout" v-else>Kirjaudu ulos {{ auth.firstname }}!</router-link>
+          <router-link to="/profile" v-if="auth.status != 0">Omat tiedot</router-link>
+          <router-link to="/logout" v-if="auth.status != 0">Kirjaudu ulos</router-link>
         </div>
       </div>
     </header>
@@ -29,7 +29,6 @@
 <script>
 import auth from './api/auth'
 import { EventBus } from './EventBus'
-// import axios from 'axios'
 
 export default {
   name: 'app',
@@ -40,6 +39,7 @@ export default {
   }),
   created () {
     EventBus.$on('setLoading', this.setLoading)
+    EventBus.$on('hideNavigation', () => { this.menuActive = false })
   },
   methods: {
     setLoading: function (status) {
@@ -69,6 +69,15 @@ html, body, #app
   -webkit-font-smoothing: antialiased
   -moz-osx-font-smoothing: grayscale
   color: #333333
+
+  font-size: 16px
+  @media (max-width: _breakpoint-tablet) {
+    font-size: 14px
+  }
+  @media (max-width: _breakpoint-mobile) {
+    font-size: 12px
+  }
+
 }
 
 header {
@@ -181,8 +190,6 @@ header {
 }
 
 #page {
-
-  font-size: 16px
   line-height: 1.6em
 
   .maxwidth {

@@ -15,38 +15,52 @@
         <h2>Miten KirjatKiertoon.com toimii?</h2>
         <div class="caption">MYYJÄ</div>
         <div class="caption-right">OSTAJA</div>
+
         <span class="divider"></span>
+
         <div class="number">1</div>
         <div class="text">
           Kirjan myyjä <router-link to="/login">kirjautuu</router-link> palveluun koululta saamillaan tunnuksilla
         </div>
+
         <span class="divider"></span>
+
         <div class="number">2</div>
         <div class="text">
           Hän valitsee omistamansa kirjan listasta, ja valitsee kirjalleen hinnan
         </div>
+
         <span class="divider"></span>
+
         <div class="text text-right">
           Ostaja <router-link to="/login">kirjautuu</router-link> palveluun koululta saamillaan tunnuksilla
         </div>
         <div class="number text-right">1</div>
+
         <span class="divider"></span>
+
         <div class="text text-right">
           Hän selaa saatavilla olevia kirjoja, ja valitsee haluamansa kirjat
         </div>
         <div class="number text-right">2</div>
+
         <span class="divider"></span>
-        <div class="number">5</div>
+
+        <div class="number">3</div>
         <div class="text">
           Myyjä saa ilmoituksen varauksesta, ja tuo kirjan koululle koulun ilmoittamana ajankohtana
         </div>
+
         <span class="divider"></span>
+
         <div class="text text-right">
           Ostaja saa kirjan koululta maksua vastaan
         </div>
         <div class="number text-right">3</div>
+
         <span class="divider"></span>
-        <div class="number">7</div>
+
+        <div class="number">4</div>
         <div class="text">
           Myyjä on tyytyväinen saatuaan rahat jopa samana päivänä!
         </div>
