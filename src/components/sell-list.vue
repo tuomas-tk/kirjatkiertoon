@@ -7,10 +7,10 @@
 
 <script>
 export default {
-  name: 'buy-list',
+  name: 'sell-list',
   data () {
     return {
-      msg: 'Osta kirja'
+      msg: 'Myy kirja'
     }
   }
 }

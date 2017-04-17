@@ -5,8 +5,12 @@ require('babel-polyfill')
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import Axios from 'axios'
 
+Axios.defaults.baseURL = 'http://localhost:8080/api/'
 Vue.config.productionTip = false
+
+console.log('main.js')
 
 /* eslint-disable no-new */
 new Vue({

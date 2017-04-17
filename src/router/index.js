@@ -1,33 +1,96 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import { EventBus } from '../EventBus'
+
 import frontpage from '@/components/frontpage'
 import buyList from '@/components/buy-list'
-// import sellList from '@/components/buy-list'
+import sellList from '@/components/sell-list'
 import profile from '@/components/profile'
+import superConsole from '@/components/super'
+import login from '@/components/login'
+import logout from '@/components/logout'
+import auth from '@/api/auth'
 
 Vue.use(Router)
 
-export default new Router({
+var router = new Router({
   routes: [
     {
+      path: '/',
+      name: 'frontpage',
+      component: frontpage
+    },
+    {
       path: '/buy',
-      name: 'Osta kirja',
-      component: buyList
+      name: 'buyList',
+      component: buyList,
+      meta: { requiresAuthLevel: 1 }
     },
     {
       path: '/sell',
-      name: 'Myy kirja',
-      component: buyList
+      name: 'sellList',
+      component: sellList,
+      meta: { requiresAuthLevel: 2 }
     },
     {
-      path: '/profiles',
-      name: 'Profiili',
-      component: profile
+      path: '/profile',
+      name: 'profile',
+      component: profile,
+      meta: { requiresAuthLevel: 1 }
     },
     {
-      path: '/frontpage',
-      name: 'Etusivu',
-      component: frontpage
+      path: '/super',
+      name: 'super',
+      component: superConsole,
+      meta: { requiresAuthLevel: 3 }
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: login
+    },
+    {
+      path: '/logout',
+      name: 'logout',
+      component: logout
     }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  console.log('[ROUTER] Current AUTH-level: ' + auth.status)
+  EventBus.$emit('setLoading', true)
+
+  auth.checkAuth()
+  .then(() => {
+    console.log('checkAuth() SUCCESS!')
+    if (to.meta.requiresAuthLevel != null && to.meta.requiresAuthLevel > auth.status) {
+      console.log('Unsufficient AUTH-level (' + auth.status + ')')
+      next({
+        path: '/login',
+        query: { redirect: to.fullPath }
+      })
+    } else {
+      next()
+    }
+  })
+  .catch(error => {
+    console.log('checkAuth() FAIL!!')
+    if (error === 500) {
+      console.log('SERVER ERROR')
+      next(false)
+    } else if (to.meta.requiresAuthLevel != null) {
+      next({
+        path: '/login',
+        query: { redirect: to.fullPath }
+      })
+    } else {
+      next()
+    }
+  })
+  .then(() => {
+    EventBus.$emit('setLoading', false)
+  })
+})
+
+export default router

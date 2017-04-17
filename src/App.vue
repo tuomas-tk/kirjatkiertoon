@@ -2,33 +2,56 @@
   <div id="app">
     <header>
       <div id="header-container">
-        <img id="logo" src="./assets/logo-nobg-200.png" />
+        <router-link to="/" exact><img id="logo" src="./assets/logo-nobg-200.png" /></router-link>
         <div class="nav-bar">
-          <router-link to="/frontpage">Etusivu</router-link>
-          <router-link to="/buy">Osta kirja</router-link>
-          <router-link to="/sell">Myy kirja</router-link>
-          <router-link to="/profile">Profiili</router-link>
+          <router-link to="/" exact>Etusivu</router-link>
+          <router-link to="/buy" v-if="auth.status >= 1">Osta kirja</router-link>
+          <router-link to="/sell" v-if="auth.status >= 2">Myy kirja</router-link>
+          <router-link to="/profile" v-if="auth.status >= 1">Profiili</router-link>
+          <router-link to="/super" v-if="auth.status >= 3">SuperConsole</router-link>
         </div>
         <div class="nav-bar nav-bar-right">
-          <router-link to="/login">Kirjaudu sisään</router-link>
+          <router-link to="/login" v-if="auth.status == 0">Kirjaudu sisään</router-link>
+          <router-link to="/logout" v-else>Moi {{ auth.firstname }}!</router-link>
         </div>
       </div>
     </header>
     <div id="page">
-      <router-view></router-view>
+      <router-view @loading="setLoading"></router-view>
+    </div>
+    <div id="loading" :class="{show: loading}">
+      <span>Loading</span>
     </div>
   </div>
 </template>
 
 <script>
+import auth from './api/auth'
+import { EventBus } from './EventBus'
+// import axios from 'axios'
+
 export default {
-  name: 'app'
+  name: 'app',
+  data: () => ({
+    auth: auth,
+    loading: true
+  }),
+  created () {
+    EventBus.$on('setLoading', this.setLoading)
+  },
+  methods: {
+    setLoading: function (status) {
+      console.log('setLoading: ' + status)
+      this.loading = status
+    }
+  }
 }
 </script>
 
 <style lang="stylus">
 @import "./styles/normalize.css"
 @import "./styles/vars"
+@import "./styles/buttons"
 
 html, body, #app
   margin 0
@@ -50,7 +73,7 @@ header {
               0 0 5px rgba(0,0,0, 0.4)
 
   #header-container {
-    padding-left: 2em
+    padding-left: 1em
     max-width: 1600px
     margin: 0 auto
   }
@@ -80,6 +103,7 @@ header {
       cursor: pointer
       text-shadow: 1px 2px 3px rgba(0,0,0,0.2)
       text-decoration: none
+      outline: 0;
 
       transition all 0.1s
 
@@ -95,6 +119,7 @@ header {
         color: #FFFFFF
         box-shadow: 0 0 20px rgba(0,0,0,0.1) inset
       }
+
     }
   }
 
@@ -104,32 +129,61 @@ header {
 }
 
 #page {
-  padding: 3em 2em
-  max-width: 1600px
-  margin: 0 auto
 
   font-size: 16px
   line-height: 1.6em
+
+  .maxwidth {
+    padding: 3em 2em
+    max-width: 1600px
+    margin: 0 auto    
+  }
 
   h1, h2 {
     font-family: Neucha
     font-weight: 400
   }
   h1 {
-    font-size 4em
-    color _color-deep-purple-700
-    padding-top 0.8em
-    padding-bottom 0.5em
+    font-size: 4em
+    line-height_ 1em
+    color: _color-deep-purple-700
+    margin-top: 0.8em
+    margin-bottom: 0.8em
+    text-shadow: 1px 2px 4px rgba(0,0,0,0.2)
   }
   h2 {
-    font-size 1.2em
+    font-size: 3em
+    line-height: 1em
   }
-  p {
-    max-width 700px
+}
+
+
+#loading {
+  position: fixed
+  top: 0
+  left: 0
+  height: 100%
+  width: 100%
+  background-color: rgba(0,0,0,0.6)
+  text-align: center
+  transition: visibility 0s, opacity 1s linear;
+  visibility: hidden
+  opacity: 0
+
+  &.show {
+    visibility: visible
+    opacity: 1
   }
 
-  &>div {
+  span {
+    font-size: 2em
+    color: #FFFFFF
+    font-weight: 700
     position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-shadow: 0px 3px 10px #000000, 0px 0px 50px #000000
   }
 }
 
