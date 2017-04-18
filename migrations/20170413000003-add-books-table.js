@@ -14,8 +14,7 @@ exports.setup = function(options, seedLink) {
 exports.up = function(db) {
   return db.createTable('books', {
     id: {type: 'serial', primaryKey: true},
-    subject: 'serial',
-    course: 'integer',
+    course: 'string',
     name: 'string',
     price: 'integer',
     condition: 'integer',

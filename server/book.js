@@ -65,6 +65,37 @@ router.post('/get/', function(req, res) {
   });
 })
 
+router.post('/get/:id', function(req, res) {
+  console.log('get single book');
+
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        success: false,
+        data: err
+      });
+    } else {
+      client.query('SELECT * FROM books WHERE id=$1 AND status < 10 LIMIT 1', [req.params.id], function(err, result) {
+        done();
+        if (err) {
+          console.error(err);
+          return res.status(500).json({
+            success: false,
+            data: err
+          });
+        } else {
+          res.json({
+            success: true,
+            data: result.rows[0]
+          });
+        }
+      });
+    }
+
+  });
+})
+
 router.post('/add/', function(req, res) {
   console.log('add book');
 

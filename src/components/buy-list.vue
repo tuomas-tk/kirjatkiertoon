@@ -2,7 +2,52 @@
 <div>
   <div class="maxwidth">
     <h1>Osta kirja</h1>
-    <p></p>
+    <div class="search">
+      <h3>Oppiaine:</h3>
+      <select v-model="subject">
+        <option value="">- - valitse - -</option>
+        <optgroup label="Kielet">
+          <option value="ÄI">ÄI - Äidinkieli</option>
+          <option value="EN">EN - Englanti</option>
+          <option value="RU">RU - Ruotsi</option>
+        </optgroup>
+        <optgroup label="Matematiikka">
+          <option value="MAY">MAY - Yhteinen matikka</option>
+          <option value="MAA">MAA - Pitkä matikka</option>
+          <option value="MAB">MAB - Lyhyt matikka</option>
+        </optgroup>
+        <optgroup label="Luonnontieteet">
+          <option value="BI">BI - Biologia</option>
+          <option value="FY">FY - Fysiikka</option>
+          <option value="GE">GE - Maantieto</option>
+          <option value="KE">KE - Kemia</option>
+        </optgroup>
+        <optgroup label="Muut reaalit">
+          <option value="HI">HI - Historia</option>
+          <option value="YH">YH - Yhteiskuntaoppi</option>
+          <option value="PS">PS - Psykologia</option>
+          <option value="TT">TT - Terveystieto</option>
+          <option value="FI">FI - Filosofia</option>
+          <option value="UE">UE - Uskonto (ev.lut.)</option>
+          <option value="UO">UO - Uskonto (ort.)</option>
+          <option value="ET">ET - Elämänkatsomustieto</option>
+          <option value="OP">OP - Opinto-ohjaus</option>
+        </optgroup>
+        <optgroup label="Taito- ja taideaineet">
+          <option value="LI">LI - Liikunta</option>
+          <option value="MU">MU - Musiikki</option>
+        </optgroup>
+      </select>
+
+      <h3>Kurssi:</h3>
+      <select v-model="course">
+        <option v-for="n in 20">{{ subject }}{{ n }}</option>
+      </select>
+
+      <!--<div class="bottom">
+        <router-link class="button btn-m":to="{name: 'buyList', params: {}}">Hae</router-link>
+      </div>-->
+    </div>
   </div>
 
   <div class="table">
@@ -10,7 +55,7 @@
       <thead>
         <tr>
           <th>Kurssi</th>
-          <th>Kirjasarja</th>
+          <th>Kirja</th>
           <th>Hinta</th>
           <th>Kunto</th>
           <th>Tila</th>
@@ -18,10 +63,14 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="book in books" v-if="book.status < 3">
+        <tr v-for="book in books" v-if="book.status < 3 && book.course == course">
           <td>{{ book.course }}</td>
-          <td>{{ book.name }}</td>
-          <td class="price">{{ book.price/100 }} €</td>
+          <td class="name">
+            <router-link to="{name: 'buySingle', params: { id: book.id }}">
+              {{ book.name }}
+            </router-link>
+          </td>
+          <td class="price"><currency :amount="book.price" /></td>
           <td class="condition">
             <i class="fa fa-star" v-for="n in book.condition"></i><i class="fa fa-star-o" v-for="n in 5-book.condition"></i>
           </td>
@@ -34,21 +83,37 @@
             <router-link class="button btn-s":to="{name: 'buySingle', params: { id: book.id }}">Avaa</router-link>
           </td>
         </tr>
+        <tr v-else>
+          <td colspan="6">
+            Antamillasi hakuehdoilla ei löytynyt yhtään kirjaa
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
+
+  <buy-single :id="selectedBook" v-if="selectedBook" />
 </div>
 </template>
 
 <script>
 import axios from 'axios'
 import auth from '../api/auth'
+import { EventBus } from '../EventBus'
+import Currency from './currency'
+import BuySingle from './buy-single'
 
 export default {
   name: 'buy-list',
+  components: {
+    'currency': Currency,
+    'buy-single': BuySingle
+  },
   data () {
     return {
-      books: []
+      books: [],
+      subject: '',
+      course: ''
     }
   },
   created () {
@@ -56,6 +121,7 @@ export default {
   },
   methods: {
     load: function () {
+      EventBus.$emit('setLoading', true)
       axios.post('/book/get', {
         token: auth.getToken()
       }).then(response => {
@@ -66,18 +132,44 @@ export default {
         } else {
           console.log('Error ' + error.response.status)
         }
+      }).then(() => {
+        EventBus.$emit('setLoading', false)
       })
+    }
+  },
+  computed: {
+    selectedBook: function () {
+      return this.$route.params.id
     }
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="stylus" scoped>
 @import '../styles/vars'
 
+.search {
+  border: 1px solid #BBBBBB
+  border-radius: 5px
+  padding: 1em 2em 2em 2em
+
+  h3 {
+    margin: 1em 0 .5em 0
+  }
+
+  .bottom {
+    text-align: right
+    border-top: 1px solid #CCCCCC
+    margin-top 2em
+    .button {
+    }
+  }
+}
+
 .table {
   width: 100%
+  max-width: _maxwidth
+  margin: 0 auto
   overflow-x: scroll
 }
 
@@ -94,7 +186,7 @@ table {
 
     th {
       background-color: _color-deep-purple-500
-      padding: 1em .5em
+      padding: 1em .4em
     }
 
     th:first-child {
@@ -112,8 +204,20 @@ table {
     tr {
 
       td {
-        padding: .8em .4em
+        padding: .5em .4em
         border-bottom: 1px solid #CCCCCC
+      }
+
+      td.name>a {
+        display: inline-block
+        color: initial
+        text-decoration: none
+        width: 100%
+        height: 100%
+
+        &:hover {
+          text-decoration: underline
+        }
       }
 
       td.price {
@@ -121,6 +225,7 @@ table {
         font-weight: 700
         color: #444444
         white-space: nowrap
+        text-align: right
       }
 
       td.condition {
@@ -141,8 +246,7 @@ table {
       td.status {
         text-align: center
         font-size: 2.4em
-        padding-top: 0
-        padding-bottom: 0
+        padding: 0 .1em 0 .3em
 
         i.fa-check {
             color: _color-green-900
@@ -152,7 +256,6 @@ table {
         }
         i.fa-times {
             color: _color-red-900
-
         }
       }
     }

@@ -4,7 +4,7 @@ import { EventBus } from '../EventBus'
 
 import frontpage from '@/components/frontpage'
 import buyList from '@/components/buy-list'
-import buySingle from '@/components/buy-single'
+// import buySingle from '@/components/buy-single'
 import sellList from '@/components/sell-list'
 import profile from '@/components/profile'
 import superConsole from '@/components/super'
@@ -30,7 +30,7 @@ var router = new Router({
     {
       path: '/buy/:id',
       name: 'buySingle',
-      component: buySingle,
+      component: buyList,
       meta: { requiresAuthLevel: 1 }
     },
     {

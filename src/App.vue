@@ -194,7 +194,7 @@ header {
 
   .maxwidth {
     padding: 3em 2em
-    max-width: 1600px
+    max-width: _maxwidth
     margin: 0 auto
   }
 
@@ -228,6 +228,7 @@ header {
   transition: visibility 0s, opacity 1s linear;
   visibility: hidden
   opacity: 0
+  z-index: 1000
 
   &.show {
     visibility: visible
