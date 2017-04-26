@@ -40,6 +40,7 @@ export default {
   created () {
     EventBus.$on('setLoading', this.setLoading)
     EventBus.$on('hideNavigation', () => { this.menuActive = false })
+    EventBus.$on('setModalOpen', this.setModalOpen)
   },
   methods: {
     setLoading: function (status) {
@@ -48,6 +49,14 @@ export default {
     },
     toggleMenu: function () {
       this.menuActive = !this.menuActive
+    },
+    setModalOpen: function (status) {
+      console.log('setModalOpen: ' + status)
+      if (status) {
+        document.documentElement.style.overflow = 'hidden'
+      } else {
+        document.documentElement.style.overflow = 'auto'
+      }
     }
   }
 }

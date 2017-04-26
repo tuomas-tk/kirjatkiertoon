@@ -5,7 +5,7 @@
     <div class="search">
       <h3>Oppiaine:</h3>
       <select v-model="subject">
-        <option value="">- - valitse - -</option>
+        <option value="">Kaikki</option>
         <optgroup label="Kielet">
           <option value="ÄI">ÄI - Äidinkieli</option>
           <option value="EN">EN - Englanti</option>
@@ -41,7 +41,8 @@
 
       <h3>Kurssi:</h3>
       <select v-model="course">
-        <option v-for="n in 20">{{ subject }}{{ n }}</option>
+        <option value="">Kaikki</option>
+        <option v-for="n in 10">{{ subject }}{{ n }}</option>
       </select>
 
       <!--<div class="bottom">
@@ -63,10 +64,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="book in books" v-if="book.status < 3 && book.course == course">
+        <tr v-for="book in books" v-if="book.status < 3 && (subject == '' || (course == '' && book.course.startsWith(subject)) || (book.course == course))">
           <td>{{ book.course }}</td>
           <td class="name">
-            <router-link to="{name: 'buySingle', params: { id: book.id }}">
+            <router-link :to="{name: 'buySingle', params: { id: book.id }}">
               {{ book.name }}
             </router-link>
           </td>
@@ -81,11 +82,6 @@
           </td>
           <td>
             <router-link class="button btn-s":to="{name: 'buySingle', params: { id: book.id }}">Avaa</router-link>
-          </td>
-        </tr>
-        <tr v-else>
-          <td colspan="6">
-            Antamillasi hakuehdoilla ei löytynyt yhtään kirjaa
           </td>
         </tr>
       </tbody>
@@ -139,6 +135,7 @@ export default {
   },
   computed: {
     selectedBook: function () {
+      EventBus.$emit('setModalOpen', this.$route.params.id)
       return this.$route.params.id
     }
   }
