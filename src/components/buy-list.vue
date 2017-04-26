@@ -4,7 +4,7 @@
     <h1>Osta kirja</h1>
     <div class="search">
       <h3>Oppiaine:</h3>
-      <select v-model="subject">
+      <select v-model="subject" @change="changeSubject">
         <option value="">Kaikki</option>
         <optgroup label="Kielet">
           <option value="ÄI">ÄI - Äidinkieli</option>
@@ -36,13 +36,14 @@
         <optgroup label="Taito- ja taideaineet">
           <option value="LI">LI - Liikunta</option>
           <option value="MU">MU - Musiikki</option>
+          <option value="KU">KU - Kuvataide</option>
         </optgroup>
       </select>
 
       <h3>Kurssi:</h3>
       <select v-model="course">
         <option value="">Kaikki</option>
-        <option v-for="n in 10">{{ subject }}{{ n }}</option>
+        <option v-for="n in (this.courseCount[subject])">{{ subject }}{{ n }}</option>
       </select>
 
       <!--<div class="bottom">
@@ -109,7 +110,31 @@ export default {
     return {
       books: [],
       subject: '',
-      course: ''
+      course: '',
+      courseCount: {
+        'ÄI': 9,
+        'EN': 8,
+        'RU': 7,
+        'MAY': 1,
+        'MAA': 7,
+        'MAB': 12,
+        'BI': 5,
+        'GE': 4,
+        'FY': 7,
+        'KE': 5,
+        'HI': 6,
+        'YH': 4,
+        'PS': 5,
+        'TT': 3,
+        'FI': 4,
+        'UE': 6,
+        'UO': 6,
+        'ET': 6,
+        'OP': 2,
+        'LI': 5,
+        'MU': 4,
+        'KU': 4
+      }
     }
   },
   created () {
@@ -131,6 +156,10 @@ export default {
       }).then(() => {
         EventBus.$emit('setLoading', false)
       })
+    },
+    changeSubject: function () {
+      console.log('changeSubject')
+      this.course = ''
     }
   },
   computed: {
