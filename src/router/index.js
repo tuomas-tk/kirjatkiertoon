@@ -4,8 +4,8 @@ import { EventBus } from '../EventBus'
 
 import frontpage from '@/components/frontpage'
 import buyList from '@/components/buy-list'
-// import buySingle from '@/components/buy-single'
 import sellList from '@/components/sell-list'
+import sellNew from '@/components/sell-new'
 import profile from '@/components/profile'
 import superConsole from '@/components/super'
 import login from '@/components/login'
@@ -37,6 +37,12 @@ var router = new Router({
       path: '/sell',
       name: 'sellList',
       component: sellList,
+      meta: { requiresAuthLevel: 2 }
+    },
+    {
+      path: '/sell/new',
+      name: 'sellNew',
+      component: sellNew,
       meta: { requiresAuthLevel: 2 }
     },
     {

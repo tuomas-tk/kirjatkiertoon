@@ -6,8 +6,8 @@
         <i class="fa fa-bars fa-3x" id="nav-button" @click="toggleMenu"></i>
         <div class="nav-bar">
           <router-link to="/" exact>Etusivu</router-link>
-          <router-link to="/buy" v-if="auth.status >= 1">Osta kirja</router-link>
-          <router-link to="/sell" v-if="auth.status >= 2">Myy kirja</router-link>
+          <router-link to="/buy" v-if="auth.status >= 1">Osta</router-link>
+          <router-link to="/sell" v-if="auth.status >= 2">Myy</router-link>
           <router-link to="/super" v-if="auth.status >= 3">SuperConsole</router-link>
         </div>
         <div class="nav-bar nav-bar-right">
