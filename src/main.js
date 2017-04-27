@@ -7,7 +7,7 @@ import App from './App'
 import router from './router'
 import Axios from 'axios'
 
-Axios.defaults.baseURL = 'http://192.168.0.54:8080/api/'
+Axios.defaults.baseURL = 'https://kirjatkiertoon.herokuapp.com/api/'
 Vue.config.productionTip = false
 
 console.log('main.js')
