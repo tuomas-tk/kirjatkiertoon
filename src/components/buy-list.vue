@@ -111,30 +111,8 @@ export default {
       books: [],
       subject: '',
       course: '',
-      courseCount: {
-        'ÄI': 9,
-        'EN': 8,
-        'RU': 7,
-        'MAY': 1,
-        'MAA': 7,
-        'MAB': 12,
-        'BI': 5,
-        'GE': 4,
-        'FY': 7,
-        'KE': 5,
-        'HI': 6,
-        'YH': 4,
-        'PS': 5,
-        'TT': 3,
-        'FI': 4,
-        'UE': 6,
-        'UO': 6,
-        'ET': 6,
-        'OP': 2,
-        'LI': 5,
-        'MU': 4,
-        'KU': 4
-      }
+      courseCount: {'ÄI': 9, 'EN': 8, 'RU': 7, 'MAY': 1, 'MAA': 12, 'MAB': 7, 'BI': 5, 'GE': 4, 'FY': 7, 'KE': 5, 'HI': 6, 'YH': 4, 'PS': 5, 'TT': 3, 'FI': 4, 'UE': 6, 'UO': 6, 'ET': 6, 'OP': 2, 'LI': 5, 'MU': 4, 'KU': 4}
+      // remember to update this to sell-new.vue too
     }
   },
   created () {

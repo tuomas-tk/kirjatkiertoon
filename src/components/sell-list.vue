@@ -1,7 +1,17 @@
 <template>
-  <div class="maxwidth">
-    <h1>Omat myynnit</h1>
-    <p>Tähän pieni selostus</p>
+  <div>
+    <div class="maxwidth">
+      <h1>Omat kirjat</h1>
+
+      <router-link to="/sell/new" class="button btn-l" id="sell-new-button">Myy uusi kirja</router-link>
+
+      <h3>Tilojen selitykset</h3>
+      <table id="statustable">
+        <tr><th>MYYNNISSÄ</th><td>Kukaan ei ole ostanut kirjaa.</td></tr>
+        <tr><th>ODOTTAA TOIMITUSTA</th><td>Kirja on ostettu, mutta et ole vielä toimittanut sitä koululle</td></tr>
+        <tr><th>MYYTY</th><td>Kirja on toimitettu ostajalle</td></tr>
+      </table>
+    </div>
 
     <div class="table">
       <table>
@@ -10,7 +20,6 @@
             <th>Kurssi</th>
             <th>Kirja</th>
             <th>Hinta</th>
-            <th>Kunto</th>
             <th>Tila</th>
             <th></th>
           </tr>
@@ -24,13 +33,10 @@
               </router-link>
             </td>
             <td class="price"><currency :amount="book.price" /></td>
-            <td class="condition">
-              <i class="fa fa-star" v-for="n in book.condition"></i><i class="fa fa-star-o" v-for="n in 5-book.condition"></i>
-            </td>
             <td class="status">
-              <i class="fa fa-check" v-if="book.status == 0"></i>
-              <i class="fa fa-clock-o" v-if="book.status == 1"></i>
-              <i class="fa fa-times" v-if="book.status == 2"></i>
+              <span v-if="book.status == 0"><i class="fa fa-check"></i><br>MYYNNISSÄ</span>
+              <span v-if="book.status == 1"><i class="fa fa-clock-o"></i><br>ODOTTAA TOIMITUSTA</span>
+              <span v-if="book.status == 2"><i class="fa fa-times"></i><br>MYYTY</span>
             </td>
             <td>
               <router-link class="button btn-s":to="{name: 'buySingle', params: { id: book.id }}">Avaa</router-link>
@@ -39,7 +45,6 @@
         </tbody>
       </table>
     </div>
-
   </div>
 </template>
 <script>
@@ -85,4 +90,31 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="stylus" scoped>
 @import '../styles/tables'
+
+#page h1 {
+  float: left
+  margin-bottom: 0
+}
+#sell-new-button {
+  margin-top: 1.8em
+  float: right
+}
+
+h3 {
+  clear: both
+  padding-top: 2em
+}
+
+table#statustable {
+  margin: 1em 0
+  border-collapse: collapse
+  td,th {
+    border: 1px solid #BBBBBB
+    padding: 0.5em 0.7em
+  }
+  th {
+    font-weight: 600
+    text-align: left
+  }
+}
 </style>

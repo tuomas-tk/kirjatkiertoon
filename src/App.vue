@@ -20,6 +20,10 @@
     <div id="page">
       <router-view @loading="setLoading"></router-view>
     </div>
+    <footer>
+      KirjatKiertoon.com <br>
+      &copy; 2017 Tuomas Karjalainen / <a href="https://FirmatVerkkoon.fi">FirmatVerkkoon.fi</a>
+    </footer>
     <div id="loading" :class="{show: loading}">
       <span>Loading</span>
     </div>
@@ -222,6 +226,38 @@ header {
   h2 {
     font-size: 3em
     line-height: 1em
+  }
+}
+
+a {
+  color: _color-deep-purple-500
+
+  &:hover {
+    color: _color-deep-purple-700
+  }
+
+  &:visited {
+    color: _color-deep-purple-500
+  }
+}
+
+hr {
+  border: 0
+  border-top: 3px solid #BBBBBB
+  background: none
+  margin-top: 4em
+  width: 100%
+}
+
+footer {
+  border-top: 1px solid #AAAAAA
+  margin-top: 4em
+  padding: 2em 0.5em
+  text-align: center
+  color: #777777
+
+  a {
+    color: #777777
   }
 }
 

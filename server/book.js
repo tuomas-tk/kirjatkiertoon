@@ -13,7 +13,7 @@ router.post('/get/own', function(req, res) {
         data: err
       });
     } else {
-      client.query('SELECT * FROM books WHERE "user" = $1 ORDER BY id DESC', [res.locals.user.id], function(err, result) {
+      client.query('SELECT * FROM books WHERE "user" = $1 ORDER BY status ASC, id DESC', [res.locals.user.id], function(err, result) {
         done();
         if (err) {
           console.error(err);
@@ -100,7 +100,6 @@ router.post('/add/', function(req, res) {
   console.log('add book');
 
   var data = {
-    subject:   req.body.subject,
     course:    req.body.course,
     name:      req.body.name,
     price:     req.body.price,
@@ -108,9 +107,10 @@ router.post('/add/', function(req, res) {
     info:      req.body.info
   };
 
-  if (data.condition < 0 || data.condition > 4 || data.course < 0 || data.price < 0 || data.subject == null) {
+  if (data.condition < 0 || data.condition > 5 || data.price < 0 || data.course == "" || data.price == "") {
     return res.status(400).json({
-      success: false
+      success: false,
+      data: data
     });
   }
 
@@ -142,8 +142,8 @@ router.post('/add/', function(req, res) {
         }*/
 
     client.query(
-      'INSERT INTO books(subject, course, name, price, condition, info, "user") values($1, $2, $3, $4, $5, $6, $7)',
-      [data.subject, data.course, data.name, data.price, data.condition, data.info, res.locals.user.id],
+      'INSERT INTO books(course, name, price, condition, info, "user", status) values($1, $2, $3, $4, $5, $6, 0)',
+      [data.course, data.name, data.price, data.condition, data.info, res.locals.user.id],
       function(err) {
 
         done();
