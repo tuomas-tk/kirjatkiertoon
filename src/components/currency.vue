@@ -8,6 +8,9 @@ export default {
   props: ['amount'],
   computed: {
     number: function () {
+      if (isNaN(this.amount)) {
+        return '[virhe]'
+      }
       return (this.amount / 100).toFixed(2)
     }
   }

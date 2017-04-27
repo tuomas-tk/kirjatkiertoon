@@ -7,8 +7,8 @@
 
       <h3>Tilojen selitykset</h3>
       <table id="statustable">
+        <tr><th>ODOTTAA KIRJAA</th><td><b>Kirja on ostettu, mutta et ole vielä toimittanut sitä koululle. Toimita mahdollisimman pian!</b></td></tr>
         <tr><th>MYYNNISSÄ</th><td>Kukaan ei ole ostanut kirjaa.</td></tr>
-        <tr><th>ODOTTAA TOIMITUSTA</th><td>Kirja on ostettu, mutta et ole vielä toimittanut sitä koululle</td></tr>
         <tr><th>MYYTY</th><td>Kirja on toimitettu ostajalle</td></tr>
       </table>
     </div>
@@ -28,23 +28,25 @@
           <tr v-for="book in books">
             <td>{{ book.course }}</td>
             <td class="name">
-              <router-link :to="{name: 'buySingle', params: { id: book.id }}">
+              <router-link :to="{name: 'sellSingle', params: { id: book.id }}">
                 {{ book.name }}
               </router-link>
             </td>
             <td class="price"><currency :amount="book.price" /></td>
             <td class="status">
               <span v-if="book.status == 0"><i class="fa fa-check"></i><br>MYYNNISSÄ</span>
-              <span v-if="book.status == 1"><i class="fa fa-clock-o"></i><br>ODOTTAA TOIMITUSTA</span>
+              <span v-if="book.status == 1"><i class="fa fa-clock-o"></i><br>ODOTTAA KIRJAA</span>
               <span v-if="book.status == 2"><i class="fa fa-times"></i><br>MYYTY</span>
             </td>
             <td>
-              <router-link class="button btn-s":to="{name: 'buySingle', params: { id: book.id }}">Avaa</router-link>
+              <router-link class="button btn-s":to="{name: 'sellSingle', params: { id: book.id }}">Avaa</router-link>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+
+    <sell-single :id="selectedBook" v-if="selectedBook" />
   </div>
 </template>
 <script>
@@ -52,11 +54,13 @@ import axios from 'axios'
 import auth from '../api/auth'
 import { EventBus } from '../EventBus'
 import Currency from './currency'
+import SellSingle from './sell-single'
 
 export default {
   name: 'sell-list',
   components: {
-    'currency': Currency
+    'currency': Currency,
+    'sell-single': SellSingle
   },
   data () {
     return {
@@ -82,6 +86,12 @@ export default {
       }).then(() => {
         EventBus.$emit('setLoading', false)
       })
+    }
+  },
+  computed: {
+    selectedBook: function () {
+      EventBus.$emit('setModalOpen', this.$route.params.id)
+      return this.$route.params.id
     }
   }
 }

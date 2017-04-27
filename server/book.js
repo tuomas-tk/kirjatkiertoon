@@ -12,8 +12,8 @@ router.post('/get/own', function(req, res) {
         success: false,
         data: err
       });
-    } else {
-      client.query('SELECT * FROM books WHERE "user" = $1 ORDER BY status ASC, id DESC', [res.locals.user.id], function(err, result) {
+    } else { // CASE status WHEN 1 THEN 0 ELSE 1 END ASC    to move status=1 (waiting for book) to the start of the list
+      client.query('SELECT * FROM books WHERE "user" = $1 ORDER BY CASE status WHEN 1 THEN 0 ELSE 1 END ASC, status ASC, id DESC', [res.locals.user.id], function(err, result) {
         done();
         if (err) {
           console.error(err);
@@ -107,7 +107,7 @@ router.post('/add/', function(req, res) {
     info:      req.body.info
   };
 
-  if (data.condition < 0 || data.condition > 5 || data.price < 0 || data.course == "" || data.price == "") {
+  if (data.condition < 0 || data.condition > 5 || data.price < 500 || data.price > 10000 || data.course == "" || data.price == "") {
     return res.status(400).json({
       success: false,
       data: data
@@ -123,28 +123,10 @@ router.post('/add/', function(req, res) {
       });
     }
 
-    /*client.query(
-      'UPDATE users \
-      SET money = money - $1 \
-      WHERE id = $2 AND money >= $1',
-      [data.amount, res.locals.user.id],
-      function (err, result) {
-        if (err) {
-          return res.status(500).json({
-            success: false, data: err
-          })
-        }
-
-        if (result.rowCount != 1) {
-          return res.status(400).json({
-            success: false, data: 'no enough money'
-          })
-        }*/
-
     client.query(
-      'INSERT INTO books(course, name, price, condition, info, "user", status) values($1, $2, $3, $4, $5, $6, 0)',
+      'INSERT INTO books(course, name, price, condition, info, "user", status) values($1, $2, $3, $4, $5, $6, 0) RETURNING id',
       [data.course, data.name, data.price, data.condition, data.info, res.locals.user.id],
-      function(err) {
+      function(err, result) {
 
         done();
         if (err) {
@@ -155,7 +137,10 @@ router.post('/add/', function(req, res) {
         }
 
         return res.json({
-          success: true
+          success: true,
+          data: {
+            id: result.rows[0].id
+          }
         });
       }
     );

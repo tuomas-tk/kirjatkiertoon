@@ -1,10 +1,13 @@
 <template>
   <div>
     <div class="maxwidth">
-      <h1>{{ msg }}</h1>
-      <h2>Täysin uudenlainen palvelu helpottamaan lukiokirjojen ostamista ja myyntiä!</h2>
+      <h1>KirjatKiertoon.com</h1>
+      <h2>Täysin uusi kirjamyyntialusta lukioiden käyttöön!</h2>
 
-      <router-link to="/login" class="button btn-l">Kirjaudu sisään!</router-link>
+      <router-link v-if="authStatus == 0" to="/login" class="button btn-l">Kirjaudu sisään!</router-link>
+      <router-link v-if="authStatus >= 1" to="/buy" class="button btn-l">Osta kirja</router-link>
+      <router-link v-if="authStatus >= 2" to="/sell" class="button btn-l">Myy kirja</router-link>
+      <router-link v-if="authStatus >= 3" to="/super" class="button btn-l">SuperConsole</router-link>
 
       <h3>Haluaisitko palvelun myös sinun lukioosi?</h3>
       <a @click="yhteys" class="button btn-s">Ota yhteyttä!</a>
@@ -68,28 +71,33 @@
     </div>
 
     <div class="maxwidth">
-      <h2>Yhteystiedot</h2>
+      <h2 id="yhteys">Pyydä lisätietoja!</h2>
 
       <b>Tuomas Karjalainen</b><br>
       Nurmeksen lukio<br>
       <a href="mailto:tuomas@firmatverkkoon.fi">tuomas@firmatverkkoon.fi</a><br>
       044 324 6320
-
+      <br><br>
     </div>
 
   </div>
 </template>
 
 <script>
+import auth from '../api/auth'
 
 export default {
   name: 'frontpage',
-  data: () => ({
-    msg: 'KirjatKiertoon.com'
-  }),
   methods: {
     yhteys () {
       console.log('Ota yhteyttä!')
+      console.log(document.getElementById('yhteys').offsetTop)
+      scroll(0, document.getElementById('yhteys').offsetTop)
+    }
+  },
+  computed: {
+    authStatus: function () {
+      return auth.status
     }
   }
 }

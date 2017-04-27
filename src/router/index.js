@@ -46,6 +46,12 @@ var router = new Router({
       meta: { requiresAuthLevel: 2 }
     },
     {
+      path: '/sell/:id',
+      name: 'sellSingle',
+      component: sellList,
+      meta: { requiresAuthLevel: 2 }
+    },
+    {
       path: '/profile',
       name: 'profile',
       component: profile,
