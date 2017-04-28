@@ -27,6 +27,18 @@
     <div id="loading" :class="{show: loading}">
       <span>Loading</span>
     </div>
+    <div id="servererror" :class="{show: serverError}">
+      <div class="box">
+        <h2>Palvelimeen ei voi yhdistää</h2>
+        <p>
+          Tarkista nettiyhteytesi.
+        </p>
+        <p>
+          Voi myös olla että palvelin ei toimi. Pahoittelemme häiriötä!
+        </p>
+        <a href="" @click.prevent="serverOk" class="button btn-s">OK</a>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -39,10 +51,12 @@ export default {
   data: () => ({
     auth: auth,
     loading: true,
-    menuActive: false
+    menuActive: false,
+    serverError: false
   }),
   created () {
     EventBus.$on('setLoading', this.setLoading)
+    EventBus.$on('setServerError', this.setServerError)
     EventBus.$on('hideNavigation', () => { this.menuActive = false })
     EventBus.$on('setModalOpen', this.setModalOpen)
   },
@@ -50,6 +64,13 @@ export default {
     setLoading: function (status) {
       console.log('setLoading: ' + status)
       this.loading = status
+    },
+    setServerError: function (status) {
+      console.log('setServerError: ' + status)
+      if (status) {
+        this.loading = false
+      }
+      this.serverError = status
     },
     toggleMenu: function () {
       this.menuActive = !this.menuActive
@@ -61,6 +82,9 @@ export default {
       } else {
         document.documentElement.style.overflow = 'auto'
       }
+    },
+    serverOk: function (status) {
+      this.serverError = 0
     }
   }
 }
@@ -289,6 +313,35 @@ footer {
     left: 50%;
     transform: translate(-50%, -50%);
     text-shadow: 0px 3px 10px #000000, 0px 0px 50px #000000
+  }
+}
+
+#servererror {
+  position: fixed
+  top: 0
+  left: 0
+  height: 100%
+  width: 100%
+  background-color: rgba(0,0,0,0.6)
+  text-align: center
+  display: none
+  z-index: 1000
+
+  &.show {
+    display: block;
+  }
+
+  .box {
+    background-color: #FFFFFF
+    border-radius: 5px
+    font-size: 1.5em
+    padding: 1em 2em
+    color: #333333
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0px 3px 10px #000000, 0px 0px 50px #000000
   }
 }
 

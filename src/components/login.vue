@@ -22,6 +22,7 @@
 <script>
 import auth from '../api/auth'
 import axios from 'axios'
+import { EventBus } from '../EventBus'
 
 export default {
   name: 'login',
@@ -51,6 +52,7 @@ export default {
           this.$router.replace('/')
         }
       }).catch(error => {
+        console.log(error)
         if (error.response.status === 400) {
           console.log('Incorrect passcode')
           this.error = 1
@@ -59,6 +61,7 @@ export default {
           this.error = 2
         } else {
           console.log('Error ' + error.response.status)
+          EventBus.$emit('setServerError', 1)
         }
       })
     }

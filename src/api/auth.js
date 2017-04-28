@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { EventBus } from '../EventBus'
 
 const LOCALSTORAGE_TOKEN = 'login_token'
 
@@ -48,7 +49,11 @@ export default {
         } else if (error.response.status === 500) {
           console.log('    [3] Server Error 500')
           console.log(error)
+          EventBus.$emit('setServerError', 2)
           return new Promise((resolve, reject) => { reject(500) })
+        } else {
+          console.log(error)
+          EventBus.$emit('setServerError', 1)
         }
       })
     } else {
