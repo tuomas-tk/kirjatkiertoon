@@ -35,13 +35,36 @@
         <div class="title">Hinta:</div>
         <div class="price"><currency :amount="book.price" /></div>
 
-        <div class="bottom">
+        <div class="bottom" v-show="buyStatus == 0 && book.buyer !== auth.id">
           <div class="status">
             <span v-if="book.status == 0"><i class="fa fa-check"></i>   <span>Saatavilla</span></span>
             <span v-if="book.status == 1"><i class="fa fa-clock-o"></i> <span>Varattu</span></span>
-            <span v-if="book.status == 2"><i class="fa fa-times"></i>   <span>Myyty</span></span>
+            <span v-if="book.status >= 2"><i class="fa fa-times"></i>   <span>Myyty</span></span>
           </div>
-          <div class="button btn-l" :class="{'btn-disabled': book.status > 0}" @click="osta">Osta</div>
+          <a href="#" class="button btn-l" :class="{'btn-disabled': book.status > 0}" @click.prevent="buyStatus = 1" v-if="!ownBook">
+            Osta kirja
+          </a>
+          <h3 v-else>
+            Et voi ostaa omaa kirjaasi
+          </h3>
+        </div>
+
+        <div class="bottom" v-show="buyStatus == 1">
+          <h3>Haluatko varmasti ostaa tämän kirjan?</h3>
+          <a href="#" class="button btn-m" @click.prevent="buyStatus = 0">Peruuta</a>
+          <a href="#" class="button btn-m" @click.prevent="confirm">Vahvista</a>
+        </div>
+
+        <div class="bottom" v-show="buyStatus == 2 || book.buyer === auth.id">
+          <div class="status">
+            <span v-if="book.status == 1"><i class="fa fa-check"></i>   <span>Sinä ostit<br>(odottaa toimitusta)</span></span>
+            <span v-if="book.status == 2"><i class="fa fa-check"></i>   <span>Saatavissa kouluta</span></span>
+            <span v-if="book.status == 2"><i class="fa fa-check"></i>   <span>Toimitettu</span></span>
+          </div>
+        </div>
+
+        <div class="bottom" v-show="buyStatus == 3">
+          <h3>Kirjan ostossa tapahtui virhe</h3>
         </div>
       </div>
     </div>
@@ -62,7 +85,9 @@ export default {
   },
   data () {
     return {
-      book: {}
+      auth: auth,
+      book: {},
+      buyStatus: 0 // 0: not active, 1: active, 2: success, 3: error
     }
   },
   props: ['id'],
@@ -73,16 +98,12 @@ export default {
   methods: {
     load: function () {
       EventBus.$emit('setLoading', true)
-      axios.post('/book/get/' + this.id /* this.$route.params.id */, {
+      axios.post('/book/get/' + this.id, {
         token: auth.getToken()
       }).then(response => {
         this.book = response.data.data
       }).catch(error => {
-        if (error.response.status === 400) {
-          console.log('Invalid token')
-        } else {
-          console.log('Error ' + error.response.status)
-        }
+        console.log('Error ' + error.response.status)
       }).then(() => {
         EventBus.$emit('setLoading', false)
       })
@@ -90,8 +111,24 @@ export default {
     back: function () {
       this.$router.go(-1)
     },
-    osta: function () {
-      console.log('osta')
+    confirm: function () {
+      EventBus.$emit('setLoading', true)
+      axios.post('/book/buy/' + this.id, {
+        token: auth.getToken()
+      }).then(response => {
+        this.buyStatus = 2
+        this.load()
+      }).catch(error => {
+        this.buyStatus = 3
+        console.log('Error ' + error.response.status)
+      }).then(() => {
+        EventBus.$emit('setLoading', false)
+      })
+    }
+  },
+  computed: {
+    ownBook: function () {
+      return this.book.user === auth.id
     }
   }
 }

@@ -12,6 +12,7 @@ export default {
   // 3 = authenticated as a superuser
   firstname: null,
   lastname: null,
+  id: null,
 
   saveToken (token) {
     if (token != null) {
@@ -25,6 +26,7 @@ export default {
     this.status = 0
     this.firstname = null
     this.lastname = null
+    this.id = null
   },
 
   getToken: () => localStorage.getItem(LOCALSTORAGE_TOKEN),
@@ -39,6 +41,7 @@ export default {
         this.status = response.data.data.type
         this.firstname = response.data.data.firstname
         this.lastname = response.data.data.lastname
+        this.id = response.data.data.id
         console.log('    [3] Token valid -> AUTH-level ' + this.status)
       })
       .catch(error => {

@@ -96,6 +96,43 @@ router.post('/get/:id', function(req, res) {
   });
 })
 
+router.post('/buy/:id', function(req, res) {
+  console.log('buy a book');
+
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        success: false,
+        data: err
+      });
+    } else {
+      client.query('UPDATE books SET buyer=$1, status=1 WHERE id=$2 AND status=0 AND "user"!=$1', [res.locals.user.id, req.params.id], function(err, result) {
+        done();
+        if (err) {
+          console.error(err);
+          return res.status(500).json({
+            success: false,
+            data: err
+          });
+        } else {
+          console.log('success')
+          if (result.rowCount == 1) {
+            return res.json({
+              success: true
+            });
+          } else {
+            return res.status(400).json({
+              success: false
+            });
+          }
+        }
+      });
+    }
+
+  });
+})
+
 router.post('/add/', function(req, res) {
   console.log('add book');
 
