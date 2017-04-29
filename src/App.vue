@@ -12,7 +12,7 @@
         </div>
         <div class="nav-bar nav-bar-right">
           <router-link to="/login" v-if="auth.status == 0">Kirjaudu sisään</router-link>
-          <router-link to="/profile" v-if="auth.status != 0">Omat tiedot</router-link>
+          <!--<router-link to="/profile" v-if="auth.status != 0">{{ auth.firstname }}</router-link>-->
           <router-link to="/logout" v-if="auth.status != 0">Kirjaudu ulos</router-link>
         </div>
       </div>
@@ -21,7 +21,7 @@
       <router-view @loading="setLoading"></router-view>
     </div>
     <footer>
-      KirjatKiertoon.com <br>
+      KirjatKiertoon.fi <br>
       &copy; 2017 Tuomas Karjalainen / <a href="https://FirmatVerkkoon.fi">FirmatVerkkoon.fi</a>
     </footer>
     <div id="loading" :class="{show: loading}">

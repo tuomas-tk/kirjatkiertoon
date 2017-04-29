@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="authStatus == 0" class="maxwidth">
-      <h1>KirjatKiertoon.com</h1>
+      <h1>KirjatKiertoon.fi</h1>
       <h2>Täysin uusi kirjamyyntialusta lukioiden käyttöön!</h2>
       <router-link to="/login" class="button btn-l">Kirjaudu sisään!</router-link>
 
@@ -36,7 +36,7 @@
 
     <div id="block-steps">
       <div class="maxwidth">
-        <h2>Miten KirjatKiertoon.com toimii?</h2>
+        <h2>Miten KirjatKiertoon.fi toimii?</h2>
         <div class="caption">MYYJÄ</div>
         <div class="caption-right">OSTAJA</div>
 
