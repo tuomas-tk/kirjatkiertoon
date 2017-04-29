@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="maxwidth">
-      <h1>Myymäsi kirjat</h1>
+      <h1>Myytävät kirjat</h1>
 
       <router-link to="/sell/new" class="button btn-l" id="sell-new-button">Myy uusi kirja</router-link>
 

@@ -1,16 +1,37 @@
 <template>
   <div>
-    <div class="maxwidth">
+    <div v-if="authStatus == 0" class="maxwidth">
       <h1>KirjatKiertoon.com</h1>
       <h2>Täysin uusi kirjamyyntialusta lukioiden käyttöön!</h2>
-
-      <router-link v-if="authStatus == 0" to="/login" class="button btn-l">Kirjaudu sisään!</router-link>
-      <router-link v-if="authStatus >= 1" to="/buy" class="button btn-l">Osta kirja</router-link>
-      <router-link v-if="authStatus >= 2" to="/sell" class="button btn-l">Myy kirja</router-link>
-      <router-link v-if="authStatus >= 3" to="/super" class="button btn-l">SuperConsole</router-link>
+      <router-link to="/login" class="button btn-l">Kirjaudu sisään!</router-link>
 
       <h3>Haluaisitko palvelun myös sinun lukioosi?</h3>
       <a @click="yhteys" class="button btn-s">Ota yhteyttä!</a>
+    </div>
+    <div v-else class="maxwidth">
+
+      <h1>Tervetuloa!</h1>
+      <router-link v-if="authStatus == 42" to="/super" class="button btn-l">SuperConsole</router-link>
+
+      <div class="dashboard" v-if="authStatus > 0">
+        <div class="section">
+          <h2>Osto</h2>
+          <h3>Noudettavana</h3>
+          <div class="number">0<span>kirjaa</span></div>
+          <h3>Tulossa koululle</h3>
+          <div class="number">0<span>kirjaa</span></div>
+          <router-link to="/buy" class="button btn-m btn-block">Etsi kirjoja</router-link>
+          <router-link to="/buy/bought" class="button btn-m btn-block">Näytä ostetut kirjat</router-link>
+        </div><div class="section" v-if="authStatus >= 2">
+          <h2>Myynti</h2>
+          <h3>Kirjoja toimittamatta koululle</h3>
+          <div class="number">0<span>kirjaa</span></div>
+          <h3>Myynnissä</h3>
+          <div class="number">0<span>kirjaa</span></div>
+          <router-link to="/sell" class="button btn-m btn-block">Myytävät kirjat</router-link>
+          <router-link to="/sell" class="button btn-m btn-block">Myy uusi kirja</router-link>
+        </div>
+      </div>
     </div>
 
     <div id="block-steps">
@@ -157,6 +178,42 @@ export default {
     display: block;
     border-bottom: 1px solid #555555
     clear: both
+  }
+}
+
+
+.dashboard {
+  .section {
+    background-color: #FFFFFF
+    padding: 0em 2em
+    margin: 1em 1em
+    overflow: hidden
+    border-radius: 5px
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1)
+
+    @media (min-width: 700px) {
+      display: inline-block
+      vertical-align: top
+      width: calc(50% - 6em)
+    }
+
+    .button {
+      margin-top: 1em
+      text-align: center
+    }
+
+    .number {
+      font-size: 5em
+      font-weight: 600
+      margin-bottom: .5em
+
+      span {
+        font-size: .3em
+        color: #555555
+        padding-left: 0.2em
+
+      }
+    }
   }
 }
 </style>
