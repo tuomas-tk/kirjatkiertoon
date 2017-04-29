@@ -33,6 +33,37 @@ router.post('/get/own', function(req, res) {
   });
 });
 
+router.post('/get/bought', function(req, res) {
+  console.log('get bought books');
+
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        success: false,
+        data: err
+      });
+    } else { // CASE status WHEN 2 THEN 0 ELSE 1 END ASC    to move status=2 (get book from school) to the start of the list
+      client.query('SELECT * FROM books WHERE "buyer" = $1 ORDER BY CASE status WHEN 2 THEN 0 ELSE 1 END ASC, status ASC, id DESC', [res.locals.user.id], function(err, result) {
+        done();
+        if (err) {
+          console.error(err);
+          return res.status(500).json({
+            success: false,
+            data: err
+          });
+        } else {
+          res.json({
+            success: true,
+            data: result.rows
+          });
+        }
+      });
+    }
+
+  });
+});
+
 
 router.post('/get/', function(req, res) {
   console.log('get all books');
@@ -45,7 +76,7 @@ router.post('/get/', function(req, res) {
         data: err
       });
     } else {
-      client.query('SELECT * FROM books ORDER BY status ASC, price ASC', [], function(err, result) {
+      client.query('SELECT * FROM books WHERE buyer IS NULL ORDER BY price ASC, id ASC', [], function(err, result) {
         done();
         if (err) {
           console.error(err);
@@ -76,7 +107,7 @@ router.post('/get/:id', function(req, res) {
         data: err
       });
     } else {
-      client.query('SELECT * FROM books WHERE id=$1 AND status < 10 LIMIT 1', [req.params.id], function(err, result) {
+      client.query('SELECT * FROM books WHERE id=$1 AND (status = 0 OR "user" = $2 OR "buyer" = $2 ) LIMIT 1', [req.params.id, res.locals.user.id], function(err, result) {
         done();
         if (err) {
           console.error(err);
@@ -107,7 +138,7 @@ router.post('/buy/:id', function(req, res) {
         data: err
       });
     } else {
-      client.query('UPDATE books SET buyer=$1, status=1 WHERE id=$2 AND status=0 AND "user"!=$1', [res.locals.user.id, req.params.id], function(err, result) {
+      client.query('UPDATE books SET buyer=$1, status=1 WHERE id=$2 AND buyer IS NULL AND "user"!=$1', [res.locals.user.id, req.params.id], function(err, result) {
         done();
         if (err) {
           console.error(err);

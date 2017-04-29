@@ -2,6 +2,9 @@
 <div>
   <div class="maxwidth">
     <h1>Osta kirja</h1>
+
+    <router-link to="/buy/bought" class="button btn-l" id="sell-new-button">Ostetut kirjat</router-link>
+
     <div class="search">
       <h3>Oppiaine:</h3>
       <select v-model="subject" @change="changeSubject">
@@ -60,12 +63,11 @@
           <th>Kirja</th>
           <th>Hinta</th>
           <th>Kunto</th>
-          <th>Tila</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="book in books" v-if="book.status < 3 && (subject == '' || (course == '' && book.course.startsWith(subject)) || (book.course == course))">
+        <tr v-for="book in books" v-if="(subject == '' || (course == '' && book.course.startsWith(subject)) || (book.course == course))">
           <td>{{ book.course }}</td>
           <td class="name">
             <router-link :to="{name: 'buySingle', params: { id: book.id }}">
@@ -75,11 +77,6 @@
           <td class="price"><currency :amount="book.price" /></td>
           <td class="condition">
             <i class="fa fa-star" v-for="n in book.condition"></i><i class="fa fa-star-o" v-for="n in 5-book.condition"></i>
-          </td>
-          <td class="status">
-            <i class="fa fa-check" v-if="book.status == 0"></i>
-            <i class="fa fa-clock-o" v-if="book.status == 1"></i>
-            <i class="fa fa-times" v-if="book.status == 2"></i>
           </td>
           <td>
             <router-link class="button btn-s":to="{name: 'buySingle', params: { id: book.id }}">Avaa</router-link>
@@ -99,6 +96,7 @@ import auth from '../api/auth'
 import { EventBus } from '../EventBus'
 import Currency from './currency'
 import BuySingle from './buy-single'
+import { COURSES } from '../Static'
 
 export default {
   name: 'buy-list',
@@ -111,8 +109,7 @@ export default {
       books: [],
       subject: '',
       course: '',
-      courseCount: {'ÄI': 9, 'EN': 8, 'RU': 7, 'MAY': 1, 'MAA': 12, 'MAB': 7, 'BI': 5, 'GE': 4, 'FY': 7, 'KE': 5, 'HI': 6, 'YH': 4, 'PS': 5, 'TT': 3, 'FI': 4, 'UE': 6, 'UO': 6, 'ET': 6, 'OP': 2, 'LI': 5, 'MU': 4, 'KU': 4}
-      // remember to update this to sell-new.vue too
+      courseCount: COURSES
     }
   },
   created () {
@@ -153,10 +150,20 @@ export default {
 @import '../styles/vars'
 @import '../styles/tables'
 
+#page h1 {
+  float: left
+  margin-bottom: 0
+}
+#sell-new-button {
+  margin-top: 1.8em
+  float: right
+}
+
 .search {
   border: 1px solid #BBBBBB
   border-radius: 5px
   padding: 1em 2em 2em 2em
+  clear: both
 
   h3 {
     margin: 1em 0 .5em 0

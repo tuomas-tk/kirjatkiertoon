@@ -4,6 +4,7 @@ import { EventBus } from '../EventBus'
 
 import frontpage from '@/components/frontpage'
 import buyList from '@/components/buy-list'
+import boughtList from '@/components/bought-list'
 import sellList from '@/components/sell-list'
 import sellNew from '@/components/sell-new'
 import profile from '@/components/profile'
@@ -25,6 +26,18 @@ var router = new Router({
       path: '/buy',
       name: 'buyList',
       component: buyList,
+      meta: { requiresAuthLevel: 1 }
+    },
+    {
+      path: '/buy/bought',
+      name: 'boughtList',
+      component: boughtList,
+      meta: { requiresAuthLevel: 1 }
+    },
+    {
+      path: '/buy/bought/:id',
+      name: 'boughtSingle',
+      component: boughtList,
       meta: { requiresAuthLevel: 1 }
     },
     {

@@ -41,16 +41,16 @@
         <div class="title">Hinta:</div>
         <div class="price"><currency :amount="book.price" /></div>
         <div class="title">Sinä saat rahaa:</div>
-        <div class="price"><currency :amount="book.price-200" /></div>
+        <div class="price"><currency :amount="book.price - TOTAL_FEE" /></div>
 
         <div class="bottom">
           <div class="status">
             <span v-if="book.status == 0"><i class="fa fa-check"></i>   <span>Myynnissä</span></span>
-            <span v-if="book.status == 1"><i class="fa fa-clock-o"></i> <span>Kirjaa odotetaan koululle</span></span>
-            <span v-if="book.status == 2"><i class="fa fa-times"></i>   <span>Myyty</span></span>
+            <span v-if="book.status == 1"><i class="fa fa-clock-o"></i> <span>Kirjaa odotetaan koululla</span></span>
+            <span v-if="book.status >= 2"><i class="fa fa-handshake-o"></i>   <span>Myyty</span></span>
           </div><br>
-          <div class="button btn-m" :class="{'btn-disabled': book.status > 0}" @click="osta" v-if="book.status == 0">Muokkaa</div>
-          <div class="button btn-m" :class="{'btn-disabled': book.status > 0}" @click="osta" v-if="book.status == 0">Poista ilmoitus</div>
+          <!--<div class="button btn-m" :class="{'btn-disabled': book.status > 0}" @click="muokkaa" v-if="book.status == 0">Muokkaa</div>
+          <div class="button btn-m" :class="{'btn-disabled': book.status > 0}" @click="poista" v-if="book.status == 0">Poista ilmoitus</div>-->
           <br>
           <div v-if="book.status > 0">Et voi muokata ilmoitusta myymisen jälkeen</div>
         </div>
@@ -65,6 +65,7 @@ import axios from 'axios'
 import auth from '../api/auth'
 import {EventBus} from '../EventBus'
 import Currency from './currency'
+import {TOTAL_FEE} from '../Static'
 
 export default {
   name: 'buy-single',
@@ -73,18 +74,18 @@ export default {
   },
   data () {
     return {
-      book: {}
+      book: {},
+      TOTAL_FEE: TOTAL_FEE
     }
   },
   props: ['id'],
   created () {
-    // console.log(this.$route.params.id)
     this.load()
   },
   methods: {
     load: function () {
       EventBus.$emit('setLoading', true)
-      axios.post('/book/get/' + this.id /* this.$route.params.id */, {
+      axios.post('/book/get/' + this.id, {
         token: auth.getToken()
       }).then(response => {
         this.book = response.data.data
@@ -101,8 +102,11 @@ export default {
     back: function () {
       this.$router.go(-1)
     },
-    osta: function () {
-      console.log('osta')
+    muokkaa: function () {
+      console.log('muokkaa')
+    },
+    poista: function () {
+      console.log('poista')
     }
   }
 }
@@ -174,12 +178,6 @@ h2 {
   margin-bottom: 0.5em
 }
 
-.info {
-  /*border: 1px solid #CCCCCC
-  border-radius: 5px
-  padding: 2em 1em*/
-}
-
 .condition {
   white-space: nowrap
   color: #444444
@@ -217,14 +215,11 @@ h2 {
   i.fa {
     font-size: 3em
   }
-  i.fa-check {
+  i.fa-check, i.fa-handshake-o {
       color: _color-green-900
   }
   i.fa-clock-o {
       color: _color-orange-900
-  }
-  i.fa-times {
-      color: _color-red-900
   }
   span>span {
     font-size: 1.2em

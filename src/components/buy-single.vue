@@ -2,8 +2,15 @@
   <div>
     <div class="modal-container">
       <div class="maxwidth" id="modal">
-        <router-link to="/buy" @click="back" class="close"><i class="fa fa-times"></i> Sulje</router-link>
+        <router-link v-if="auth.id === book.buyer" to="/buy/bought" class="close"><i class="fa fa-times"></i> Sulje</router-link>
+        <router-link v-else to="/buy" @click.prevent="back" class="close"><i class="fa fa-times"></i> Sulje</router-link>
+
         <h2>{{ book.name }}</h2>
+
+        <div class="getfromschool" v-if="book.status == 2">
+          <h2>Kirjasi on saatavissa koululta!</h2>
+          <h3>Saat lisätietoja myynnistä vastaavalta taholta</h3>
+        </div>
 
         <div class="left">
 
@@ -57,9 +64,9 @@
 
         <div class="bottom" v-show="buyStatus == 2 || book.buyer === auth.id">
           <div class="status">
-            <span v-if="book.status == 1"><i class="fa fa-check"></i>   <span>Sinä ostit<br>(odottaa toimitusta)</span></span>
-            <span v-if="book.status == 2"><i class="fa fa-check"></i>   <span>Saatavissa kouluta</span></span>
-            <span v-if="book.status == 2"><i class="fa fa-check"></i>   <span>Toimitettu</span></span>
+            <span v-if="book.status == 1"><i class="fa fa-check"></i>   <span>Ostettu - odottaa saapumista</span></span>
+            <span v-if="book.status == 2"><i class="fa fa-check"></i>   <span>Nouda koululta!</span></span>
+            <span v-if="book.status == 3"><i class="fa fa-handshake-o"></i>   <span>Ostettu</span></span>
           </div>
         </div>
 
@@ -108,9 +115,6 @@ export default {
         EventBus.$emit('setLoading', false)
       })
     },
-    back: function () {
-      this.$router.go(-1)
-    },
     confirm: function () {
       EventBus.$emit('setLoading', true)
       axios.post('/book/buy/' + this.id, {
@@ -124,6 +128,9 @@ export default {
       }).then(() => {
         EventBus.$emit('setLoading', false)
       })
+    },
+    back: function () {
+      this.$router.go(-1)
     }
   },
   computed: {
@@ -167,6 +174,18 @@ export default {
   }
 }
 
+.getfromschool {
+  border: 5px solid _color-light-green-900
+  border-radius: 10px
+  padding: 2em 2em
+  margin-top: 2em
+
+  h2 {
+    font-size: 2.5em !important
+    margin-top: 0.4em
+  }
+}
+
 h2 {
   margin-bottom: 0
 }
@@ -186,12 +205,6 @@ h2 {
   font-size: 1.2em
   margin-top: 1em
   margin-bottom: 0.5em
-}
-
-.info {
-  /*border: 1px solid #CCCCCC
-  border-radius: 5px
-  padding: 2em 1em*/
 }
 
 .condition {
@@ -231,7 +244,7 @@ h2 {
   i.fa {
     font-size: 3em
   }
-  i.fa-check {
+  i.fa-check, i.fa-handshake-o {
       color: _color-green-900
   }
   i.fa-clock-o {

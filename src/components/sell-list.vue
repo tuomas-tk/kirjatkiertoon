@@ -1,13 +1,13 @@
 <template>
   <div>
     <div class="maxwidth">
-      <h1>Omat kirjat</h1>
+      <h1>Myymäsi kirjat</h1>
 
       <router-link to="/sell/new" class="button btn-l" id="sell-new-button">Myy uusi kirja</router-link>
 
       <h3>Tilojen selitykset</h3>
       <table id="statustable">
-        <tr><th>ODOTTAA KIRJAA</th><td><b>Kirja on ostettu, mutta et ole vielä toimittanut sitä koululle. Toimita mahdollisimman pian!</b></td></tr>
+        <tr><th>TOIMITA KOULULLE</th><td><b>Kirja on ostettu, mutta et ole vielä toimittanut sitä koululle. Toimita mahdollisimman pian!</b></td></tr>
         <tr><th>MYYNNISSÄ</th><td>Kukaan ei ole ostanut kirjaa.</td></tr>
         <tr><th>MYYTY</th><td>Kirja on toimitettu ostajalle</td></tr>
       </table>
@@ -35,8 +35,8 @@
             <td class="price"><currency :amount="book.price" /></td>
             <td class="status">
               <span v-if="book.status == 0"><i class="fa fa-check"></i><br>MYYNNISSÄ</span>
-              <span v-if="book.status == 1"><i class="fa fa-clock-o"></i><br>ODOTTAA KIRJAA</span>
-              <span v-if="book.status == 2"><i class="fa fa-times"></i><br>MYYTY</span>
+              <span v-if="book.status == 1"><i class="fa fa-clock-o"></i><br>TOIMITA KOULULLE</span>
+              <span v-if="book.status >= 2"><i class="fa fa-handshake-o"></i><br>MYYTY</span>
             </td>
             <td>
               <router-link class="button btn-s":to="{name: 'sellSingle', params: { id: book.id }}">Avaa</router-link>
@@ -121,10 +121,26 @@ table#statustable {
   td,th {
     border: 1px solid #BBBBBB
     padding: 0.5em 0.7em
+
+
   }
   th {
     font-weight: 600
     text-align: left
+  }
+}
+
+table {
+  td.status {
+    i.fa-check {
+      color: _color-deep-purple-700
+    }
+    i.fa-clock-o {
+      color: _color-orange-900
+    }
+    i.fa-handshake-o {
+      color: _color-green-900
+    }
   }
 }
 </style>
