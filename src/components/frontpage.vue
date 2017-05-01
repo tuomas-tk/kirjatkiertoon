@@ -13,7 +13,7 @@
       <h1>Tervetuloa!</h1>
       <router-link v-if="authStatus == 42" to="/super" class="button btn-l">SuperConsole</router-link>
 
-      <div class="dashboard" v-if="authStatus > 0">
+      <div class="dashboard" v-if="authStatus > 0 && authStatus < 10">
         <div class="section">
           <h2>Osto</h2>
           <h3>Noudettavana</h3>
@@ -38,6 +38,30 @@
           </div>
           <router-link to="/sell" class="button btn-m btn-block">Myytävät kirjat</router-link>
           <router-link to="/sell" class="button btn-m btn-block">Myy uusi kirja</router-link>
+        </div>
+      </div>
+
+      <div class="dashboard" v-if="authStatus >= 10">
+        <div class="section">
+          <h2>Koululla</h2>
+          <h3>Noutamista odottaa</h3>
+          <div class="number">
+            {{ dashboard.status2 }}<span>kirjaa</span>
+          </div>
+          <h3>Koululta myyty yhteensä</h3>
+          <div class="number">
+            {{ dashboard.status3 }}<span>kirjaa</span>
+          </div>
+        </div><div class="section" v-if="authStatus >= 2">
+          <h2>Myyjillä</h2>
+          <h3>Kirjoja toimittamatta koululle</h3>
+          <div class="number" :class="{'number-red': dashboard.sell_sold > 0}">
+            {{ dashboard.status1 }}<span>kirjaa</span>
+          </div>
+          <h3>Myynnissä yhteensä</h3>
+          <div class="number">
+            {{ dashboard.status0 }}<span>kirjaa</span>
+          </div>
         </div>
       </div>
     </div>
@@ -108,7 +132,6 @@
       044 324 6320
       <br><br>
     </div>
-
   </div>
 </template>
 
@@ -136,7 +159,7 @@ export default {
     },
     load: function () {
       EventBus.$emit('setLoading', true)
-      axios.post('/user/get/dashboard', {
+      axios.post((auth.status < 10) ? '/user/get/dashboard' : '/user/get/school/stats', {
         token: auth.getToken()
       }).then(response => {
         this.dashboard = response.data.data

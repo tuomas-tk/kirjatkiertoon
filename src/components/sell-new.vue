@@ -69,7 +69,7 @@
       </select>
 
       <h3>Vapaamuotoinen kuvaus:</h3>
-      <textarea v-model="info"></textarea>
+      <textarea v-model="info" placeholder="esim. Onko muovitettu? Miten paljon merkintöjä?"></textarea>
 
       <h2>5. Hinta ostajalle</h2>
       <input v-model="price_euros" class="price" type="number" min="5" max="100" required/> euroa

@@ -4,11 +4,18 @@
       <div id="header-container">
         <router-link to="/" exact><img id="logo" src="./assets/logo-nobg-200.png" /></router-link>
         <i class="fa fa-bars fa-3x" id="nav-button" @click="toggleMenu"></i>
-        <div class="nav-bar">
+        <div class="nav-bar" v-if="auth.status < 10">
           <router-link to="/" exact>Etusivu</router-link>
           <router-link to="/buy" v-if="auth.status >= 1">Osta</router-link>
           <router-link to="/sell" v-if="auth.status >= 2">Myy</router-link>
-          <router-link to="/super" v-if="auth.status >= 3">SuperConsole</router-link>
+        </div>
+        <div class="nav-bar" v-if="auth.status >= 10">
+          <router-link to="/" exact>Etusivu</router-link>
+          <router-link to="/books">Kirjat</router-link>
+          <router-link to="/manage">Hallinta</router-link>
+        </div>
+        <div class="nav-bar" v-if="auth.status == 42">
+          <router-link to="/super">SuperConsole</router-link>
         </div>
         <div class="nav-bar nav-bar-right">
           <router-link to="/login" v-if="auth.status == 0">Kirjaudu sisään</router-link>
