@@ -17,17 +17,25 @@
         <div class="section">
           <h2>Osto</h2>
           <h3>Noudettavana</h3>
-          <div class="number">0<span>kirjaa</span></div>
+          <div class="number" :class="{'number-red': dashboard.buy_ready > 0}">
+            {{ dashboard.buy_ready }}<span>kirjaa</span>
+          </div>
           <h3>Tulossa koululle</h3>
-          <div class="number">0<span>kirjaa</span></div>
+          <div class="number">
+            {{ dashboard.buy_bought }}<span>kirjaa</span>
+          </div>
           <router-link to="/buy" class="button btn-m btn-block">Etsi kirjoja</router-link>
           <router-link to="/buy/bought" class="button btn-m btn-block">Näytä ostetut kirjat</router-link>
         </div><div class="section" v-if="authStatus >= 2">
           <h2>Myynti</h2>
           <h3>Kirjoja toimittamatta koululle</h3>
-          <div class="number">0<span>kirjaa</span></div>
+          <div class="number" :class="{'number-red': dashboard.sell_sold > 0}">
+            {{ dashboard.sell_sold }}<span>kirjaa</span>
+          </div>
           <h3>Myynnissä</h3>
-          <div class="number">0<span>kirjaa</span></div>
+          <div class="number">
+            {{ dashboard.sell_available }}<span>kirjaa</span>
+          </div>
           <router-link to="/sell" class="button btn-m btn-block">Myytävät kirjat</router-link>
           <router-link to="/sell" class="button btn-m btn-block">Myy uusi kirja</router-link>
         </div>
@@ -106,14 +114,37 @@
 
 <script>
 import auth from '../api/auth'
+import axios from 'axios'
+import {EventBus} from '../EventBus'
 
 export default {
   name: 'frontpage',
+  data () {
+    return {
+      dashboard: {}
+    }
+  },
+  created () {
+    // console.log(this.$route.params.id)
+    this.load()
+  },
   methods: {
     yhteys () {
       console.log('Ota yhteyttä!')
       console.log(document.getElementById('yhteys').offsetTop)
       scroll(0, document.getElementById('yhteys').offsetTop)
+    },
+    load: function () {
+      EventBus.$emit('setLoading', true)
+      axios.post('/user/get/dashboard', {
+        token: auth.getToken()
+      }).then(response => {
+        this.dashboard = response.data.data
+      }).catch(error => {
+        console.log('Error ' + error.response.status)
+      }).then(() => {
+        EventBus.$emit('setLoading', false)
+      })
     }
   },
   computed: {
@@ -126,6 +157,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="stylus" scoped>
+@import '../styles/vars'
 
 #block-steps {
   background-color: #444444
@@ -212,6 +244,14 @@ export default {
         color: #555555
         padding-left: 0.2em
 
+      }
+
+      &.number-red {
+        color: _color-red-500
+
+        span {
+          color: _color-red-900
+        }
       }
     }
   }
