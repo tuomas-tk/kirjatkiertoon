@@ -11,7 +11,7 @@ router.post('/get/profile', function(req, res) {
 })
 
 router.post('/get/dashboard', function(req, res) {
-  pg.connect(process.env.DB_URL, function(err, client, done) {
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     if (err) {
       console.error(err);
       return res.status(500).json({
@@ -53,7 +53,7 @@ router.post('/get/dashboard', function(req, res) {
 })
 
 router.post('/get/school/stats', function(req, res) {
-  pg.connect(process.env.DB_URL, function(err, client, done) {
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     if (err) {
       console.error(err);
       return res.status(500).json({
@@ -93,7 +93,7 @@ router.post('/get/school/stats', function(req, res) {
 router.post('/get/:user', function(req, res) {
   console.log('get user');
 
-  pg.connect(process.env.DB_URL, function(err, client, done) {
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     if (err) {
       console.error(err);
       return res.status(500).json({

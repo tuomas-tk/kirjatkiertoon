@@ -6,7 +6,7 @@ var router = express.Router();
 router.post('/get/own', function(req, res) {
   console.log('get own books');
 
-  pg.connect(process.env.DB_URL, function(err, client, done) {
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     if (err) {
       console.error(err);
       return res.status(500).json({
@@ -37,7 +37,7 @@ router.post('/get/own', function(req, res) {
 router.post('/get/bought', function(req, res) {
   console.log('get bought books');
 
-  pg.connect(process.env.DB_URL, function(err, client, done) {
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     if (err) {
       console.error(err);
       return res.status(500).json({
@@ -69,7 +69,7 @@ router.post('/get/bought', function(req, res) {
 router.post('/get/', function(req, res) {
   console.log('get all books');
 
-  pg.connect(process.env.DB_URL, function(err, client, done) {
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     if (err) {
       console.error(err);
       return res.status(500).json({
@@ -100,7 +100,7 @@ router.post('/get/', function(req, res) {
 router.post('/get/:id', function(req, res) {
   console.log('get single book');
 
-  pg.connect(process.env.DB_URL, function(err, client, done) {
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     if (err) {
       console.error(err);
       return res.status(500).json({
@@ -131,7 +131,7 @@ router.post('/get/:id', function(req, res) {
 router.post('/buy/:id', function(req, res) {
   console.log('buy a book');
 
-  pg.connect(process.env.DB_URL, function(err, client, done) {
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     if (err) {
       console.error(err);
       return res.status(500).json({
@@ -183,7 +183,7 @@ router.post('/add/', function(req, res) {
     });
   }
 
-  pg.connect(process.env.DB_URL, function(err, client, done) {
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     if (err) {
       done();
       console.error(err);

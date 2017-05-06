@@ -7,7 +7,7 @@ var crypto = require('crypto');
 router.post('/', function(req, res) {
   console.log('login (code)');
 
-  pg.connect(process.env.DB_URL, function(err, client, done) {
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     if (err) {
       console.error(err);
       return res.status(500).json({
@@ -74,7 +74,7 @@ router.post('/app/new', function(req, res) {
     });
   }
 
-  pg.connect(process.env.DB_URL, function(err, client, done) {
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     if (err) {
       console.error(err);
       return res.status(500).json({
