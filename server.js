@@ -1,3 +1,4 @@
+require('dotenv').config()
 var express = require('express');
 var pg = require('pg');
 var app = express();
@@ -20,8 +21,7 @@ app.use('/api/login', login);
 
 app.all('/api/*', function(req, res, next) {
   console.log('Auth to API');
-
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+  pg.connect(process.env.DB_URL, function(err, client, done) {
     if (err) {
       console.error(err);
       return res.status(500).json({
@@ -77,8 +77,6 @@ app.use('/api/user', user);
 app.use('/api/logout', logout);
 app.use('/api/subject', subject);
 app.use('/api/book', book);
-
-
 
 app.use(express.static(__dirname + '/dist'));
 

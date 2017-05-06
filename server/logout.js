@@ -1,3 +1,4 @@
+require('dotenv').config()
 var express = require('express');
 var pg = require('pg');
 var router = express.Router();
@@ -6,7 +7,7 @@ var crypto = require('crypto');
 router.post('/', function(req, res) {
   console.log('logout');
 
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+  pg.connect(process.env.DB_URL, function(err, client, done) {
     if (err) {
       done();
       console.error(err);

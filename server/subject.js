@@ -1,3 +1,4 @@
+require('dotenv').config()
 var express = require('express');
 var pg = require('pg');
 var router = express.Router();
@@ -7,7 +8,7 @@ var router = express.Router();
 router.post('/get/own', function(req, res) {
   console.log('get own subjects');
 
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+  pg.connect(process.env.DB_URL, function(err, client, done) {
     if (err) {
       console.error(err);
       return res.status(500).json({
@@ -60,7 +61,7 @@ ORDER BY S.id DESC;\
 router.post('/get/:subject', function(req, res) {
   console.log('get single subject');
 
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+  pg.connect(process.env.DB_URL, function(err, client, done) {
     if (err) {
       console.error(err);
       return res.status(500).json({
@@ -102,7 +103,7 @@ router.post('/get/:subject', function(req, res) {
 router.post('/get/', function(req, res) {
   console.log('get subjects');
 
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+  pg.connect(process.env.DB_URL, function(err, client, done) {
     if (err) {
       console.error(err);
       return res.status(500).json({
@@ -160,7 +161,7 @@ router.post('/add/', function(req, res) {
     description: req.body.description
   };
 
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+  pg.connect(process.env.DB_URL, function(err, client, done) {
     if (err) {
       done();
       console.error(err);
@@ -201,7 +202,7 @@ router.post('/resolve/', function(req, res) {
     });
   }
 
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+  pg.connect(process.env.DB_URL, function(err, client, done) {
     if (err) {
       done();
       console.error(err);
