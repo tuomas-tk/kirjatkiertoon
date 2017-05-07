@@ -19,9 +19,9 @@
           <option value="RU">RU - Ruotsi</option>
         </optgroup>
         <optgroup label="Matematiikka">
-          <option value="MAY">MAY - Yhteinen matikka</option>
-          <option value="MAA">MAA - Pitkä matikka</option>
-          <option value="MAB">MAB - Lyhyt matikka</option>
+          <option value="MAY">MAY - Yhteinen matematiikka</option>
+          <option value="MAA">MAA - Pitkä matematiikka</option>
+          <option value="MAB">MAB - Lyhyt matematiikka</option>
         </optgroup>
         <optgroup label="Luonnontieteet">
           <option value="BI">BI - Biologia</option>
