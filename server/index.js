@@ -4,11 +4,12 @@ var pg = require('pg');
 var app = express();
 var bodyParser = require('body-parser');
 
-var user     = require('./server/user');
-var login    = require('./server/login');
-var logout   = require('./server/logout');
-var subject  = require('./server/subject');
-var book      = require('./server/book');
+var user     = require('./user');
+var login    = require('./login');
+var logout   = require('./logout');
+var subject  = require('./subject');
+var book      = require('./book');
+var admin     = require('./admin');
 
 
 app.use(bodyParser.json());
@@ -77,6 +78,8 @@ app.use('/api/user', user);
 app.use('/api/logout', logout);
 app.use('/api/subject', subject);
 app.use('/api/book', book);
+
+app.use('/api/admin', admin);
 
 app.use(express.static(__dirname + '/dist'));
 

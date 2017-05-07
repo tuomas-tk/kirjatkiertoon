@@ -4,7 +4,7 @@
     <div class="search">
       <table>
         <tr>
-          <th rowspan="4">KIRJA</th>
+          <th rowspan="5">KIRJA</th>
           <th>Oppiaine</th>
           <td>
             <select v-model="subject" @change="changeSubject">
@@ -66,6 +66,18 @@
           </td>
         </tr>
         <tr>
+          <th>Tila</th>
+          <td>
+            <select v-model="status">
+              <option value="">Kaikki</option>
+              <option value="0">Myynnissä (kirja myyjällä)</option>
+              <option value="1">Varattu (kirja myyjällä)</option>
+              <option value="2">Koululta noudettavissa</option>
+              <option value="3">Myyty (kirja ostajalla)</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
           <td colspan="3" class="separator"></td>
         </tr>
         <tr>
@@ -95,7 +107,7 @@
         </tr>
       </table>
       <div class="bottom">
-        <router-link class="button btn-s btn-block":to="{name: 'adminBookList', query: {subject: subject, course: course, name: name, code: code, firstname: firstname, lastname: lastname, email: email, passcode: passcode}}">Hae</router-link>
+        <router-link class="button btn-m" :to="{name: 'adminBookList', query: {subject: subject, course: course, name: name, code: code, status: status, firstname: firstname, lastname: lastname, email: email, passcode: passcode}}">Hae</router-link>
       </div>
     </div>
   </div>
@@ -108,11 +120,13 @@
           <th>Kirja</th>
           <th>Hinta</th>
           <th>Kunto</th>
+          <th>Myyjä</th>
+          <th>Ostaja</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="book in books" v-if="(subject == '' || (course == '' && book.course.startsWith(subject)) || (book.course == course))">
+        <tr v-for="book in books">
           <td>{{ book.course }}</td>
           <td class="name">
             <router-link :to="{name: 'buySingle', params: { id: book.id }}">
@@ -122,6 +136,12 @@
           <td class="price"><currency :amount="book.price" /></td>
           <td class="condition">
             <i class="fa fa-star" v-for="n in book.condition"></i><i class="fa fa-star-o" v-for="n in 5-book.condition"></i>
+          </td>
+          <td>
+            {{ book.user }}
+          </td>
+          <td>
+            {{ book.buyer }}
           </td>
           <td>
             <router-link class="button btn-s" :to="{name: 'buySingle', params: { id: book.id }}">Avaa</router-link>
@@ -136,8 +156,8 @@
 </template>
 
 <script>
-import axios from 'axios'
-import auth from '../../api/auth'
+// import axios from 'axios'
+// import auth from '../../api/auth'
 import { EventBus } from '../../EventBus'
 import Currency from '../currency'
 import BuySingle from '../buy-single'
@@ -152,25 +172,42 @@ export default {
   data () {
     return {
       books: [],
-      subject: '',
-      course: '',
-      name: '',
-      code: '',
-      firstname: '',
-      lastname: '',
-      email: '',
-      passcode: '',
+      subject: this.$route.query.subject,
+      course: this.$route.query.course,
+      name: this.$route.query.name,
+      code: this.$route.query.code,
+      status: this.$route.query.status,
+      firstname: this.$route.query.firstname,
+      lastname: this.$route.query.lastname,
+      email: this.$route.query.email,
+      passcode: this.$route.query.passcode,
       courseCount: COURSES
     }
   },
   created () {
+    console.log('created')
     this.load()
-  },
+  }, /*
+  watch: {
+    '$route.query': 'load'
+  }, */
   methods: {
     load: function () {
-      EventBus.$emit('setLoading', true)
-      document.activeElement.blur()
-      axios.post('/book/get', {
+      /* EventBus.$emit('setLoading', true)
+      console.log('load: ' + this.$route.fullPath)
+      axios.post('/admin/get/books', {
+        book: {
+          course: this.$route.query.course,
+          name: this.$route.query.name,
+          code: this.$route.query.code,
+          status: this.$route.query.status
+        },
+        person: {
+          firstname: this.$route.query.firstname,
+          lastname: this.$route.query.lastname,
+          email: this.$route.query.email,
+          passcode: this.$route.query.passcode
+        },
         token: auth.getToken()
       }).then(response => {
         this.books = response.data.data
@@ -182,7 +219,7 @@ export default {
         }
       }).then(() => {
         EventBus.$emit('setLoading', false)
-      })
+      }) */
     },
     changeSubject: function () {
       console.log('changeSubject')
@@ -246,6 +283,7 @@ export default {
     text-align: right
     border-top: 1px solid #CCCCCC
     margin-top 2em
+    text-align: center
     .button {
       margin-bottom: 0
       text-align: center

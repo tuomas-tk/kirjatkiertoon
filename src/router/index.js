@@ -103,6 +103,9 @@ var router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
+  console.log('FR: ' + from.fullPath)
+  console.log('TO: ' + to.fullPath)
+
   console.log('[ROUTER] Current AUTH-level: ' + auth.status)
   EventBus.$emit('setLoading', true)
   EventBus.$emit('hideNavigation')
@@ -116,6 +119,10 @@ router.beforeEach((to, from, next) => {
         query: { redirect: to.fullPath }
       })
     } else {
+      ga('set', 'userId', auth.id)
+      ga('set', 'dimension1', auth.status)
+      ga('set', 'page', to.fullPath)
+      ga('send', 'pageview')
       next()
     }
   })
