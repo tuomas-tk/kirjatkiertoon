@@ -136,6 +136,10 @@ router.beforeEach((to, from, next) => {
         query: { redirect: to.fullPath }
       })
     } else {
+      ga('set', 'userId', null)
+      ga('set', 'dimension1', null)
+      ga('set', 'page', to.fullPath)
+      ga('send', 'pageview')
       next()
     }
   })
