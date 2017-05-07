@@ -122,6 +122,22 @@ export default {
         token: auth.getToken()
       }).then(response => {
         this.books = response.data.data
+        if (!this.selectedBook) {
+          var index = 1
+          for (const book of this.books) {
+            ga('ec:addImpression', {
+              'id': book.id,
+              'name': book.name,
+              'category': book.course,
+              'price': book.price / 100,
+              'dimension2': book.condition,
+              'list': 'Ostajan hakutulokset',
+              'position': index
+            })
+            index += 1
+          }
+          ga('send', 'event', 'search', 'impression', 'Ostajan hakutulokset', {'nonInteraction': true})
+        }
       }).catch(error => {
         if (error.response.status === 400) {
           console.log('Invalid token')

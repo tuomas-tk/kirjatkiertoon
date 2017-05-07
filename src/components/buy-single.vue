@@ -48,7 +48,7 @@
             <span v-if="book.status == 1"><i class="fa fa-clock-o"></i> <span>Varattu</span></span>
             <span v-if="book.status >= 2"><i class="fa fa-times"></i>   <span>Myyty</span></span>
           </div>
-          <a href="#" class="button btn-l" :class="{'btn-disabled': book.status > 0}" @click.prevent="buyStatus = 1" v-if="!ownBook">
+          <a href="#" class="button btn-l" :class="{'btn-disabled': book.status > 0}" @click.prevent="requestConfirm" v-if="!ownBook">
             Osta kirja
           </a>
           <h3 v-else>
@@ -84,6 +84,7 @@ import axios from 'axios'
 import auth from '../api/auth'
 import {EventBus} from '../EventBus'
 import Currency from './currency'
+import {APP_FEE, OPERATION_FEE, TOTAL_FEE} from '../Static'
 
 export default {
   name: 'buy-single',
@@ -109,11 +110,27 @@ export default {
         token: auth.getToken()
       }).then(response => {
         this.book = response.data.data
+        ga('ec:addProduct', {
+          'id': this.book.id,
+          'name': this.book.name,
+          'category': this.book.course,
+          'price': this.book.price / 100,
+          'dimension2': this.book.condition
+        })
+        ga('ec:setAction', 'detail')
+        ga('send', 'event', 'book', 'impression', {'nonInteraction': true})
       }).catch(error => {
         console.log('Error ' + error.response.status)
       }).then(() => {
         EventBus.$emit('setLoading', false)
       })
+    },
+    requestConfirm: function () {
+      ga('ec:setAction', 'checkout', {
+        'step': 1
+      })
+      ga('send', 'event', 'book', 'buy', {'nonInteraction': true})
+      this.buyStatus = 1
     },
     confirm: function () {
       EventBus.$emit('setLoading', true)
@@ -121,6 +138,13 @@ export default {
         token: auth.getToken()
       }).then(response => {
         this.buyStatus = 2
+        ga('ec:setAction', 'purchase', {
+          'id': this.book.id,
+          'revenue': this.book.price - TOTAL_FEE,
+          'tax': APP_FEE,
+          'shipping': OPERATION_FEE
+        })
+        ga('send', 'event', 'book', 'buy', {'nonInteraction': true})
         this.load()
       }).catch(error => {
         this.buyStatus = 3

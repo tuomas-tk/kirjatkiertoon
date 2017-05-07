@@ -69,7 +69,6 @@ export default {
   },
   methods: {
     setLoading: function (status) {
-      console.log('setLoading: ' + status)
       this.loading = status
     },
     setServerError: function (status) {
@@ -83,7 +82,6 @@ export default {
       this.menuActive = !this.menuActive
     },
     setModalOpen: function (status) {
-      console.log('setModalOpen: ' + status)
       if (status) {
         document.documentElement.style.overflow = 'hidden'
       } else {
