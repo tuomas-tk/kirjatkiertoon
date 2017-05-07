@@ -81,7 +81,7 @@ app.use('/api/book', book);
 
 app.use('/api/admin', admin);
 
-app.use(express.static(__dirname + '../dist'));
+app.use(express.static(__dirname + '/../dist'));
 
 app.listen(process.env.PORT || 3000, function () {
   console.log('KirjatKiertoon listening on port ' + (process.env.PORT || '3000'))
