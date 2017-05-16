@@ -48,7 +48,8 @@
           <th>Kurssi</th>
           <td>
             <select v-model="course">
-              <option value="">Kaikki</option>
+              <option :value="subject + '%'">Kaikki</option>
+              <option :value="subject">Kaikkien kurssien kirja (käsikirja tms)</option>
               <option v-for="n in (this.courseCount[subject])">{{ subject }}{{ n }}</option>
             </select>
           </td>
@@ -156,8 +157,8 @@
 </template>
 
 <script>
-// import axios from 'axios'
-// import auth from '../../api/auth'
+import axios from 'axios'
+import auth from '../../api/auth'
 import { EventBus } from '../../EventBus'
 import Currency from '../currency'
 import BuySingle from '../buy-single'
@@ -172,28 +173,28 @@ export default {
   data () {
     return {
       books: [],
-      subject: this.$route.query.subject,
-      course: this.$route.query.course,
-      name: this.$route.query.name,
-      code: this.$route.query.code,
-      status: this.$route.query.status,
-      firstname: this.$route.query.firstname,
-      lastname: this.$route.query.lastname,
-      email: this.$route.query.email,
-      passcode: this.$route.query.passcode,
+      subject: this.$route.query.subject || '',
+      course: this.$route.query.course || '',
+      name: this.$route.query.name || '',
+      code: this.$route.query.code || '',
+      status: this.$route.query.status || '',
+      firstname: this.$route.query.firstname || '',
+      lastname: this.$route.query.lastname || '',
+      email: this.$route.query.email || '',
+      passcode: this.$route.query.passcode || '',
       courseCount: COURSES
     }
   },
   created () {
     console.log('created')
     this.load()
-  }, /*
+  },
   watch: {
     '$route.query': 'load'
-  }, */
+  },
   methods: {
     load: function () {
-      /* EventBus.$emit('setLoading', true)
+      EventBus.$emit('setLoading', true)
       console.log('load: ' + this.$route.fullPath)
       axios.post('/admin/get/books', {
         book: {
@@ -219,11 +220,11 @@ export default {
         }
       }).then(() => {
         EventBus.$emit('setLoading', false)
-      }) */
+      })
     },
     changeSubject: function () {
       console.log('changeSubject')
-      this.course = ''
+      this.course = this.subject + '%'
     }
   },
   computed: {

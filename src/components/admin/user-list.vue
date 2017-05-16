@@ -86,8 +86,6 @@
       </tbody>
     </table>
   </div>
-
-  <!--<buy-single :id="selectedBook" v-if="selectedBook" />-->
 </div>
 </template>
 
@@ -104,8 +102,8 @@ export default {
   data () {
     return {
       users: [],
-      firstname: this.$route.query.firstname,
-      lastname: this.$route.query.lastname,
+      firstname: this.$route.query.firstname || '',
+      lastname: this.$route.query.lastname || '',
       newuser: {
         firstname: '',
         lastname: '',

@@ -37,7 +37,7 @@ course        LIKE $1 AND \
 name          LIKE $2 AND \
 status::text  LIKE $3     \
 ORDER BY id DESC \
-      ', [req.body.book.course, req.body.book.name, req.body.book.status], function(err, result) {
+      ', [(req.body.book.course || '%'), '%'+(req.body.book.name || '')+'%', '%'+(req.body.book.status || '')+'%'], function(err, result) {
         done();
         if (err) {
           console.error(err);
