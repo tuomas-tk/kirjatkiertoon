@@ -9,6 +9,7 @@ import sellList from '@/components/sell-list'
 import sellNew from '@/components/sell-new'
 import profile from '@/components/profile'
 import adminBookList from '@/components/admin/book-list'
+import adminUserList from '@/components/admin/user-list'
 import superConsole from '@/components/super'
 import login from '@/components/login'
 import logout from '@/components/logout'
@@ -72,9 +73,15 @@ var router = new Router({
       meta: { requiresAuthLevel: 1 }
     },
     {
-      path: '/books',
+      path: '/admin/books',
       name: 'adminBookList',
       component: adminBookList,
+      meta: { requiresAuthLevel: 10 }
+    },
+    {
+      path: '/admin/users',
+      name: 'adminUserList',
+      component: adminUserList,
       meta: { requiresAuthLevel: 10 }
     },
     {

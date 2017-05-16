@@ -11,8 +11,9 @@
         </div>
         <div class="nav-bar" v-if="auth.status >= 10">
           <router-link to="/" exact>Etusivu</router-link>
-          <router-link to="/books">Kirjat</router-link>
-          <router-link to="/manage">Hallinta</router-link>
+          <router-link to="/admin/books">Kirjat</router-link>
+          <router-link to="/admin/users">Käyttäjät</router-link>
+          <router-link to="/admin/manage">Hallinta</router-link>
         </div>
         <div class="nav-bar" v-if="auth.status == 42">
           <router-link to="/super">SuperConsole</router-link>
