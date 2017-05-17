@@ -9,7 +9,7 @@
     "build": "node build/build.js",
     "lint": "eslint --ext .js,.vue src",
     "server": "node server/index.js",
-    "postinstall": "db-migrate up && npm run build"
+    "postinstall": "db-migrate up"
   },
   "dependencies": {
     "axios": "^0.16.1",
