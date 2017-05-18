@@ -17,6 +17,8 @@
           <option value="ÄI">ÄI - Äidinkieli</option>
           <option value="EN">EN - Englanti</option>
           <option value="RU">RU - Ruotsi</option>
+          <option value="SA">SA - Saksa</option>
+          <option value="RA">RA - Ranska</option>
         </optgroup>
         <optgroup label="Matematiikka">
           <option value="MAY">MAY - Yhteinen matematiikka</option>

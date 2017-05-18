@@ -2,6 +2,8 @@ const COURSES = {
   'ÄI': 9,
   'EN': 8,
   'RU': 7,
+  'SA': 10,
+  'RA': 10,
   'MAY': 1,
   'MAA': 12,
   'MAB': 7,

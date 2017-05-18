@@ -3,9 +3,12 @@
     <h1>Kirjaudu sisään!</h1>
     <div class="form">
       <form v-on:submit.prevent="login">
-        <input type="text" class="input" placeholder="Tunnuskoodi" maxlength="10" v-model="passcode">
+        <input type="password" class="input" placeholder="Tunnuskoodi" maxlength="10" v-model="passcode">
         <input type="submit" class="submit button btn-m btn-block" value="Kirjaudu">
       </form>
+      <p>
+        Älä kirjoita välilyöntiä tunnuskoodiin!
+      </p>
       <p class="error" v-if="error===1">
         Virheellinen tunnuskoodi!
       </p>
