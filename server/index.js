@@ -7,7 +7,6 @@ var bodyParser = require('body-parser');
 var user     = require('./user');
 var login    = require('./login');
 var logout   = require('./logout');
-var subject  = require('./subject');
 var book      = require('./book');
 var admin     = require('./admin');
 
@@ -76,7 +75,6 @@ app.post('/api/test', function(req, res, next) {
 
 app.use('/api/user', user);
 app.use('/api/logout', logout);
-app.use('/api/subject', subject);
 app.use('/api/book', book);
 
 app.use('/api/admin', admin);
