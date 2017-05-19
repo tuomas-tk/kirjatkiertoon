@@ -3,12 +3,9 @@
     <h1>Kirjaudu sisään!</h1>
     <div class="form">
       <form v-on:submit.prevent="login">
-        <input type="password" class="input" placeholder="Tunnuskoodi" maxlength="10" v-model="passcode">
+        <input type="text" class="input" placeholder="Tunnuskoodi" v-model="passcode">
         <input type="submit" class="submit button btn-m btn-block" value="Kirjaudu">
       </form>
-      <p>
-        Älä kirjoita välilyöntiä tunnuskoodiin!
-      </p>
       <p class="error" v-if="error===1">
         Virheellinen tunnuskoodi!
       </p>
@@ -38,7 +35,7 @@ export default {
   methods: {
     login: function () {
       axios.post('/login/', {
-        passcode: this.passcode
+        passcode: this.passcode.toLowerCase().replace(' ', '')
       }).then(response => {
         console.log('login success')
         // JSON responses are automatically parsed.
@@ -81,15 +78,15 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="stylus" scoped>
 @import "../styles/vars"
+@import "../styles/box"
 
 h1 {
   text-align: center
 }
 
 .form {
-  background-color: #FFFFFF
-  box-shadow: 1px 5px 20px rgba(0,0,0,0.1)
-  border-radius: 5px
+  @extend .box
+
   padding: 3em 3em 2em 3em
   max-width: 300px
   margin: 0 auto;

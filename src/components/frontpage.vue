@@ -5,7 +5,7 @@
       <h2>Täysin uusi kirjamyyntialusta lukioiden käyttöön!</h2>
       <router-link to="/login" class="button btn-l">Kirjaudu sisään!</router-link>
 
-      <h3>Haluaisitko palvelun myös sinun lukioosi?</h3>
+      <h3>Haluaisitko palvelun käyttöön myös sinun lukioosi?</h3>
       <a @click="yhteys" class="button btn-s">Ota yhteyttä!</a>
     </div>
     <div v-else class="maxwidth">
@@ -13,10 +13,28 @@
       <h1>Tervetuloa!</h1>
       <router-link v-if="authStatus == 42" to="/super" class="button btn-l">SuperConsole</router-link>
 
+      <div class="add-email box" v-if="!auth.email">
+        <h2>Lisää sähköpostiosoite heti!</h2>
+        <p>
+          <b>Saat sähköpostilla tiedon kun...</b>
+          <ul>
+            <li>ostamasi kirja on noudettavissa</li>
+            <li>myymäsi kirja on ostettu, ja pitää toimittaa koululle</li>
+          </ul>
+        </p>
+        <form @submit.prevent="save_email">
+          <input type="email" placeholder="Sähköpostiosoite" v-model="add_email" class="text-input" />
+          <input type="submit" class="button btn-s" value="Tallenna" />
+        </form>
+        <small>
+          Emme <u>koskaan</u> lähetä turhia viestejä, tai luovuta sähköpostiosoitettasi ulkopuolisille!
+        </small>
+      </div>
+
       <div class="dashboard" v-if="authStatus > 0 && authStatus < 10">
         <div class="section">
           <h2>Osto</h2>
-          <h3>Noudettavana</h3>
+          <h3>Nouda koululta</h3>
           <div class="number" :class="{'number-red': dashboard.buy_ready > 0}">
             {{ dashboard.buy_ready }}<span>kirjaa</span>
           </div>
@@ -24,20 +42,20 @@
           <div class="number">
             {{ dashboard.buy_bought }}<span>kirjaa</span>
           </div>
-          <router-link to="/buy" class="button btn-m btn-block">Etsi kirjoja</router-link>
-          <router-link to="/buy/bought" class="button btn-m btn-block">Näytä ostetut kirjat</router-link>
+          <router-link to="/buy" class="button btn-m btn-block"><i class="fa fa-search fa-fw"></i> Etsi kirjoja</router-link>
+          <router-link to="/buy/bought" class="button btn-m btn-block"><i class="fa fa-check fa-fw"></i> Näytä ostamasi kirjat</router-link>
         </div><div class="section" v-if="authStatus >= 2">
           <h2>Myynti</h2>
-          <h3>Kirjoja toimittamatta koululle</h3>
+          <h3>Toimita koululle</h3>
           <div class="number" :class="{'number-red': dashboard.sell_sold > 0}">
             {{ dashboard.sell_sold }}<span>kirjaa</span>
           </div>
-          <h3>Myynnissä</h3>
+          <h3>Kirjoja myymättä (vielä)</h3>
           <div class="number">
             {{ dashboard.sell_available }}<span>kirjaa</span>
           </div>
-          <router-link to="/sell" class="button btn-m btn-block">Myytävät kirjat</router-link>
-          <router-link to="/sell" class="button btn-m btn-block">Myy uusi kirja</router-link>
+          <router-link to="/sell/new" class="button btn-m btn-block"><i class="fa fa-pencil fa-fw"></i> Myy uusi kirja</router-link>
+          <router-link to="/sell" class="button btn-m btn-block"><i class="fa fa-list fa-fw"></i> Myymäsi kirjat</router-link>
         </div>
       </div>
 
@@ -83,7 +101,7 @@
 
         <div class="number">2</div>
         <div class="text">
-          Hän valitsee omistamansa kirjan listasta, ja valitsee kirjalleen hinnan
+          Myyjä syöttää kirjan tiedot palveluun, ja valitsee itse hinnan
         </div>
 
         <span class="divider"></span>
@@ -96,7 +114,7 @@
         <span class="divider"></span>
 
         <div class="text text-right">
-          Hän selaa saatavilla olevia kirjoja, ja valitsee haluamansa kirjat
+          Ostaja etsii ja ostaa tarvitsemansa kirjat palvelusta
         </div>
         <div class="number text-right">2</div>
 
@@ -104,7 +122,7 @@
 
         <div class="number">3</div>
         <div class="text">
-          Myyjä saa ilmoituksen varauksesta, ja tuo kirjan koululle koulun ilmoittamana ajankohtana
+          Myyjä saa ilmoituksen ja tuo kirjan koululle mahdollisimman pian
         </div>
 
         <span class="divider"></span>
@@ -128,8 +146,8 @@
 
       <b>Tuomas Karjalainen</b><br>
       Nurmeksen lukio<br>
-      <a href="mailto:tuomas@firmatverkkoon.fi">tuomas@firmatverkkoon.fi</a><br>
-      044 324 6320
+      <i class="fa fa-envelope fa-fw"></i> <a href="mailto:tuomas@firmatverkkoon.fi">tuomas@firmatverkkoon.fi</a><br>
+      <i class="fa fa-phone fa-fw"></i> 044 324 6320 (myös <i class="fa fa-whatsapp"></i> WhatsApp!)
       <br><br>
     </div>
   </div>
@@ -144,7 +162,9 @@ export default {
   name: 'frontpage',
   data () {
     return {
-      dashboard: {}
+      dashboard: {},
+      auth: auth,
+      add_email: ''
     }
   },
   created () {
@@ -168,6 +188,22 @@ export default {
       }).then(() => {
         EventBus.$emit('setLoading', false)
       })
+    },
+    save_email () {
+      EventBus.$emit('setLoading', true)
+      axios.post('/user/edit/profile', {
+        email: this.add_email,
+        token: auth.getToken()
+      }).then(response => {
+        auth.checkAuth().then(response => {
+          this.auth = auth
+          console.log(!auth.email)
+        })
+      }).catch(error => {
+        console.log('Error ' + error.response.status)
+      }).then(() => {
+        EventBus.$emit('setLoading', false)
+      })
     }
   },
   computed: {
@@ -181,6 +217,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="stylus" scoped>
 @import '../styles/vars'
+@import '../styles/box'
 
 #block-steps {
   background-color: #444444
@@ -236,15 +273,19 @@ export default {
   }
 }
 
+.add-email {
+  .text-input {
+    padding: 1em 0.5em
+  }
+}
 
 .dashboard {
   .section {
-    background-color: #FFFFFF
+    @extend .box
+
     padding: 0em 2em
     margin: 1em 1em
     overflow: hidden
-    border-radius: 5px
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1)
 
     @media (min-width: 700px) {
       display: inline-block
