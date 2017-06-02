@@ -1,9 +1,9 @@
 <template>
 <div>
   <div class="maxwidth">
-    <h1>Osta kirja</h1>
+    <h1>Osta kirjoja</h1>
 
-    <router-link to="/buy/bought" class="button btn-l" id="sell-new-button">Ostetut kirjat</router-link>
+    <router-link to="/buy/bought" class="button btn-l" id="sell-new-button" v-if="auth.status >= 2">Ostetut kirjat</router-link>
 
     <div class="search">
       <h3>Oppiaine:</h3>
@@ -109,7 +109,8 @@ export default {
       books: [],
       subject: '',
       course: '',
-      courseCount: COURSES
+      courseCount: COURSES,
+      auth: auth
     }
   },
   created () {
@@ -168,10 +169,10 @@ export default {
 
 #page h1 {
   float: left
-  margin-bottom: 0
+  margin-bottom: 0.3em
 }
 #sell-new-button {
-  margin-top: 1.8em
+  margin-top: 1.4em
   float: right
 }
 

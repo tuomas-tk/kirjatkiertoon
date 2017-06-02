@@ -1,7 +1,7 @@
 <template>
   <div class="maxwidth">
-    <h1>Kirjaudu sisään!</h1>
     <div class="form">
+      <h2>Kirjaudu sisään!</h2>
       <form v-on:submit.prevent="login">
         <input type="text" class="input" placeholder="Tunnuskoodi" v-model="passcode">
         <input type="submit" class="submit button btn-m btn-block" value="Kirjaudu">
@@ -80,14 +80,14 @@ export default {
 @import "../styles/vars"
 @import "../styles/box"
 
-h1 {
+h2 {
   text-align: center
 }
 
 .form {
   @extend .box
 
-  padding: 3em 3em 2em 3em
+  padding: 1em 2em 2em 2em
   max-width: 300px
   margin: 0 auto;
 
@@ -98,28 +98,6 @@ h1 {
     padding: .3em .5em
     font-size: 1.5em
     text-align: left
-  }
-  .submit {
-    /*display: block
-    width: 100%
-    margin: 0.5em 0 0 0
-    padding: 0.4em 0
-    font-size: 1.5em;
-
-    cursor: pointer;
-
-    background: _color-deep-purple-500
-    color: #FFFFFF
-    font-weight: 600
-    border: 0
-    border-radius: 5px
-
-    text-shadow: 1px 2px 3px rgba(0,0,0,0.3)
-
-    &:hover {
-      background: _color-deep-purple-700
-      box-shadow: 0 0 20px rgba(0,0,0,0.2) inset
-    }*/
   }
 
   p {

@@ -1,9 +1,12 @@
 <template>
   <div>
     <div v-if="authStatus == 0" class="maxwidth">
-      <h1>KirjatKiertoon.fi</h1>
-      <h2>Täysin uusi kirjamyyntialusta lukioiden käyttöön!</h2>
-      <router-link to="/login" class="button btn-l">Kirjaudu sisään!</router-link>
+      <div class="column-50">
+        <h1>KirjatKiertoon.fi</h1>
+        <h2>Täysin uusi kirjamyyntialusta lukioiden käyttöön!</h2>
+      </div><div class="column-50">
+        <login />
+      </div>
 
       <h3>Haluaisitko palvelun käyttöön myös sinun lukioosi?</h3>
       <a @click="yhteys" class="button btn-s">Ota yhteyttä!</a>
@@ -12,8 +15,7 @@
 
       <h1>Tervetuloa!</h1>
       <router-link v-if="authStatus == 42" to="/super" class="button btn-l">SuperConsole</router-link>
-
-      <div class="add-email box" v-if="!auth.email">
+      <div class="add-email box" v-if="!auth.email && auth.status >= 2">
         <h2>Lisää sähköpostiosoite heti!</h2>
         <p>
           <b>Saat sähköpostilla tiedon kun...</b>
@@ -31,7 +33,18 @@
         </small>
       </div>
 
-      <div class="dashboard" v-if="authStatus > 0 && authStatus < 10">
+      <div class="dashboard" v-if="authStatus == 1">
+        <div class="section">
+          <h2>Osta kirjoja</h2>
+          <h3>Palvelussa myynnissä tällä hetkellä</h3>
+          <div class="number">
+            {{ dashboard.available }}<span>kirjaa</span>
+          </div>
+          <router-link to="/buy" class="button btn-m btn-block"><i class="fa fa-search fa-fw"></i> Etsi kirjoja</router-link>
+        </div>
+      </div>
+
+      <div class="dashboard" v-if="authStatus >= 2 && authStatus < 10">
         <div class="section">
           <h2>Osto</h2>
           <h3>Nouda koululta</h3>
@@ -157,9 +170,13 @@
 import auth from '../api/auth'
 import axios from 'axios'
 import {EventBus} from '../EventBus'
+import login from './login'
 
 export default {
   name: 'frontpage',
+  components: {
+    'login': login
+  },
   data () {
     return {
       dashboard: {},
@@ -179,7 +196,7 @@ export default {
     },
     load: function () {
       EventBus.$emit('setLoading', true)
-      axios.post((auth.status < 10) ? '/user/get/dashboard' : '/user/get/school/stats', {
+      axios.post('/user/get/dashboard', {
         token: auth.getToken()
       }).then(response => {
         this.dashboard = response.data.data
@@ -218,6 +235,14 @@ export default {
 <style lang="stylus" scoped>
 @import '../styles/vars'
 @import '../styles/box'
+
+@media (min-width: 800px) {
+  .column-50 {
+    display: inline-block
+    width: 50%
+    vertical-align: top
+  }
+}
 
 #block-steps {
   background-color: #444444

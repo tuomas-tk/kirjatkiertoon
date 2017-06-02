@@ -54,6 +54,7 @@
           <h3 v-else>
             Et voi ostaa omaa kirjaasi
           </h3>
+          <span>Saat kirjan koululta ensimmäisien koulupäivien aikana!</span>
         </div>
 
         <div class="bottom" v-show="buyStatus == 1">

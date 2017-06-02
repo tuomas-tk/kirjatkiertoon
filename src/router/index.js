@@ -11,7 +11,6 @@ import profile from '@/components/profile'
 import adminBookList from '@/components/admin/book-list'
 import adminUserList from '@/components/admin/user-list'
 import superConsole from '@/components/super'
-import login from '@/components/login'
 import logout from '@/components/logout'
 import auth from '@/api/auth'
 
@@ -34,13 +33,13 @@ var router = new Router({
       path: '/buy/bought',
       name: 'boughtList',
       component: boughtList,
-      meta: { requiresAuthLevel: 1 }
+      meta: { requiresAuthLevel: 2 }
     },
     {
       path: '/buy/bought/:id',
       name: 'boughtSingle',
       component: boughtList,
-      meta: { requiresAuthLevel: 1 }
+      meta: { requiresAuthLevel: 2 }
     },
     {
       path: '/buy/:id',
@@ -70,7 +69,7 @@ var router = new Router({
       path: '/profile',
       name: 'profile',
       component: profile,
-      meta: { requiresAuthLevel: 1 }
+      meta: { requiresAuthLevel: 2 }
     },
     {
       path: '/admin/books',
@@ -95,11 +94,6 @@ var router = new Router({
       name: 'super',
       component: superConsole,
       meta: { requiresAuthLevel: 42 }
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: login
     },
     {
       path: '/logout',
@@ -139,7 +133,7 @@ router.beforeEach((to, from, next) => {
       next(false)
     } else if (to.meta.requiresAuthLevel != null) {
       next({
-        path: '/login',
+        path: '/',
         query: { redirect: to.fullPath }
       })
     } else {
