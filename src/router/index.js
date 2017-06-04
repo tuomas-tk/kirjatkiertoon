@@ -51,19 +51,19 @@ var router = new Router({
       path: '/sell',
       name: 'sellList',
       component: sellList,
-      meta: { requiresAuthLevel: 2 }
+      meta: { requiresAuthLevel: 5 }
     },
     {
       path: '/sell/new',
       name: 'sellNew',
       component: sellNew,
-      meta: { requiresAuthLevel: 2 }
+      meta: { requiresAuthLevel: 5 }
     },
     {
       path: '/sell/:id',
       name: 'sellSingle',
       component: sellList,
-      meta: { requiresAuthLevel: 2 }
+      meta: { requiresAuthLevel: 5 }
     },
     {
       path: '/profile',
@@ -87,7 +87,7 @@ var router = new Router({
       path: '/manage',
       name: 'adminManage',
       component: profile,
-      meta: { requiresAuthLevel: 10 }
+      meta: { requiresAuthLevel: 15 }
     },
     {
       path: '/super',
@@ -116,7 +116,7 @@ router.beforeEach((to, from, next) => {
     if (to.meta.requiresAuthLevel != null && to.meta.requiresAuthLevel > auth.status) {
       console.log('Unsufficient AUTH-level (' + auth.status + ')')
       next({
-        path: '/login',
+        path: '/',
         query: { redirect: to.fullPath }
       })
     } else {

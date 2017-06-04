@@ -57,7 +57,7 @@
           </div>
           <router-link to="/buy" class="button btn-m btn-block"><i class="fa fa-search fa-fw"></i> Etsi kirjoja</router-link>
           <router-link to="/buy/bought" class="button btn-m btn-block"><i class="fa fa-check fa-fw"></i> Näytä ostamasi kirjat</router-link>
-        </div><div class="section" v-if="authStatus >= 2">
+        </div><div class="section" v-if="authStatus >= 5">
           <h2>Myynti</h2>
           <h3>Toimita koululle</h3>
           <div class="number" :class="{'number-red': dashboard.sell_sold > 0}">

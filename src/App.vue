@@ -7,13 +7,13 @@
         <div class="nav-bar" v-if="auth.status < 10">
           <router-link to="/" exact>Etusivu</router-link>
           <router-link to="/buy" v-if="auth.status >= 1">Osta</router-link>
-          <router-link to="/sell" v-if="auth.status >= 2">Myy</router-link>
+          <router-link to="/sell" v-if="auth.status >= 5">Myy</router-link>
         </div>
         <div class="nav-bar" v-if="auth.status >= 10">
           <router-link to="/" exact>Etusivu</router-link>
           <router-link to="/admin/books">Kirjat</router-link>
           <router-link to="/admin/users">Käyttäjät</router-link>
-          <router-link to="/admin/manage">Hallinta</router-link>
+          <router-link to="/admin/manage" v-if="auth.status >= 15">Hallinta</router-link>
         </div>
         <div class="nav-bar" v-if="auth.status == 42">
           <router-link to="/super">SuperConsole</router-link>
@@ -37,7 +37,7 @@
     </div>
     <div id="servererror" :class="{show: serverError}">
       <div class="box">
-        <h2>Palvelimeen ei voi yhdistää</h2>
+        <h2>Palvelimeen ei voida yhdistää</h2>
         <p>
           Tarkista nettiyhteytesi.
         </p>

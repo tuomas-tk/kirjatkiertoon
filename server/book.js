@@ -165,6 +165,58 @@ router.post('/buy/:id', function(req, res) {
   });
 })
 
+router.post('/buy/:id/newuser', function(req, res) {
+  console.log('buy a book');
+
+  if (res.locals.user.type != 1) {
+    return res.status(400).json({
+      success: false,
+      data: 'Already logged in'
+    });
+  }
+
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        success: false,
+        data: err
+      });
+    } else {
+      client.query(
+        'SELECT id FROM users WHERE firstname = $1 AND lastname = $2 AND email = $3 AND type = 2 LIMIT 1',
+        [req.body.firstname, req.body.lastname, req.body.email],
+        function(err, result) {
+          console.log(result.rowCount)
+          console.log(result.rows)
+
+          /*client.query('UPDATE books SET buyer=$1, status=1 WHERE id=$2 AND buyer IS NULL AND "user"!=$1', [res.locals.user.id, req.params.id], function(err, result) {
+            done();
+            if (err) {
+              console.error(err);
+              return res.status(500).json({
+                success: false,
+                data: err
+              });
+            } else {
+              console.log('success')
+              if (result.rowCount == 1) {
+                return res.json({
+                  success: true
+                });
+              } else {
+                return res.status(400).json({
+                  success: false
+                });
+              }
+            }
+          });*/
+      });
+    }
+
+  });
+})
+
 router.post('/add/', function(req, res) {
   console.log('add book');
 
@@ -176,7 +228,7 @@ router.post('/add/', function(req, res) {
     info:      req.body.info
   };
 
-  if (data.condition < 0 || data.condition > 5 || data.price < 500 || data.price > 10000 || data.course == "" || data.price == "") {
+  if (data.condition < 0 || data.condition > 5 || data.price < 500 || data.price > 10000 || data.course == "" || data.price == "" || res.locals.user.type < 5) {
     return res.status(400).json({
       success: false,
       data: data

@@ -54,15 +54,31 @@
           <h3 v-else>
             Et voi ostaa omaa kirjaasi
           </h3>
-          <span>Saat kirjan koululta ensimmäisien koulupäivien aikana!</span>
+          <div class="info">
+            Saat kirjan koululta ensimmäisien koulupäivien aikana!
+          </div>
         </div>
 
-        <div class="bottom" v-show="buyStatus == 1">
+        <div class="bottom" v-show="buyStatus == 1 && auth.status == 1">
+          <h2>Anna yhteystietosi</h2>
+          <b>Meidän pitää tietää kenelle kirja tulee toimittaa</b>
+          <form class="">
+            <label>Etunimi:</label>
+            <input type="text" placeholder="Etunimi" v-model="buyer_info.firstname" />
+            <label>Sukunimi:</label>
+            <input type="text" placeholder="Sukunimi" v-model="buyer_info.lastname" />
+            <label>Sähköposti:</label>
+            <input type="email" placeholder="Sähköpostiosoite" v-model="buyer_info.email" />
+          </form>
+          <b>Saat sähköpostiin ilmoituksen kun kirja on saatavilla koululta.</b><br>
+          <a href="#" class="button btn-m" @click.prevent="buyStatus = 0">Peruuta</a>
+          <a href="#" class="button btn-m" @click.prevent="confirm">Vahvista</a>
+        </div>
+        <div class="bottom" v-show="buyStatus == 1 && auth.status >= 2">
           <h3>Haluatko varmasti ostaa tämän kirjan?</h3>
           <a href="#" class="button btn-m" @click.prevent="buyStatus = 0">Peruuta</a>
           <a href="#" class="button btn-m" @click.prevent="confirm">Vahvista</a>
         </div>
-
         <div class="bottom" v-show="buyStatus == 2 || book.buyer === auth.id">
           <div class="status">
             <span v-if="book.status == 1"><i class="fa fa-check"></i>   <span>Ostettu - odottaa saapumista</span></span>
@@ -96,7 +112,12 @@ export default {
     return {
       auth: auth,
       book: {},
-      buyStatus: 0 // 0: not active, 1: active, 2: success, 3: error
+      buyStatus: 0, // 0: not active, 1: active, 2: success, 3: error,
+      buyer_info: {
+        firstname: '',
+        lastname: '',
+        email: ''
+      }
     }
   },
   props: ['id'],
@@ -257,6 +278,25 @@ h2 {
 
 .bottom {
   text-align: center
+
+  form {
+    display: block
+    max-width: 20em
+    margin: 2em auto
+
+    label {
+      display: block
+      font-size: 1em
+      font-weight: 700
+      text-align: left
+      margin-top: 1em
+    }
+    input {
+      display: block
+      width: 100%
+      padding: 0.5em 0.5em
+    }
+  }
 }
 
 .status {
