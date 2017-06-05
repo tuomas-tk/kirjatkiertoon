@@ -42,7 +42,9 @@ export default {
         auth.status = response.data.data.user.type
         auth.firstname = response.data.data.user.firstname
         auth.lastname = response.data.data.user.lastname
+        auth.email = response.data.data.user.email
         auth.saveToken(response.data.data.token)
+        this.$emit('login')
 
         console.log('Logged in with status ' + auth.status)
 
@@ -50,7 +52,6 @@ export default {
           this.$router.replace(this.$route.query.redirect)
         } else {
           this.$router.replace('/')
-          this.$emit('login')
         }
       }).catch(error => {
         console.log(error)

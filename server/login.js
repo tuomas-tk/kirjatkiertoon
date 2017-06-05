@@ -15,7 +15,7 @@ router.post('/', function(req, res) {
         data: err
       });
     } else {
-      client.query('SELECT id, type, firstname, lastname FROM users WHERE passcode = $1 LIMIT 1', [req.body.passcode], function(err, result) {
+      client.query('SELECT id, type, firstname, lastname, email FROM users WHERE passcode = $1 LIMIT 1', [req.body.passcode], function(err, result) {
         done();
         if (err) {
           console.error(err);

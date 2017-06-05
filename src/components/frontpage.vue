@@ -15,6 +15,7 @@
 
       <h1>Tervetuloa!</h1>
       <router-link v-if="authStatus == 42" to="/super" class="button btn-l">SuperConsole</router-link>
+
       <div class="add-email box" v-if="!auth.email && auth.status >= 2">
         <h2>Lisää sähköpostiosoite heti!</h2>
         <p>
