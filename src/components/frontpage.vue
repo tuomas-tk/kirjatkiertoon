@@ -107,7 +107,7 @@
 
         <div class="number">1</div>
         <div class="text">
-          Kirjan myyjä <router-link to="/login">kirjautuu</router-link> palveluun koululta saamillaan tunnuksilla
+          Kirjan myyjä kirjautuu palveluun koululta saamillaan tunnuksilla
         </div>
 
         <span class="divider"></span>
@@ -120,7 +120,7 @@
         <span class="divider"></span>
 
         <div class="text text-right">
-          Ostaja <router-link to="/login">kirjautuu</router-link> palveluun koululta saamillaan tunnuksilla
+          Ostaja kirjautuu palveluun koululta saamillaan tunnuksilla
         </div>
         <div class="number text-right">1</div>
 
@@ -185,7 +185,6 @@ export default {
     }
   },
   created () {
-    // console.log(this.$route.params.id)
     this.load()
   },
   methods: {

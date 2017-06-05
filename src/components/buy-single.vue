@@ -142,7 +142,7 @@ export default {
         ga('ec:setAction', 'detail')
         ga('send', 'event', 'book', 'impression', {'nonInteraction': true})
       }).catch(error => {
-        console.log('Error ' + error.response.status)
+        console.log('Error ' + error)
       }).then(() => {
         EventBus.$emit('setLoading', false)
       })
@@ -174,7 +174,7 @@ export default {
         this.buyStatus = 2
         ga('ec:setAction', 'purchase', {
           'id': this.book.id,
-          'revenue': this.book.price - TOTAL_FEE,
+          'revenue': (this.book.price - TOTAL_FEE) / 100,
           'tax': APP_FEE,
           'shipping': OPERATION_FEE
         })

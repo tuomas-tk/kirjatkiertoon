@@ -6,6 +6,12 @@ var router = express.Router();
 router.post('/get/own', function(req, res) {
   console.log('get own books');
 
+  if (res.locals.user.type < 5) {
+    return res.status(400).json({
+      success: false
+    });
+  }
+
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     if (err) {
       console.error(err);
@@ -36,6 +42,12 @@ router.post('/get/own', function(req, res) {
 
 router.post('/get/bought', function(req, res) {
   console.log('get bought books');
+
+  if (res.locals.user.type < 2) {
+    return res.status(400).json({
+      success: false
+    });
+  }
 
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     if (err) {
@@ -108,7 +120,7 @@ router.post('/get/:id', function(req, res) {
         data: err
       });
     } else {
-      client.query('SELECT * FROM books WHERE id=$1 AND (status = 0 OR "user" = $2 OR "buyer" = $2 ) LIMIT 1', [req.params.id, res.locals.user.id], function(err, result) {
+      client.query('SELECT * FROM books WHERE id=$1 AND status < 4 LIMIT 1', [req.params.id], function(err, result) {
         done();
         if (err) {
           console.error(err);
@@ -131,7 +143,7 @@ router.post('/get/:id', function(req, res) {
 router.post('/buy/:id', function(req, res) {
   console.log('buy a book');
 
-  if (res.locals.user.type < 0) {
+  if (res.locals.user.type <= 0) {
     return res.status(400).json({
       success: false
     });
