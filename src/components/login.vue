@@ -45,6 +45,7 @@ export default {
         auth.saveToken(response.data.data.token)
 
         console.log('Logged in with status ' + auth.status)
+        this.$emit('login')
 
         if (this.$route.query.redirect) {
           this.$router.replace(this.$route.query.redirect)

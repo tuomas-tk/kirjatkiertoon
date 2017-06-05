@@ -5,7 +5,7 @@
         <h1>KirjatKiertoon.fi</h1>
         <h2>Täysin uusi kirjamyyntialusta lukioiden käyttöön!</h2>
       </div><div class="column-50">
-        <login />
+        <login @login="load" />
       </div>
 
       <h3>Haluaisitko palvelun käyttöön myös sinun lukioosi?</h3>
