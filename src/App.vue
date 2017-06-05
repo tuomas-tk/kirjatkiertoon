@@ -19,7 +19,7 @@
           <router-link to="/super">SuperConsole</router-link>
         </div>
         <div class="nav-bar nav-bar-right">
-          <router-link to="/login" v-if="auth.status == 0">Kirjaudu sisään</router-link>
+          <router-link to="/" v-if="auth.status == 0">Kirjaudu sisään</router-link>
           <!--<router-link to="/profile" v-if="auth.status != 0">{{ auth.firstname }}</router-link>-->
           <router-link to="/logout" v-if="auth.status != 0">Kirjaudu ulos</router-link>
         </div>

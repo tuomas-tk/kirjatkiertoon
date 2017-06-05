@@ -8,7 +8,7 @@
       <h1>Olet nyt kirjautunut ulos</h1>
       <h2>Toivottavasti näemme sinut pian!</h2>
       <router-link to="/" class="button btn-m">Etusivulle</router-link>
-      <router-link to="/login" class="button btn-m">Kirjaudu sisään</router-link>
+      <router-link to="/" class="button btn-m">Kirjaudu sisään</router-link>
     </div>
   </div>
 </template>

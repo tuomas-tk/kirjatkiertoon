@@ -131,6 +131,12 @@ router.post('/get/:id', function(req, res) {
 router.post('/buy/:id', function(req, res) {
   console.log('buy a book');
 
+  if (res.locals.user.type < 0) {
+    return res.status(400).json({
+      success: false
+    });
+  }
+
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     if (err) {
       console.error(err);
@@ -138,6 +144,47 @@ router.post('/buy/:id', function(req, res) {
         success: false,
         data: err
       });
+    }
+    if (res.locals.user.type == 1) {
+      client.query(
+        'SELECT id FROM users WHERE firstname = $1 AND lastname = $2 AND email = $3 AND type = 2 LIMIT 1',
+        [req.body.firstname, req.body.lastname, req.body.email])
+        .then(result => {
+          var buyer_id
+          if (result.rowCount == 0) {
+            return client.query(
+              `INSERT INTO users(type, firstname, lastname, email, passcode, school) VALUES ($1, $2, $3, $4, $5, $6) returning id`,
+              [2, req.body.firstname, req.body.lastname, req.body.email, null, res.locals.user.school])
+              .then(result => result.rows[0].id);
+          } else {
+            return new Promise((resolve, reject) => resolve(result.rows[0].id))
+          }
+        })
+        .then(id => {
+          return client.query(
+            'UPDATE books SET buyer = $1, status = 1 WHERE id = $2 AND buyer IS NULL AND "user" != $1',
+            [id, req.params.id]
+          ).then(res => res.rowCount)
+        })
+        .then(rowCount => {
+          if (rowCount == 0) {
+            return res.status(400).json({
+              success: false
+            });
+          }
+          if (rowCount == 1) {
+            return res.status(200).json({
+              success: true
+            });
+          }
+        })
+        .catch(err => {
+          console.log(err)
+          return res.status(500).json({
+            success: false,
+            data: err
+          });
+        });
     } else {
       client.query('UPDATE books SET buyer=$1, status=1 WHERE id=$2 AND buyer IS NULL AND "user"!=$1', [res.locals.user.id, req.params.id], function(err, result) {
         done();
@@ -161,59 +208,6 @@ router.post('/buy/:id', function(req, res) {
         }
       });
     }
-
-  });
-})
-
-router.post('/buy/:id/newuser', function(req, res) {
-  console.log('buy a book');
-
-  if (res.locals.user.type != 1) {
-    return res.status(400).json({
-      success: false,
-      data: 'Already logged in'
-    });
-  }
-
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({
-        success: false,
-        data: err
-      });
-    } else {
-      client.query(
-        'SELECT id FROM users WHERE firstname = $1 AND lastname = $2 AND email = $3 AND type = 2 LIMIT 1',
-        [req.body.firstname, req.body.lastname, req.body.email],
-        function(err, result) {
-          console.log(result.rowCount)
-          console.log(result.rows)
-
-          /*client.query('UPDATE books SET buyer=$1, status=1 WHERE id=$2 AND buyer IS NULL AND "user"!=$1', [res.locals.user.id, req.params.id], function(err, result) {
-            done();
-            if (err) {
-              console.error(err);
-              return res.status(500).json({
-                success: false,
-                data: err
-              });
-            } else {
-              console.log('success')
-              if (result.rowCount == 1) {
-                return res.json({
-                  success: true
-                });
-              } else {
-                return res.status(400).json({
-                  success: false
-                });
-              }
-            }
-          });*/
-      });
-    }
-
   });
 })
 

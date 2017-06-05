@@ -156,9 +156,21 @@ export default {
     },
     confirm: function () {
       EventBus.$emit('setLoading', true)
-      axios.post('/book/buy/' + this.id, {
-        token: auth.getToken()
-      }).then(response => {
+      var body
+      if (this.auth.status === 1) {
+        body = {
+          token: auth.getToken(),
+          firstname: this.buyer_info.firstname,
+          lastname: this.buyer_info.lastname,
+          email: this.buyer_info.email
+        }
+      } else {
+        body = {
+          token: auth.getToken()
+        }
+      }
+      axios.post('/book/buy/' + this.id, body)
+      .then(response => {
         this.buyStatus = 2
         ga('ec:setAction', 'purchase', {
           'id': this.book.id,

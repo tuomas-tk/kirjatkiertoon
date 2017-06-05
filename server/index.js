@@ -53,7 +53,11 @@ app.all('/api/*', function(req, res, next) {
                   success: false,
                   data: err2
                 });
-              } else {
+              } else if (result2.rows[0].type < 1){
+                return res.status(400).json({
+                  success: false
+                })
+              } else {                
                 console.log("Auth success");
                 res.locals.user = result2.rows[0]; // Pass user ahead
                 next();
