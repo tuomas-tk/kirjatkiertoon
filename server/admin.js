@@ -5,7 +5,7 @@ var router = express.Router();
 
 router.post('/get/books', function(req, res) {
   console.log('admin get books')
-  if (res.locals.user.type < 10 || res.locals.user.type >= 20) {
+  if (res.locals.user.type < 10) {
     return res.status(403).json({
       success: false,
       data: 'Forbidden'
@@ -59,7 +59,7 @@ ORDER BY id DESC \
 
 router.post('/get/users', function(req, res) {
   console.log('admin get users')
-  if (res.locals.user.type < 10 || res.locals.user.type >= 20) {
+  if (res.locals.user.type < 10) {
     return res.status(403).json({
       success: false,
       data: 'Forbidden'
@@ -114,7 +114,7 @@ router.post('/add/user', function(req, res) {
     });
   }
 
-  if (res.locals.user.type < 10 || res.locals.user.type >= 20 || res.locals.user.type < data.type) {
+  if (res.locals.user.type < 10 || res.locals.user.type < data.type) {
     return res.status(403).json({
       success: false,
       data: 'Forbidden'
