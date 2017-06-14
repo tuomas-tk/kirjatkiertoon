@@ -9,6 +9,7 @@
     "build": "node build/build.js",
     "lint": "eslint --ext .js,.vue src",
     "server": "node server/index.js",
+    "email": "node server/email/index.js",
     "postinstall": "db-migrate up"
   },
   "dependencies": {
@@ -19,7 +20,10 @@
     "db-migrate-pg": "^0.1.11",
     "dotenv": "^4.0.0",
     "express": "^4.14.1",
+    "juice": "^4.1.0",
+    "nodemailer": "^4.0.1",
     "pg": "^6.1.2",
+    "twig": "^1.10.5",
     "vue": "^2.2.2",
     "vue-router": "^2.3.0"
   },

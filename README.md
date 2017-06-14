@@ -32,3 +32,13 @@ For detailed explanation on how things work, checkout the [guide](http://vuejs-t
 10 - Admin account - limited to users and books
 15 - Primary admin account - to make deals and send payments for school
 42 - SUPER-ADMIN - Can do anything, can also answer to the Ultimate Question of Life, The Universe, and Everything
+
+## Status of book
+
+
+
+## Action types
+The object of the action in parentheses
+
+1  - User bought a book (book)
+10 - Seller's book has been sold (book)
