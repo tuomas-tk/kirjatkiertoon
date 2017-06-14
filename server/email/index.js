@@ -53,7 +53,7 @@ function loop() {
         .then(function () {
           return {
             from: '"KirjatKiertoon.fi" <kirjatkiertoon@firmatverkkoon.fi>',
-            to: .email, // list of receivers
+            to: action.email, // list of receivers
             subject: template.subject, // Subject line
             text: template.text, // plain text body
             html: template.html // html body
@@ -66,12 +66,13 @@ function loop() {
               return;
             }
             console.log('Message %s sent: %s', info.messageId, info.response);
-            console.log('Action ' + i + ' processed')
 
             pool.query(
               'UPDATE actions SET email_waiting = FALSE, email_sent = NOW() WHERE id=$1',
               [action.id]
-            )
+            ).then(() => {
+              console.log('Action ' + action.id + ' processed')
+            })
           });
         })
         .catch(err => {
