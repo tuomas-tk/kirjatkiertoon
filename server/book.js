@@ -162,32 +162,47 @@ router.post('/buy/:id', function(req, res) {
         'SELECT id FROM users WHERE firstname = $1 AND lastname = $2 AND email = $3 AND type = 2 LIMIT 1',
         [req.body.firstname, req.body.lastname, req.body.email])
         .then(result => {
-          var buyer_id
           if (result.rowCount == 0) {
             return client.query(
               `INSERT INTO users(type, firstname, lastname, email, passcode, school) VALUES ($1, $2, $3, $4, $5, $6) returning id`,
               [2, req.body.firstname, req.body.lastname, req.body.email, null, res.locals.user.school])
               .then(result => result.rows[0].id);
           } else {
-            return new Promise((resolve, reject) => resolve(result.rows[0].id))
+            return result.rows[0].id
           }
         })
         .then(id => {
           return client.query(
-            'UPDATE books SET buyer = $1, status = 1 WHERE id = $2 AND buyer IS NULL AND "user" != $1',
+            'UPDATE books SET buyer = $1, status = 1 WHERE id = $2 AND buyer IS NULL AND "user" != $1 RETURNING "user"',
             [id, req.params.id]
-          ).then(res => res.rowCount)
+          ).then(result => {
+            console.log(result.rows[0])
+            if (result.rowCount == 0) {
+              return {rowCount: 0}
+            }
+            return {
+              userID: id,
+              rowCount: result.rowCount,
+              bookID: id,
+              seller: result.rows[0].user
+            }
+          })
         })
-        .then(rowCount => {
-          if (rowCount == 0) {
+        .then(result => {
+          if (result.rowCount == 0) {
             return res.status(400).json({
               success: false
             });
           }
-          if (rowCount == 1) {
-            return res.status(200).json({
-              success: true
-            });
+          if (result.rowCount == 1) {
+            client.query(
+              'INSERT INTO actions(type, "user", object) VALUES (1, $1, $2), (10, $3, $2)',
+              [result.userID, result.bookID, result.seller]
+            ).then(result => {
+              return res.status(200).json({
+                success: true
+              });
+            })
           }
         })
         .catch(err => {
