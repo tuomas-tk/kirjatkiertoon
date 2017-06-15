@@ -183,7 +183,7 @@ router.post('/buy/:id', function(req, res) {
             return {
               userID: id,
               rowCount: result.rowCount,
-              bookID: id,
+              bookID: req.params.id,
               seller: result.rows[0].user
             }
           })
