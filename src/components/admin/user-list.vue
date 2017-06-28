@@ -66,8 +66,9 @@
           <td><input type="text" v-model="newuser.lastname" placeholder="Meikäläinen" /></td>
           <td><input type="text" v-model="newuser.email" placeholder="matti.meikalainen@example.com" /></td>
           <td><select v-model="newuser.type">
-            <option value="1">Vain ostaja</option>
-            <option value="2">Ostaja ja myyjä</option>
+            <option value="1">Yleinen ostotili</option>
+            <option value="2">Vain ostaja</option>
+            <option value="5">Ostaja ja myyjä</option>
             <option value="10">Järjestäjä</option>
           </select></td>
           <td>
