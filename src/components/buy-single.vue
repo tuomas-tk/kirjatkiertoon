@@ -18,9 +18,13 @@
           <p class="info" v-if="book.course">{{ book.course }}</p>
           <p class="info" v-else>Ei määritelty</p>
 
-          <div class="title">Kuvaus:</div>
-          <p class="info" v-if="book.info">{{ book.info }}</p>
-          <p class="info" v-else>Ei lisätietoja</p>
+          <div class="title">Kustantaja:</div>
+          <p class="info" v-if="book.publisher">{{ book.publisher }}</p>
+          <p class="info" v-else>Ei määritelty</p>
+
+          <div class="title">Painovuosi:</div>
+          <p class="info" v-if="book.year">{{ book.year }}</p>
+          <p class="info" v-else>Ei määritelty</p>
 
         </div><div class="right">
 
@@ -36,6 +40,10 @@
             <span v-if="book.condition == 4">Hyvä</span>
             <span v-if="book.condition == 5">Erinomainen</span>
           </div>
+
+          <div class="title">Kuvaus:</div>
+          <p class="info" v-if="book.info">{{ book.info }}</p>
+          <p class="info" v-else>Ei lisätietoja</p>
 
         </div>
 
@@ -261,14 +269,20 @@ h2 {
 .title {
   font-weight: 700
   font-size: 1.2em
-  margin-top: 1em
-  margin-bottom: 0.5em
+  margin-top: 1.5em
+  margin-bottom: 0
+}
+
+.info {
+  margin-top: 0.5em
+  margin-bottom: 0
 }
 
 .condition {
   white-space: nowrap
   color: #444444
   font-weight: 700
+  padding-top: 0.5em
 
   i.fa {
     font-size: 2em
@@ -279,11 +293,16 @@ h2 {
   i.fa-star-o {
     color: #BBBBBB
   }
+
+  span {
+    font-style: italic
+  }
 }
 
 .price {
   font-size: 3.5em
   font-weight: 700
+  margin-top: 0.2em
   margin-bottom: 1em
   color: #444444
 }

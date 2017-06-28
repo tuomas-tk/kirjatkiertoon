@@ -17,9 +17,13 @@
           <p class="info" v-if="book.course">{{ book.course }}</p>
           <p class="info" v-else>Ei määritelty</p>
 
-          <div class="title">Kuvaus:</div>
-          <p class="info" v-if="book.info">{{ book.info }}</p>
-          <p class="info" v-else>Ei lisätietoja</p>
+          <div class="title">Kustantaja:</div>
+          <p class="info" v-if="book.publisher">{{ book.publisher }}</p>
+          <p class="info" v-else>Ei määritelty</p>
+
+          <div class="title">Painovuosi:</div>
+          <p class="info" v-if="book.year">{{ book.year }}</p>
+          <p class="info" v-else>Ei määritelty</p>
 
         </div><div class="right">
 
@@ -36,6 +40,10 @@
             <span v-if="book.condition == 5">Erinomainen</span>
           </div>
 
+          <div class="title">Kuvaus:</div>
+          <p class="info" v-if="book.info">{{ book.info }}</p>
+          <p class="info" v-else>Ei lisätietoja</p>
+          
         </div>
 
         <div class="title">Hinta:</div>

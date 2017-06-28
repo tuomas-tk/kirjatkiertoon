@@ -56,8 +56,17 @@
         <option v-for="n in (this.courses[subject])">{{ subject }}{{ n }}</option>
       </select>
 
-      <h2>3. Kirjasarja ja nimi</h2>
-      <input v-model="name" :disabled="course==''" placeholder="esim. Särmä - Tehtäviä 3" />
+      <h2>3. Kirjan tiedot</h2>
+
+      <h3>Kirjasarja ja kirjan nimi/numero</h3>
+      <input type="text" v-model="name" :disabled="course==''" placeholder="esim. Särmä - Tehtäviä 3" />
+
+      <h3>Kustantaja</h3>
+      <input type="text" v-model="publisher" placeholder="esim. Sanoma Pro, Otava" />
+
+      <h3>Painovuosi</h3>
+      <p>Löytyy yleensä kirjan etukannesta tai ensimmäisiltä sivuilta</h3>
+      <input type="text" v-model="year" placeholder="esim. 2016" />
 
       <h2>4. Muut tiedot</h2>
       <h3>Kunto:</h3>
@@ -90,6 +99,14 @@
         <tr>
           <th>Kirjan nimi</th>
           <td>{{ name }}</td>
+        </tr>
+        <tr>
+          <th>Kustantaja</th>
+          <td>{{ publisher }}</td>
+        </tr>
+        <tr>
+          <th>Painovuosi</th>
+          <td>{{ year }}</td>
         </tr>
         <tr>
           <th>Kunto</th>
@@ -148,6 +165,8 @@ export default {
       subject: '',
       course: '',
       name: '',
+      publisher: '',
+      year: '',
       condition: 0,
       info: '',
       price_euros: '20',
@@ -167,6 +186,8 @@ export default {
         token: auth.getToken(),
         course: this.course,
         name: this.name,
+        publisher: this.publisher,
+        year: this.year,
         condition: this.condition,
         info: this.info,
         price: this.price_real

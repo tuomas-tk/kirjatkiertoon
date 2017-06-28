@@ -244,6 +244,8 @@ router.post('/add/', function(req, res) {
   var data = {
     course:    req.body.course,
     name:      req.body.name,
+    publisher: req.body.publisher,
+    year:      req.body.year,
     price:     req.body.price,
     condition: req.body.condition,
     info:      req.body.info
@@ -266,8 +268,8 @@ router.post('/add/', function(req, res) {
     }
 
     client.query(
-      'INSERT INTO books(course, name, price, condition, info, "user", status) values($1, $2, $3, $4, $5, $6, 0) RETURNING id',
-      [data.course, data.name, data.price, data.condition, data.info, res.locals.user.id],
+      'INSERT INTO books(course, name, publisher, year, price, condition, info, "user", status) values($1, $2, $3, $4, $5, $6, $7, $8, 0) RETURNING id',
+      [data.course, data.name, data.publisher, data.year, data.price, data.condition, data.info, res.locals.user.id],
       function(err, result) {
 
         done();
