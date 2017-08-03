@@ -35,7 +35,10 @@ For detailed explanation on how things work, checkout the [guide](http://vuejs-t
 
 ## Status of book
 
-
+0 - Available to buy
+1 - Bought, not brought to school yet
+2 - Book at school
+3 - Sold, book at buyer
 
 ## Action types
 The object of the action in parentheses

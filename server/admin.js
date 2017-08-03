@@ -204,4 +204,179 @@ router.post('/add/user', function(req, res) {
   });
 })
 
+
+router.post('/receive/get/sellers', function(req, res) {
+  console.log('admin receive get sellers')
+  if (res.locals.user.type < 10) {
+    return res.status(403).json({
+      success: false,
+      data: 'Forbidden'
+    })
+  }
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        success: false,
+        data: err
+      });
+    } else {
+      client.query('\
+SELECT id, firstname, lastname, email FROM users WHERE  \
+type < 10 AND type >= 5 AND                   \
+(                                             \
+ firstname || \' \' || lastname ILIKE $1 OR   \
+ email                          ILIKE $1 OR   \
+ passcode                       ILIKE $1      \
+)                                             \
+ORDER BY lastname ASC, firstname ASC          \
+LIMIT 10                                      \
+      ', ['%' + (req.body.search || '') + '%'], function(err, result) {
+        done();
+        if (err) {
+          console.error(err);
+          return res.status(500).json({
+            success: false,
+            data: err
+          });
+        } else {
+          res.json({
+            success: true,
+            data: result.rows
+          });
+        }
+      });
+    }
+
+  });
+});
+
+router.post('/receive/get/books', function(req, res) {
+  console.log('admin receive get books')
+  if (res.locals.user.type < 10) {
+    return res.status(403).json({
+      success: false,
+      data: 'Forbidden'
+    })
+  }
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        success: false,
+        data: err
+      });
+    } else {
+      client.query('\
+SELECT id, course, name, price, condition, info, publisher, year FROM books WHERE  \
+ "user" = $1 AND           \
+ status = 1                \
+ORDER BY id ASC            \
+      ', [req.body.seller], function(err, result) {
+        done();
+        if (err) {
+          console.error(err);
+          return res.status(500).json({
+            success: false,
+            data: err
+          });
+        } else {
+          res.json({
+            success: true,
+            data: result.rows
+          });
+        }
+      });
+    }
+
+  });
+});
+
+router.post('/receive/get/code', function(req, res) {
+  console.log('admin receive get code')
+  if (res.locals.user.type < 10) {
+    return res.status(403).json({
+      success: false,
+      data: 'Forbidden'
+    })
+  }
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        success: false,
+        data: err
+      });
+    } else {
+      client.query('\
+UPDATE books \
+SET code = next_code + 1 \
+FROM \
+ COALESCE((SELECT code FROM books WHERE  \
+  code IS NOT NULL          \
+ ORDER BY code DESC         \
+ LIMIT 1)::integer, 99) AS next_code  \
+WHERE id = $1 AND                \
+ status = 1                      \
+RETURNING next_code + 1 AS code \
+      ', [req.body.book], function(err, result) {
+        done();
+        if (err) {
+          console.error(err);
+          return res.status(500).json({
+            success: false,
+            data: err
+          });
+        } else {
+          console.log(result.rows)
+          return res.json({
+            success: true,
+            data: parseInt(result.rows[0]['code'])
+          })
+        }
+      });
+    }
+
+  });
+});
+
+router.post('/receive/set/received', function(req, res) {
+  console.log('admin receive set received')
+  if (res.locals.user.type < 10) {
+    return res.status(403).json({
+      success: false,
+      data: 'Forbidden'
+    })
+  }
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        success: false,
+        data: err
+      });
+    } else {
+      client.query('\
+UPDATE books \
+SET status = 2 \
+WHERE id = $1 AND code = $2 \
+      ', [req.body.book, req.body.code], function(err, result) {
+        done();
+        if (err) {
+          console.error(err);
+          return res.status(500).json({
+            success: false,
+            data: err
+          });
+        } else {
+          return res.json({
+            success: true
+          })
+        }
+      });
+    }
+
+  });
+});
+
 module.exports = router;

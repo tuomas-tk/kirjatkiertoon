@@ -74,9 +74,9 @@
             <select v-model="status">
               <option value="">Kaikki</option>
               <option value="0">Myytävänä</option>
-              <option value="1">Toimittamatta koululle</option>
+              <option value="1">Toimitettava koululle</option>
               <option value="2">Noudettava koululta</option>
-              <option value="3">Luovutettu</option>
+              <option value="3">Toimitettu ostajalle</option>
             </select>
           </td>
         </tr>
@@ -171,7 +171,6 @@ import BuySingle from '../buy-single'
 import { COURSES, TOTAL_FEE } from '../../Static'
 
 export default {
-  name: 'buy-list',
   components: {
     'currency': Currency,
     'buy-single': BuySingle
@@ -304,6 +303,10 @@ export default {
 
   td {
     padding: 0 .2em !important
+  }
+
+  a.button {
+    margin: .4em 0
   }
 }
 

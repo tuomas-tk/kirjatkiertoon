@@ -83,7 +83,7 @@
           </div>
           <router-link to="/admin/books?status=0" class="button btn-m btn-block"><i class="fa fa-bars fa-fw"></i> Näytä</router-link>
         </div><div class="section-28">
-          <h3>Toimittamatta koululle</h3>
+          <h3>Toimitettava koululle</h3>
           <div class="number">
             {{ dashboard.count1 }}<span>kirjaa</span>
           </div>
@@ -91,7 +91,7 @@
             Hinta yhteensä: <currency :amount="dashboard.price1" />
           </div>
           <router-link to="/admin/books?status=1" class="button btn-m btn-block"><i class="fa fa-bars fa-fw"></i> Näytä</router-link>
-          <router-link to="/sell/new" class="button btn-m btn-block"><i class="fa fa-sign-in fa-fw"></i> Vastaanota kirja</router-link>
+          <router-link to="/admin/receive" class="button btn-m btn-block"><i class="fa fa-sign-in fa-fw"></i> Vastaanota myyjältä</router-link>
         </div><div class="section-28">
           <h3>Noudettava koululta</h3>
           <div class="number">
@@ -101,9 +101,9 @@
             Hinta yhteensä: <currency :amount="dashboard.price2" />
           </div>
           <router-link to="/admin/books?status=2" class="button btn-m btn-block"><i class="fa fa-bars fa-fw"></i> Näytä</router-link>
-          <router-link to="/sell/new" class="button btn-m btn-block"><i class="fa fa-sign-out fa-fw"></i> Luovuta kirja</router-link>
+          <router-link to="/admin/deliver" class="button btn-m btn-block"><i class="fa fa-sign-out fa-fw"></i> Luovuta ostajalle</router-link>
         </div><div class="section-22">
-          <h3>Luovutettu</h3>
+          <h3>Luovutettu ostajille</h3>
           <div class="number">
             {{ dashboard.count3 }}<span>kirjaa</span>
           </div>
