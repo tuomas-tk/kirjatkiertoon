@@ -14,7 +14,6 @@
     <div v-else class="maxwidth">
 
       <h1>Tervetuloa!</h1>
-      <router-link v-if="authStatus == 42" to="/super" class="button btn-l">SuperConsole</router-link>
 
       <div class="add-email box" v-if="!auth.email && auth.status >= 2">
         <h2>Lisää sähköpostiosoite heti!</h2>
@@ -74,31 +73,49 @@
       </div>
 
       <div class="dashboard" v-if="authStatus >= 10">
-        <div class="section">
-          <h2>Koululla</h2>
-          <h3>Noutamista odottaa</h3>
+        <div class="section-22">
+          <h3>Myytävänä</h3>
           <div class="number">
-            {{ dashboard.status2 }}<span>kirjaa</span>
+            {{ dashboard.count0 }}<span>kirjaa</span>
           </div>
-          <h3>Koululta myyty yhteensä</h3>
+          <div class="price">
+            Hinta yhteensä: <currency :amount="dashboard.price0" />
+          </div>
+          <router-link to="/sell/new" class="button btn-m btn-block"><i class="fa fa-bars fa-fw"></i> Näytä</router-link>
+        </div><div class="section-28">
+          <h3>Toimittamatta koululle</h3>
           <div class="number">
-            {{ dashboard.status3 }}<span>kirjaa</span>
+            {{ dashboard.count1 }}<span>kirjaa</span>
           </div>
-        </div><div class="section" v-if="authStatus >= 2">
-          <h2>Myyjillä</h2>
-          <h3>Kirjoja toimittamatta koululle</h3>
-          <div class="number" :class="{'number-red': dashboard.sell_sold > 0}">
-            {{ dashboard.status1 }}<span>kirjaa</span>
+          <div class="price">
+            Hinta yhteensä: <currency :amount="dashboard.price1" />
           </div>
-          <h3>Myynnissä yhteensä</h3>
+          <router-link to="/sell/new" class="button btn-m btn-block"><i class="fa fa-bars fa-fw"></i> Näytä</router-link>
+          <router-link to="/sell/new" class="button btn-m btn-block"><i class="fa fa-sign-in fa-fw"></i> Vastaanota kirja</router-link>
+        </div><div class="section-28">
+          <h3>Noudettava koululta</h3>
           <div class="number">
-            {{ dashboard.status0 }}<span>kirjaa</span>
+            {{ dashboard.count2 }}<span>kirjaa</span>
           </div>
+          <div class="price">
+            Hinta yhteensä: <currency :amount="dashboard.price2" />
+          </div>
+          <router-link to="/sell/new" class="button btn-m btn-block"><i class="fa fa-bars fa-fw"></i> Näytä</router-link>
+          <router-link to="/sell/new" class="button btn-m btn-block"><i class="fa fa-sign-out fa-fw"></i> Luovuta kirja</router-link>
+        </div><div class="section-22">
+          <h3>Luovutettu</h3>
+          <div class="number">
+            {{ dashboard.count3 }}<span>kirjaa</span>
+          </div>
+          <div class="price">
+            Hinta yhteensä: <currency :amount="dashboard.price3" />
+          </div>
+          <router-link to="/sell/new" class="button btn-m btn-block"><i class="fa fa-bars fa-fw"></i> Näytä</router-link>
         </div>
       </div>
     </div>
 
-    <div id="block-steps">
+    <div id="block-steps" v-if="authStatus < 10">
       <div class="maxwidth">
         <h2>Miten KirjatKiertoon.fi toimii?</h2>
         <div class="caption">MYYJÄ</div>
@@ -155,7 +172,7 @@
       </div>
     </div>
 
-    <div class="maxwidth">
+    <div class="maxwidth" v-if="authStatus < 10">
       <h2 id="yhteys">Pyydä lisätietoja!</h2>
 
       <b>Tuomas Karjalainen</b><br>
@@ -172,11 +189,13 @@ import auth from '../api/auth'
 import axios from 'axios'
 import {EventBus} from '../EventBus'
 import login from './login'
+import currency from './currency'
 
 export default {
   name: 'frontpage',
   components: {
-    'login': login
+    'login': login,
+    'currency': currency
   },
   data () {
     return {
@@ -326,7 +345,7 @@ export default {
     .number {
       font-size: 5em
       font-weight: 600
-      margin-bottom: .5em
+      margin-bottom: .3em
 
       span {
         font-size: .3em
@@ -343,6 +362,35 @@ export default {
         }
       }
     }
+    .price {
+      text-align: center
+      font-size: 1em
+      font-weight: 600
+      margin-bottom: .5em
+
+      span {
+        padding-left: .2em
+        font-size: 1.5em
+      }
+    }
+  }
+  .section-22, .section-28 {
+    @extends .dashboard .section
+    h3 {
+      margin-top: 1.5em
+    }
+  }
+  @media (min-width: 700px) {
+    .section-22 {
+      width: calc(22% - 6em)
+    }
+    .section-28 {
+      width: calc(28% - 6em)
+    }
+  }
+  .section-100 {
+    @extends .dashboard .section
+    width: 100%
   }
 }
 </style>

@@ -113,14 +113,10 @@ html, body, #app
   -moz-osx-font-smoothing: grayscale
   color: #333333
 
-  font-size: 16px
-  @media (max-width: _breakpoint-tablet) {
-    font-size: 14px
-  }
+  font-size: 14px
   @media (max-width: _breakpoint-mobile) {
     font-size: 12px
   }
-
 }
 
 header {

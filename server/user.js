@@ -96,10 +96,14 @@ router.post('/get/dashboard', function(req, res) {
         params = [res.locals.user.id]
       } else if (res.locals.user.type >= 10) {
         query = `SELECT
-          ( SELECT COUNT(*) FROM books WHERE status=0 )  as status0,
-          ( SELECT COUNT(*) FROM books WHERE status=1 )  as status1,
-          ( SELECT COUNT(*) FROM books WHERE status=2 )  as status2,
-          ( SELECT COUNT(*) FROM books WHERE status=3 )  as status3`
+          ( SELECT COUNT(*) FROM books WHERE status=0 )  as count0,
+          ( SELECT COUNT(*) FROM books WHERE status=1 )  as count1,
+          ( SELECT COUNT(*) FROM books WHERE status=2 )  as count2,
+          ( SELECT COUNT(*) FROM books WHERE status=3 )  as count3,
+          ( SELECT SUM(price) FROM books WHERE status=0 )  as price0,
+          ( SELECT SUM(price) FROM books WHERE status=1 )  as price1,
+          ( SELECT SUM(price) FROM books WHERE status=2 )  as price2,
+          ( SELECT SUM(price) FROM books WHERE status=3 )  as price3`
       } else {
         return res.status(500).json({
           success: false,
