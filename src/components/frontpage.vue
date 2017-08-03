@@ -81,7 +81,7 @@
           <div class="price">
             Hinta yhteensä: <currency :amount="dashboard.price0" />
           </div>
-          <router-link to="/sell/new" class="button btn-m btn-block"><i class="fa fa-bars fa-fw"></i> Näytä</router-link>
+          <router-link to="/admin/books?status=0" class="button btn-m btn-block"><i class="fa fa-bars fa-fw"></i> Näytä</router-link>
         </div><div class="section-28">
           <h3>Toimittamatta koululle</h3>
           <div class="number">
@@ -90,7 +90,7 @@
           <div class="price">
             Hinta yhteensä: <currency :amount="dashboard.price1" />
           </div>
-          <router-link to="/sell/new" class="button btn-m btn-block"><i class="fa fa-bars fa-fw"></i> Näytä</router-link>
+          <router-link to="/admin/books?status=1" class="button btn-m btn-block"><i class="fa fa-bars fa-fw"></i> Näytä</router-link>
           <router-link to="/sell/new" class="button btn-m btn-block"><i class="fa fa-sign-in fa-fw"></i> Vastaanota kirja</router-link>
         </div><div class="section-28">
           <h3>Noudettava koululta</h3>
@@ -100,7 +100,7 @@
           <div class="price">
             Hinta yhteensä: <currency :amount="dashboard.price2" />
           </div>
-          <router-link to="/sell/new" class="button btn-m btn-block"><i class="fa fa-bars fa-fw"></i> Näytä</router-link>
+          <router-link to="/admin/books?status=2" class="button btn-m btn-block"><i class="fa fa-bars fa-fw"></i> Näytä</router-link>
           <router-link to="/sell/new" class="button btn-m btn-block"><i class="fa fa-sign-out fa-fw"></i> Luovuta kirja</router-link>
         </div><div class="section-22">
           <h3>Luovutettu</h3>
@@ -110,7 +110,7 @@
           <div class="price">
             Hinta yhteensä: <currency :amount="dashboard.price3" />
           </div>
-          <router-link to="/sell/new" class="button btn-m btn-block"><i class="fa fa-bars fa-fw"></i> Näytä</router-link>
+          <router-link to="/admin/books?status=3" class="button btn-m btn-block"><i class="fa fa-bars fa-fw"></i> Näytä</router-link>
         </div>
       </div>
     </div>

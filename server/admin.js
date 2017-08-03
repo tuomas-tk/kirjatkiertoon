@@ -32,12 +32,35 @@ router.post('/get/books', function(req, res) {
       });
     } else { // CASE status WHEN 1 THEN 0 ELSE 1 END ASC    to move status=1 (waiting for book) to the start of the list
       client.query('\
-SELECT * FROM books WHERE   \
-course        LIKE $1 AND \
-name          LIKE $2 AND \
-status::text  LIKE $3     \
-ORDER BY id DESC \
-      ', [(req.body.book.course || '%'), '%'+(req.body.book.name || '')+'%', '%'+(req.body.book.status || '')+'%'], function(err, result) {
+SELECT \
+ books.*, \
+ sell_user.firstname::text || \' \' || sell_user.lastname as seller, \
+ buy_user.firstname  || \' \' || buy_user.lastname  as buyer   \
+FROM books                                      \
+LEFT JOIN users as sell_user                    \
+ ON sell_user.id = books."user"                 \
+LEFT JOIN users as buy_user                     \
+ ON buy_user.id = books.buyer                   \
+WHERE                                           \
+ COALESCE(course,\'\')        ILIKE $1 AND                     \
+ COALESCE(name,\'\')          ILIKE $2 AND                     \
+ COALESCE(code,\'\')          ILIKE $3 AND                     \
+ COALESCE(status::text,\'\')  ILIKE $4 AND                     \
+ (                                              \
+  (COALESCE(sell_user.firstname,\'\') ILIKE $5 AND COALESCE(sell_user.lastname,\'\') ILIKE $6 AND COALESCE(sell_user.email,\'\') ILIKE $7 AND COALESCE(sell_user.passcode,\'\') ILIKE $8) OR \
+  (COALESCE( buy_user.firstname,\'\') ILIKE $5 AND COALESCE( buy_user.lastname,\'\') ILIKE $6 AND COALESCE( buy_user.email,\'\') ILIKE $7 AND COALESCE( buy_user.passcode,\'\') ILIKE $8)    \
+ )                                              \
+ORDER BY id DESC                                \
+      ', [
+        (req.body.book.course || '%'),
+        '%'+(req.body.book.name || '')+'%',
+        '%'+(req.body.book.code || '')+'%',
+        '%'+(req.body.book.status || '')+'%',
+        '%'+(req.body.person.firstname || '')+'%',
+        '%'+(req.body.person.lastname || '')+'%',
+        '%'+(req.body.person.email || '')+'%',
+        '%'+(req.body.person.passcode || '')+'%'
+      ], function(err, result) {
         done();
         if (err) {
           console.error(err);

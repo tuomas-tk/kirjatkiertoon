@@ -78,6 +78,12 @@ var router = new Router({
       meta: { requiresAuthLevel: 10 }
     },
     {
+      path: '/admin/books/:id',
+      name: 'adminBookSingle',
+      component: adminBookList,
+      meta: { requiresAuthLevel: 10 }
+    },
+    {
       path: '/admin/users',
       name: 'adminUserList',
       component: adminUserList,

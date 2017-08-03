@@ -13,6 +13,8 @@
                 <option value="ÄI">ÄI - Äidinkieli</option>
                 <option value="EN">EN - Englanti</option>
                 <option value="RU">RU - Ruotsi</option>
+                <option value="SA">SA - Saksa</option>
+                <option value="RA">RA - Ranska</option>
               </optgroup>
               <optgroup label="Matematiikka">
                 <option value="MAY">MAY - Yhteinen matikka</option>
@@ -71,10 +73,10 @@
           <td>
             <select v-model="status">
               <option value="">Kaikki</option>
-              <option value="0">Myynnissä (kirja myyjällä)</option>
-              <option value="1">Varattu (kirja myyjällä)</option>
-              <option value="2">Koululta noudettavissa</option>
-              <option value="3">Myyty (kirja ostajalla)</option>
+              <option value="0">Myytävänä</option>
+              <option value="1">Toimittamatta koululle</option>
+              <option value="2">Noudettava koululta</option>
+              <option value="3">Luovutettu</option>
             </select>
           </td>
         </tr>
@@ -117,9 +119,11 @@
     <table>
       <thead>
         <tr>
+          <th>Säilytyskoodi</th>
           <th>Kurssi</th>
           <th>Kirja</th>
-          <th>Hinta</th>
+          <th>Hinta ostajalle</th>
+          <th>Hinta myyjälle</th>
           <th>Kunto</th>
           <th>Myyjä</th>
           <th>Ostaja</th>
@@ -128,6 +132,7 @@
       </thead>
       <tbody>
         <tr v-for="book in books">
+          <td>{{ book.code }}</td>
           <td>{{ book.course }}</td>
           <td class="name">
             <router-link :to="{name: 'buySingle', params: { id: book.id }}">
@@ -135,17 +140,18 @@
             </router-link>
           </td>
           <td class="price"><currency :amount="book.price" /></td>
+          <td class="price"><currency :amount="book.price - totalFee" /></td>
           <td class="condition">
             <i class="fa fa-star" v-for="n in book.condition"></i><i class="fa fa-star-o" v-for="n in 5-book.condition"></i>
           </td>
           <td>
-            {{ book.user }}
+            {{ book.seller }}
           </td>
           <td>
             {{ book.buyer }}
           </td>
           <td>
-            <router-link class="button btn-s" :to="{name: 'buySingle', params: { id: book.id }}">Avaa</router-link>
+            <router-link class="button btn-s" :to="{name: 'adminBookSingle', params: { id: book.id }}">Avaa</router-link>
           </td>
         </tr>
       </tbody>
@@ -162,7 +168,7 @@ import auth from '../../api/auth'
 import { EventBus } from '../../EventBus'
 import Currency from '../currency'
 import BuySingle from '../buy-single'
-import { COURSES } from '../../Static'
+import { COURSES, TOTAL_FEE } from '../../Static'
 
 export default {
   name: 'buy-list',
@@ -182,7 +188,8 @@ export default {
       lastname: this.$route.query.lastname || '',
       email: this.$route.query.email || '',
       passcode: this.$route.query.passcode || '',
-      courseCount: COURSES
+      courseCount: COURSES,
+      totalFee: TOTAL_FEE
     }
   },
   created () {
