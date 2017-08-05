@@ -21,12 +21,12 @@
             <td>{{ user.firstname }}</td>
             <td>{{ user.lastname }}</td>
             <td>{{ user.email }}</td>
-            <td>{{ user.passcode }}</td>
+            <td><passcode :passcode="user.passcode"/></td>
             <td><a href="#" class="button" v-on:click.prevent="selectUser(user)">Valitse</a></td>
           </tr>
           <tr v-if="sellerResults.length == 0">
             <td colspan="5" class="center">
-              <h3>Koulullasi ei ole yhtään myyjää!</h3>
+              <h3>Haulla ei löydy yhtään myyjää!</h3>
             </td>
           </tr>
         </tbody>
@@ -34,16 +34,6 @@
     </div>
   </div>
   <div class="box" v-if="step == 1">
-    <h3>Tarkista henkilöllisyys</h3>
-    Henkilöllisyyden vahvistamisksi hyväksytään jokin viranomaisen myöntämä todiste, esimerkiksi <b>kela-kortti, ajokortti, passi tai henkilökortti.</b>
-    <h3 class="center">Onhan henkilö varmasti:</h3>
-    <h2 class="center">{{ seller.firstname }} {{ seller.lastname }} </h2>
-    <div class="center">
-      <a href="#" class="button" v-on:click.prevent="step = 0; search = ''">Hylkää</a>
-      <a href="#" class="button" v-on:click.prevent="step = 2">Hyväksy</a>
-    </div>
-  </div>
-  <div class="box" v-if="step == 2">
     <h3>Valitse oikea kirja</h3>
     <div class="table">
       <table>
@@ -80,7 +70,7 @@
       <a href="#" class="button" v-on:click.prevent="step = 0">Peruuta</a>
     </div>
   </div>
-  <div class="box" v-if="step == 3">
+  <div class="box" v-if="step == 2">
     <h3>Tarkista kirja</h3>
     Tarkista että kirja on sellainen kuin sanotaan. Muista tarkistaa myös painovuosi!
     <table class="info">
@@ -118,19 +108,19 @@
       </tr>
     </table>
     <div class="center">
-      <a href="#" class="button" v-on:click.prevent="step = 2; book = {}">Hylkää</a>
-      <a href="#" class="button" v-on:click.prevent="step = 4; loadCode()">Hyväksy</a>
+      <a href="#" class="button" v-on:click.prevent="step = 1; book = {}">Hylkää</a>
+      <a href="#" class="button" v-on:click.prevent="step = 3; loadCode()">Hyväksy</a>
     </div>
   </div>
-  <div class="box center" v-if="step == 4">
+  <div class="box center" v-if="step == 3">
     <h3>Merkitse kirjaan säilytyskoodi</h3>
     Suosittelemme esimerkiksi maalarinteippiä
     <h3 class="code">{{ code }}</h3>
     <h3>Varmista että koodi on oikein, selkeä, ja tiukasti kiinni</h3>
-    <a href="#" class="button" v-on:click.prevent="step = 3; code = ''">Hylkää</a>
+    <a href="#" class="button" v-on:click.prevent="step = 2; code = ''">Hylkää</a>
     <a href="#" class="button" v-on:click.prevent="accept()">Hyväksy</a>
   </div>
-  <div class="box center" v-if="step == 5">
+  <div class="box center" v-if="step == 4">
     <h2>Kirjan {{ code }} vastaanotto onnistui!</h2>
     <div v-if="seller.email">
       <h3>Myyjä saa tositteen sähköpostilla, osoitteeseen {{ seller.email }}</h3>
@@ -140,7 +130,7 @@
     </div>
     <br><br>
     <h3>Vastaanota toinen kirja</h3>
-    <a href="#" class="button" v-on:click.prevent="code = ''; bookResults = [];  step = 2; loadBooks();">Sama myyjä</a>
+    <a href="#" class="button" v-on:click.prevent="code = ''; bookResults = [];  step = 1; loadBooks();">Sama myyjä</a>
     <a href="#" class="button" v-on:click.prevent="code = ''; bookResults = []; seller = {}; sellerResults = {}; search = ''; step = 0; loadSellers()">Eri myyjä</a>
   </div>
 </div>
@@ -151,11 +141,13 @@
 import axios from 'axios'
 import auth from '../../api/auth'
 import Currency from '../currency'
+import Passcode from '../passcode'
 import { TOTAL_FEE } from '../../Static'
 
 export default {
   components: {
-    'currency': Currency
+    'currency': Currency,
+    'passcode': Passcode
   },
   data () {
     return {
@@ -216,7 +208,7 @@ export default {
     },
     selectBook: function (book) {
       this.book = book
-      this.step = 3
+      this.step = 2
     },
     nl2br: function (str) {
       return (str + '')
@@ -248,7 +240,7 @@ export default {
         token: auth.getToken()
       }).then(response => {
         console.log('ok')
-        this.step = 5
+        this.step = 4
       }).catch(error => {
         if (error.response.status === 400) {
           console.log('Invalid token')

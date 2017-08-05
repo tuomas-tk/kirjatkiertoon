@@ -38,7 +38,8 @@ For detailed explanation on how things work, checkout the [guide](http://vuejs-t
 0 - Available to buy
 1 - Bought, not brought to school yet
 2 - Book at school
-3 - Sold, book at buyer
+3 - Sold, book delivered to buyer
+4 - Money delivered to seller
 
 ## Action types
 The object of the action in parentheses

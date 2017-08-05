@@ -222,7 +222,7 @@ router.post('/receive/get/sellers', function(req, res) {
       });
     } else {
       client.query('\
-SELECT id, firstname, lastname, email FROM users WHERE  \
+SELECT id, firstname, lastname, email, passcode FROM users WHERE  \
 type < 10 AND type >= 5 AND                   \
 (                                             \
  firstname || \' \' || lastname ILIKE $1 OR   \
@@ -230,7 +230,7 @@ type < 10 AND type >= 5 AND                   \
  passcode                       ILIKE $1      \
 )                                             \
 ORDER BY lastname ASC, firstname ASC          \
-LIMIT 10                                      \
+LIMIT 5                                       \
       ', ['%' + (req.body.search || '') + '%'], function(err, result) {
         done();
         if (err) {
@@ -376,6 +376,150 @@ WHERE id = $1 AND code = $2 \
       });
     }
 
+  });
+});
+
+
+router.post('/deliver/get/buyers', function(req, res) {
+  console.log('admin deliver get buyers')
+  if (res.locals.user.type < 10) {
+    return res.status(403).json({
+      success: false,
+      data: 'Forbidden'
+    })
+  }
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        success: false,
+        data: err
+      });
+    } else {
+      client.query('\
+SELECT id, firstname, lastname, email FROM users WHERE  \
+type < 10 AND type >= 2 AND                   \
+(                                             \
+ firstname || \' \' || lastname ILIKE $1 OR   \
+ email                          ILIKE $1      \
+)                                             \
+ORDER BY lastname ASC, firstname ASC          \
+LIMIT 5                                       \
+      ', ['%' + (req.body.search || '') + '%'], function(err, result) {
+        done();
+        if (err) {
+          console.error(err);
+          return res.status(500).json({
+            success: false,
+            data: err
+          });
+        } else {
+          res.json({
+            success: true,
+            data: result.rows
+          });
+        }
+      });
+    }
+
+  });
+});
+
+router.post('/deliver/get/books', function(req, res) {
+  console.log('admin deliver get books')
+  if (res.locals.user.type < 10) {
+    return res.status(403).json({
+      success: false,
+      data: 'Forbidden'
+    })
+  }
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        success: false,
+        data: err
+      });
+    } else {
+      client.query('\
+SELECT id, code, course, name, price, condition, info, publisher, year FROM books WHERE  \
+ buyer = $1 AND           \
+ status = 2               \
+ORDER BY code ASC         \
+      ', [req.body.buyer], function(err, result) {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({
+            success: false,
+            data: err
+          });
+        } else {
+          client.query('\
+SELECT id, course, name, price, condition, info, publisher, year FROM books WHERE  \
+ buyer = $1 AND           \
+ status = 1               \
+ORDER BY price ASC        \
+          ', [req.body.buyer], function(err2, result2) {
+            done();
+            if (err2) {
+              console.error(err2);
+              return res.status(500).json({
+                success: false,
+                data: err2
+              });
+            } else {
+              res.json({
+                success: true,
+                data: {
+                  available: result.rows,
+                  coming: result2.rows
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+
+  });
+});
+
+router.post('/deliver/set/delivered', function(req, res) {
+  console.log('admin deliver set delivered')
+  if (res.locals.user.type < 10) {
+    return res.status(403).json({
+      success: false,
+      data: 'Forbidden'
+    })
+  }
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        success: false,
+        data: err
+      });
+    } else {
+      client.query('\
+        UPDATE books \
+        SET status = 3 \
+        WHERE id = $1 AND buyer = $2 \
+      ', [req.body.books[0], req.body.buyer], function(err, result) {
+        console.log('fin')
+        done()
+        if (err) {
+          console.error(err);
+          return res.status(500).json({
+            success: false,
+            data: err
+          })
+        } else {
+          return res.json({
+            success: true
+          })
+        }
+      })
+    }
   });
 });
 
