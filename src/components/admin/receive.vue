@@ -24,7 +24,7 @@
             <td><passcode :passcode="user.passcode"/></td>
             <td><a href="#" class="button" v-on:click.prevent="selectUser(user)">Valitse</a></td>
           </tr>
-          <tr v-if="sellerResults.length == 0">
+          <tr v-if="sellerResults.length == 0 && search.length > 0">
             <td colspan="5" class="center">
               <h3>Haulla ei löydy yhtään myyjää!</h3>
             </td>
@@ -56,8 +56,8 @@
             <td v-html="nl2br(book.info)"></td>
             <td class="condition"><i class="fa fa-star" v-for="n in book.condition"></i><i class="fa fa-star-o" v-for="n in 5-book.condition"></i></td>
             <td>{{ book.publisher }} {{ book.year }}</td>
-            <td><currency :amount="book.price" /></td>
-            <td><currency :amount="book.price - TOTAL_FEE" /></td>
+            <td class="price"><currency :amount="book.price" /></td>
+            <td class="price"><currency :amount="book.price - TOTAL_FEE" /></td>
             <td><a href="#" class="button" v-on:click.prevent="selectBook(book)">Valitse</a></td>
           </tr>
           <tr v-if="bookResults.length == 0">
@@ -174,6 +174,10 @@ export default {
   },
   methods: {
     loadSellers: function () {
+      if (this.search.length === 0) {
+        this.sellerResults = []
+        return
+      }
       axios.post('/admin/receive/get/sellers', {
         search: this.search,
         token: auth.getToken()

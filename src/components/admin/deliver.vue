@@ -65,7 +65,7 @@
             <td v-html="nl2br(book.info)"></td>
             <td class="condition"><i class="fa fa-star" v-for="n in book.condition"></i><i class="fa fa-star-o" v-for="n in 5-book.condition"></i></td>
             <td>{{ book.publisher }} {{ book.year }}</td>
-            <td><currency :amount="book.price" /></td>
+            <td class="price"><currency :amount="book.price" /></td>
             <td class="code">{{ book.code }}</td>
             <td class="checkbox">
               {{ book.select }}
@@ -121,7 +121,7 @@
             <td v-html="nl2br(book.info)"></td>
             <td class="condition"><i class="fa fa-star" v-for="n in book.condition"></i><i class="fa fa-star-o" v-for="n in 5-book.condition"></i></td>
             <td>{{ book.publisher }} {{ book.year }}</td>
-            <td><currency :amount="book.price" /></td>
+            <td class="price"><currency :amount="book.price" /></td>
           </tr>
           <tr v-if="booksComing.length == 0">
             <td colspan="6" class="center">
