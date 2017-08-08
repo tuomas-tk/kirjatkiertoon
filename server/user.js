@@ -44,6 +44,18 @@ router.post('/get/dashboard', async (req, res) => {
       ( SELECT SUM(price) FROM books WHERE status=2 )  as price2,
       ( SELECT SUM(price) FROM books WHERE status=3 )  as price3`
     )
+  } else if (userType === 42) {
+    result = await db.query(
+      `SELECT
+      ( SELECT COUNT(*) FROM books WHERE status=0 )  as count0,
+      ( SELECT COUNT(*) FROM books WHERE status=1 )  as count1,
+      ( SELECT COUNT(*) FROM books WHERE status=2 )  as count2,
+      ( SELECT COUNT(*) FROM books WHERE status=3 )  as count3,
+      ( SELECT SUM(price) FROM books WHERE status=0 )  as price0,
+      ( SELECT SUM(price) FROM books WHERE status=1 )  as price1,
+      ( SELECT SUM(price) FROM books WHERE status=2 )  as price2,
+      ( SELECT SUM(price) FROM books WHERE status=3 )  as price3`
+    )
   } else {
     res.status(500).json({
       success: false,
