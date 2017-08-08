@@ -73,6 +73,7 @@
           </select></td>
           <td>
             <a href="#" class="button btn-s" @click.prevent="save">Tallenna</a>
+            <div v-if="emailInUse">Sähköpostiosoite on jo käytössä</div>
           </td>
         </tr>
         <tr v-for="user in users">
@@ -117,7 +118,8 @@ export default {
         email: '',
         type: '',
         passcode: ''
-      }
+      },
+      emailInUse: false
     }
   },
   created () {
@@ -150,6 +152,7 @@ export default {
     edit: function () {
     },
     save: function () {
+      this.emailInUse = false
       EventBus.$emit('setLoading', true)
       console.log('load: ' + this.$route.fullPath)
       axios.post('/admin/add/user', {
@@ -172,6 +175,8 @@ export default {
       }).catch(error => {
         if (error.response.status === 400) {
           console.log('Invalid token')
+        } else if (error.response.status === 409) {
+          this.emailInUse = true
         } else {
           console.log('Error ' + error.response.status)
         }

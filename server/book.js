@@ -1,245 +1,193 @@
 require('dotenv').config()
-var express = require('express');
-var pg = require('pg');
-var router = express.Router();
+const Router = require('express-promise-router')
+const db = require('./db')
+const router = new Router()
 
-router.post('/get/own', function(req, res) {
-  console.log('get own books');
+module.exports = router
 
-  if (res.locals.user.type < 5) {
-    return res.status(400).json({
-      success: false
-    });
+router.post('/get/own', async (req, res) => {
+  if (res.locals.user.type < 5 || res.locals.user.type >= 10) {
+    res.status(400).json({ success: false })
+    return
   }
 
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({
-        success: false,
-        data: err
-      });
-    } else { // CASE status WHEN 1 THEN 0 ELSE 1 END ASC    to move status=1 (waiting for book) to the start of the list
-      client.query('SELECT * FROM books WHERE "user" = $1 ORDER BY CASE status WHEN 1 THEN 0 ELSE 1 END ASC, status ASC, id DESC', [res.locals.user.id], function(err, result) {
-        done();
-        if (err) {
-          console.error(err);
-          return res.status(500).json({
-            success: false,
-            data: err
-          });
-        } else {
-          res.json({
-            success: true,
-            data: result.rows
-          });
-        }
-      });
-    }
+  const bookResult = await db.query(`
+    SELECT *
+    FROM books
+    WHERE
+      "user" = $1
+    ORDER BY
+      CASE status
+        WHEN 1
+          THEN 0
+        ELSE 1
+      END ASC,
+      status ASC,
+      id DESC
+    `,
+    [res.locals.user.id]
+  )
 
-  });
-});
+  res.json({
+    success: true,
+    data: bookResult.rows
+  })
+})
 
-router.post('/get/bought', function(req, res) {
-  console.log('get bought books');
-
-  if (res.locals.user.type < 2) {
-    return res.status(400).json({
-      success: false
-    });
+router.post('/get/bought', async (req, res) => {
+  if (res.locals.user.type < 2 || res.locals.user.type >= 10) {
+    return res.status(400).json({ success: false });
   }
 
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({
-        success: false,
-        data: err
-      });
-    } else { // CASE status WHEN 2 THEN 0 ELSE 1 END ASC    to move status=2 (get book from school) to the start of the list
-      client.query('SELECT * FROM books WHERE "buyer" = $1 ORDER BY CASE status WHEN 2 THEN 0 ELSE 1 END ASC, status ASC, id DESC', [res.locals.user.id], function(err, result) {
-        done();
-        if (err) {
-          console.error(err);
-          return res.status(500).json({
-            success: false,
-            data: err
-          });
-        } else {
-          res.json({
-            success: true,
-            data: result.rows
-          });
-        }
-      });
-    }
+  const bookResult = await db.query(`
+    SELECT *
+    FROM books
+    WHERE
+      "buyer" = $1
+    ORDER BY
+      CASE status
+        WHEN 2
+          THEN 0
+        ELSE 1
+      END ASC,
+      status ASC,
+      id DESC
+    `,
+    [res.locals.user.id]
+  )
 
-  });
-});
-
-
-router.post('/get/', function(req, res) {
-  console.log('get all books');
-
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({
-        success: false,
-        data: err
-      });
-    } else {
-      client.query('SELECT * FROM books WHERE buyer IS NULL ORDER BY price ASC, id ASC', [], function(err, result) {
-        done();
-        if (err) {
-          console.error(err);
-          return res.status(500).json({
-            success: false,
-            data: err
-          });
-        } else {
-          res.json({
-            success: true,
-            data: result.rows
-          });
-        }
-      });
-    }
-
-  });
+  res.json({
+    success: true,
+    data: bookResult.rows
+  })
 })
 
-router.post('/get/:id', function(req, res) {
-  console.log('get single book');
-
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({
-        success: false,
-        data: err
-      });
-    } else {
-      client.query('SELECT * FROM books WHERE id=$1 AND status < 4 LIMIT 1', [req.params.id], function(err, result) {
-        done();
-        if (err) {
-          console.error(err);
-          return res.status(500).json({
-            success: false,
-            data: err
-          });
-        } else {
-          res.json({
-            success: true,
-            data: result.rows[0]
-          });
-        }
-      });
-    }
-
-  });
-})
-
-router.post('/buy/:id', function(req, res) {
-  console.log('buy a book');
-
-  if (res.locals.user.type <= 0) {
-    return res.status(400).json({
-      success: false
-    });
+router.post('/get', async (req, res) => {
+  if (res.locals.user.type < 1 || res.locals.user.type >= 10) {
+    return res.status(400).json({ success: false });
   }
 
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({
-        success: false,
-        data: err
-      });
-    }
-    if (res.locals.user.type == 1) {
-      client.query(
-        'SELECT id FROM users WHERE firstname = $1 AND lastname = $2 AND email = $3 AND type = 2 LIMIT 1',
-        [req.body.firstname, req.body.lastname, req.body.email])
-        .then(result => {
-          if (result.rowCount == 0) {
-            return client.query(
-              `INSERT INTO users(type, firstname, lastname, email, passcode, school) VALUES ($1, $2, $3, $4, $5, $6) returning id`,
-              [2, req.body.firstname, req.body.lastname, req.body.email, null, res.locals.user.school])
-              .then(result => result.rows[0].id);
-          } else {
-            return result.rows[0].id
-          }
-        })
-        .then(id => {
-          return client.query(
-            'UPDATE books SET buyer = $1, status = 1 WHERE id = $2 AND buyer IS NULL AND "user" != $1 RETURNING "user"',
-            [id, req.params.id]
-          ).then(result => {
-            console.log(result.rows[0])
-            if (result.rowCount == 0) {
-              return {rowCount: 0}
-            }
-            return {
-              userID: id,
-              rowCount: result.rowCount,
-              bookID: req.params.id,
-              seller: result.rows[0].user
-            }
-          })
-        })
-        .then(result => {
-          if (result.rowCount == 0) {
-            return res.status(400).json({
-              success: false
-            });
-          }
-          if (result.rowCount == 1) {
-            client.query(
-              'INSERT INTO actions(type, "user", object) VALUES (1, $1, $2), (10, $3, $2)',
-              [result.userID, result.bookID, result.seller]
-            ).then(result => {
-              return res.status(200).json({
-                success: true
-              });
-            })
-          }
-        })
-        .catch(err => {
-          console.log(err)
-          return res.status(500).json({
-            success: false,
-            data: err
-          });
-        });
-    } else {
-      client.query('UPDATE books SET buyer=$1, status=1 WHERE id=$2 AND buyer IS NULL AND "user"!=$1', [res.locals.user.id, req.params.id], function(err, result) {
-        done();
-        if (err) {
-          console.error(err);
-          return res.status(500).json({
-            success: false,
-            data: err
-          });
-        } else {
-          console.log('success')
-          if (result.rowCount == 1) {
-            return res.json({
-              success: true
-            });
-          } else {
-            return res.status(400).json({
-              success: false
-            });
-          }
-        }
-      });
-    }
-  });
+  const bookResult = await db.query(`
+    SELECT *
+    FROM books
+    WHERE
+      buyer IS NULL
+    ORDER BY
+      price ASC,
+      id ASC`
+  )
+
+  res.json({
+    success: true,
+    data: bookResult.rows
+  })
 })
 
-router.post('/add/', function(req, res) {
-  console.log('add book');
+router.post('/get/:id', async (req, res) => {
+  if (res.locals.user.type < 1 || res.locals.user.type >= 10) {
+    return res.status(400).json({ success: false });
+  }
+  const bookResult = await db.query(`
+    SELECT id, course, name, price, condition, status, info, publisher, year
+    FROM books
+    WHERE
+      id = $1
+    LIMIT 1`,
+    [req.params.id]
+  )
+
+  res.json({
+    success: true,
+    data: bookResult.rows[0]
+  })
+})
+
+
+router.post('/buy/:id', async (req, res) => {
+
+  var userID
+
+  if (res.locals.user.type === 1) { // school account
+    // does the same user already have an personal account
+    const existingAccountResult = await db.query(`
+      SELECT id
+      FROM users
+      WHERE
+        firstname = $1 AND
+        lastname  = $2 AND
+        email     = $3 AND
+        type      = 2
+      LIMIT 1`,
+      [req.body.firstname.trim(), req.body.lastname.trim(), req.body.email.trim()]
+    )
+
+    if (existingAccountResult.rowCount === 0) { // no existing account
+      // create account
+      const createAccountResult = await db.query(`
+        INSERT INTO users(
+          type, firstname, lastname, email, passcode, school
+        ) VALUES (
+          2,    $1,        $2,       $3,    $4,       $5
+        ) RETURNING id`,
+        [req.body.firstname.trim(), req.body.lastname.trim(), req.body.email.trim(), null, res.locals.user.school]
+      )
+      if (createAccountResult.rowCount != 1) {
+        res.status(500).json({ success: false, data: 'Can\'t create new account' })
+        return
+      }
+      userID = createAccountResult.rows[0].id
+    } else { // existing account found
+      userID = existingAccountResult.rows[0].id
+    }
+
+  } else if (res.locals.user.type >= 2 || res.locals.user.type < 10) { // personal account
+    userID = res.locals.user.id
+  } else {
+    res.status(400).json({ success: false });
+    return
+  }
+
+  const updateBookResult = await db.query(`
+    UPDATE books
+    SET
+      buyer = $1,
+      status =  CASE
+                  WHEN status = 0 THEN 1
+                  ELSE status
+                END
+    WHERE
+      id = $2 AND
+      buyer IS NULL AND
+      "user" != $1
+    RETURNING
+      "user"
+    `,
+    [userID, req.params.id]
+  )
+
+  if (updateBookResult.rowCount != 1) {
+    res.status(500).json({ success: false, data: 'Can\'t update book' })
+    return
+  }
+
+  const insertActionResult = await db.query(`
+    INSERT
+    INTO
+      actions
+      (type, "user", object)
+    VALUES
+      (1, $1, $2),
+      (10, $3, $2)
+    `,
+    [userID, req.params.id, updateBookResult.rows[0].user]
+  )
+
+  res.json({
+    success: true
+  })
+})
+
+router.post('/add/', async (req, res) => {
 
   var data = {
     course:    req.body.course,
@@ -251,46 +199,38 @@ router.post('/add/', function(req, res) {
     info:      req.body.info
   };
 
-  if (data.condition < 0 || data.condition > 5 || data.price < 500 || data.price > 10000 || data.course == "" || data.price == "" || res.locals.user.type < 5) {
-    return res.status(400).json({
-      success: false,
-      data: data
-    });
+  if (
+    data.condition < 0 ||
+    data.condition > 5 ||
+    data.price < 500 ||
+    data.price > 10000 ||
+    data.course == "" ||
+    data.price == "" ||
+    res.locals.user.type < 5 ||
+    res.locals.user.type >= 10
+  ) {
+    res.status(400).json({ success: false })
+    return
   }
 
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-    if (err) {
-      done();
-      console.error(err);
-      return res.status(500).json({
-        success: false, data: err
-      });
+  const insertResult = await db.query(`
+    INSERT INTO books
+      (course, name, publisher, year, price, condition, info, "user", status)
+    values
+      ($1, $2, $3, $4, $5, $6, $7, $8, 0)
+    RETURNING id`,
+    [data.course, data.name, data.publisher, data.year, data.price, data.condition, data.info, res.locals.user.id]
+  )
+
+  if (insertResult.rowCount != 1) {
+    res.status(500).json({ success: false, data: 'Can\'t insert book' })
+    return
+  }
+
+  res.json({
+    success: true,
+    data: {
+      id: insertResult.rows[0].id
     }
-
-    client.query(
-      'INSERT INTO books(course, name, publisher, year, price, condition, info, "user", status) values($1, $2, $3, $4, $5, $6, $7, $8, 0) RETURNING id',
-      [data.course, data.name, data.publisher, data.year, data.price, data.condition, data.info, res.locals.user.id],
-      function(err, result) {
-
-        done();
-        if (err) {
-          console.error(err);
-          return res.status(500).json({
-            success: false, data: err
-          });
-        }
-
-        return res.json({
-          success: true,
-          data: {
-            id: result.rows[0].id
-          }
-        });
-      }
-    );
-
-  });
-});
-
-
-module.exports = router;
+  })
+})
