@@ -293,6 +293,37 @@ router.post('/receive/set/received', async (req, res) =>  {
   })
 })
 
+router.post('/receive/finish', async (req, res) =>  {
+  if (res.locals.user.type < 10) {
+    return res.status(403).json({ success: false })
+  }
+
+  const updateReceipt = await db.query(`
+    UPDATE receipts
+    SET status = 1
+    WHERE
+      type = 2 AND
+      status = 0 AND
+      "user" = $1
+    RETURNING id`,
+    [req.body.seller]
+  )
+
+  if (updateReceipt.rowCount === 0) {
+    res.status(500).json({
+      success: false,
+      data: 'No open receipt'
+    })
+    return
+  }
+
+  res.json({
+    success: true,
+    data: updateReceipt.rows[0].id
+  })
+})
+
+
 
 router.post('/deliver/get/buyers', async (req, res) => {
   if (res.locals.user.type < 10) {
@@ -435,5 +466,90 @@ router.post('/deliver/set/delivered', async (req, res) => {
       successCodes: successCodes,
       failed: failed
     }
+  })
+})
+
+
+router.post('/receipt/email', async (req, res) =>  {
+  if (res.locals.user.type < 10) {
+    return res.status(403).json({ success: false })
+  }
+
+  const checkReceipt = await db.query(`
+    SELECT COUNT(*) FROM receipts
+    WHERE "user" = $1 AND id = $2 AND status = 1`,
+    [req.body.user, req.body.receipt]
+  )
+
+  if (checkReceipt.rows[0].count != 1) {
+    res.status(400).json({
+      success: false,
+      data: 'No receipt found'
+    })
+    return
+  }
+
+  if (req.body.email != undefined && req.body.email.length > 0) {
+    const updateEmail = await db.query(`
+      UPDATE users
+      SET
+        email = $1
+      WHERE
+        id = $2`,
+      [req.body.email, req.body.user]
+    )
+    if (updateEmail.rowCount != 1) {
+      if (insertAction.rowCount === 0) {
+        res.status(500).json({
+          success: false,
+          data: 'Can\'t update email'
+        })
+        return
+      }
+    }
+  }
+
+  const insertAction = await db.query(`
+    INSERT INTO actions
+      (type, "user", object)
+    VALUES
+      (100,  $1,     $2    )`,
+    [req.body.user, req.body.receipt]
+  )
+
+  if (insertAction.rowCount === 0) {
+    res.status(500).json({
+      success: false,
+      data: 'Can\'t add action'
+    })
+    return
+  }
+
+  res.json({
+    success: true
+  })
+})
+
+router.post('/receipt/open', async (req, res) =>  {
+  if (res.locals.user.type < 10) {
+    return res.status(403).json({ success: false })
+  }
+
+  const checkReceipt = await db.query(`
+    SELECT COUNT(*) FROM receipts
+    WHERE id = $1 AND status = 1`,
+    [req.body.receipt]
+  )
+
+  if (checkReceipt.rows[0].count != 1) {
+    res.status(404).json({
+      success: false,
+      data: 'No receipt found'
+    })
+    return
+  }
+
+  res.json({
+    success: true
   })
 })

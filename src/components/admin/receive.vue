@@ -121,17 +121,52 @@
     <a href="#" class="button" v-on:click.prevent="accept()">Hyväksy</a>
   </div>
   <div class="box center" v-if="step == 4">
-    <h2>Kirjan {{ code }} vastaanotto onnistui!</h2>
-    <div v-if="seller.email">
-      <h3>Myyjä saa tositteen sähköpostilla, osoitteeseen {{ seller.email }}</h3>
+    <h3>Kirja {{ code }} lisätty vastaanotettavaksi</h3>
+
+    <a href="#" class="button" v-on:click.prevent="code = ''; bookResults = []; step = 1; loadBooks()">Vastaanota toinen kirja samalta myyjältä</a><br><br>
+    <a href="#" class="button" v-on:click.prevent="finish()">Viimeistele vastaanotto</a>
+  </div>
+  <div class="box" v-if="step == 5">
+    <h2>Vastaanotto viimeistelty!</h2>
+    <h3>Millä tavalla myyjä haluaa kuitin?</h3>
+    <div v-if="seller.email" class="receipt-option">
+      <p>
+        Sähköpostilla, osoitteeseen {{ seller.email }}
+      </p>
+      <a href="#" class="button" v-on:click.prevent="sendReceipt()">Lähetä</a>
     </div>
-    <div v-else>
-      <h3>Myyjä ei ole antanut sähköpostiosoitettaan, eli tositteen lähettäminen ei onnistu</h3>
+    <div v-else class="receipt-option">
+      <p>
+        Myyjän sähköpostiosoite ei ole tiedossa
+      </p>
     </div>
-    <br><br>
-    <h3>Vastaanota toinen kirja</h3>
-    <a href="#" class="button" v-on:click.prevent="code = ''; bookResults = [];  step = 1; loadBooks();">Sama myyjä</a>
-    <a href="#" class="button" v-on:click.prevent="code = ''; bookResults = []; seller = {}; sellerResults = {}; search = ''; step = 0; loadSellers()">Eri myyjä</a>
+    <div class="receipt-option">
+      <p>
+        Sähköpostilla, osoitteeseen:
+        <input type="email" v-model="receiptEmail" placeholder="matti.meikalainen@example.fi" size="30" />
+      </p>
+      <p>
+        (Syöttämäsi osoite merkitään myyjän tietohin)
+      </p>
+      <a href="#" class="button" v-on:click.prevent="sendReceipt(receiptEmail)">Lähetä</a>
+    </div>
+    <div class="receipt-option">
+      <p>
+        Tulostettuna
+      </p>
+      <a href="#" class="button" v-on:click.prevent="openReceipt()">Tulosta kuitti</a>
+    </div>
+    <div class="receipt-option">
+      <p>
+        Ohita kuitin lähetys
+      </p>
+      <a href="#" class="button" v-on:click.prevent="step = 6">Ohita</a>
+    </div>
+  </div>
+  <div class="box" v-if="step == 6">
+    <h2>Kuitti lähetetty</h2>
+    <a href="#" class="button" v-on:click.prevent="code = ''; bookResults = []; seller = {}; sellerResults = {}; search = ''; receipt = null; receiptEmail = ''; step = 0; loadSellers()">Vastaanota kirjoja</a>
+    <router-link to="/admin/deliver" class="button">Luovuta kirjoja</router-link>
   </div>
 </div>
 </template>
@@ -157,6 +192,8 @@ export default {
       seller: {},
       bookResults: [],
       code: '',
+      receipt: null,
+      receiptEmail: '',
       TOTAL_FEE: TOTAL_FEE
     }
   },
@@ -185,7 +222,7 @@ export default {
         this.sellerResults = response.data.data
       }).catch(error => {
         if (error.response.status === 400) {
-          console.log('Invalid token')
+          console.log(error.response.data.data)
         } else {
           console.log('Error ' + error.response.status)
         }
@@ -204,7 +241,7 @@ export default {
         this.bookResults = response.data.data
       }).catch(error => {
         if (error.response.status === 400) {
-          console.log('Invalid token')
+          console.log(error.response.data.data)
         } else {
           console.log('Error ' + error.response.status)
         }
@@ -231,7 +268,7 @@ export default {
         this.code = response.data.data
       }).catch(error => {
         if (error.response.status === 400) {
-          console.log('Invalid token')
+          console.log(error.response.data.data)
         } else {
           console.log('Error ' + error.response.status)
         }
@@ -248,7 +285,38 @@ export default {
         this.step = 4
       }).catch(error => {
         if (error.response.status === 400) {
-          console.log('Invalid token')
+          console.log(error.response.data.data)
+        } else {
+          console.log('Error ' + error.response.status)
+        }
+      })
+    },
+    finish: function () {
+      axios.post('/admin/receive/finish', {
+        seller: this.seller.id,
+        token: auth.getToken()
+      }).then(response => {
+        this.receipt = response.data.data
+        this.step = 5
+      }).catch(error => {
+        if (error.response.status === 400) {
+          console.log(error.response.data.data)
+        } else {
+          console.log('Error ' + error.response.status)
+        }
+      })
+    },
+    sendReceipt: function (email) {
+      axios.post('/admin/receipt/email', {
+        user: this.seller.id,
+        receipt: this.receipt,
+        email: email,
+        token: auth.getToken()
+      }).then(response => {
+        this.step = 6
+      }).catch(error => {
+        if (error.response.status === 400) {
+          console.log(error.response.data.data)
         } else {
           console.log('Error ' + error.response.status)
         }
@@ -319,6 +387,16 @@ table.info {
 h3.code {
   font-size: 4em
   margin-top: 1em
+}
+
+.receipt-option {
+  border: 1px solid #aaaaaa
+  padding: 1em
+  margin-top: 1em
+
+  a {
+    margin: 0
+  }
 }
 
 </style>
