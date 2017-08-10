@@ -223,14 +223,67 @@ router.post('/receive/set/received', async (req, res) =>  {
   const result = await db.query(`
     UPDATE books
     SET status = 2
-    WHERE id = $1 AND code = $2`,
-    [req.body.book, req.body.code]
+    WHERE id = $1 AND code = $2 AND "user" = $3`,
+    [req.body.book, req.body.code, req.body.seller]
   )
 
   if (result.rowCount != 1) {
     res.status(400).json({
       success: false,
       data: 'Invalid book or code'
+    })
+    return
+  }
+
+  const findReceipt = await db.query(`
+    SELECT id
+    FROM receipts
+    WHERE
+      type = 2 AND
+      status = 0 AND
+      "user" = $1
+    ORDER BY id DESC LIMIT 1`,
+    [req.body.seller]
+  )
+
+  var receiptID
+  if (findReceipt.rowCount === 0) {         // No existing receipts, create new
+    const createReceipt = await db.query(`
+      INSERT INTO receipts
+        ("user", type, status)
+      VALUES
+        ($1,     2,    0     )
+      RETURNING id `,
+      [req.body.seller]
+    )
+
+    if (createReceipt.rowCount != 1) {
+      res.status(500).json({
+        success: false,
+        data: 'Can\'t create receipt'
+      })
+      return
+    }
+
+    receiptID = createReceipt.rows[0].id
+
+  } else {                                  // Existing receipt found, using it
+    receiptID = findReceipt.rows[0].id
+  }
+
+  // Create receipt line for this book
+  const addReceiptLine = await db.query(`
+    INSERT INTO receiptlines
+      (receipt, type, object)
+    VALUES
+      ($1,      2,    $2    )`,
+    [receiptID, req.body.book]
+  )
+
+  if (addReceiptLine.rowCount != 1) {
+    res.status(500).json({
+      success: false,
+      data: 'Can\'t create receiptline'
     })
     return
   }
@@ -317,6 +370,61 @@ router.post('/deliver/set/delivered', async (req, res) => {
     } else {
       success.push(books[i])
       successCodes.push(result.rows[0].code)
+    }
+  }
+
+  const findReceipt = await db.query(`
+    SELECT id
+    FROM receipts
+    WHERE
+      type = 1 AND
+      status = 0 AND
+      "user" = $1
+    ORDER BY id DESC LIMIT 1`,
+    [req.body.buyer]
+  )
+
+  var receiptID
+  if (findReceipt.rowCount === 0) {         // No existing receipts, create new
+    const createReceipt = await db.query(`
+      INSERT INTO receipts
+        ("user", type, status)
+      VALUES
+        ($1,     1,    0     )
+      RETURNING id `,
+      [req.body.buyer]
+    )
+
+    if (createReceipt.rowCount != 1) {
+      res.status(500).json({
+        success: false,
+        data: 'Can\'t create receipt'
+      })
+      return
+    }
+
+    receiptID = createReceipt.rows[0].id
+
+  } else {                                  // Existing receipt found, using it
+    receiptID = findReceipt.rows[0].id
+  }
+
+  for (var i=0; i < success.length; i++) {
+    // Create receipt line for this book
+    let addReceiptLine = await db.query(`
+      INSERT INTO receiptlines
+        (receipt, type, object)
+      VALUES
+        ($1,      1,    $2    )`,
+      [receiptID, success[i]]
+    )
+
+    if (addReceiptLine.rowCount != 1) {
+      res.status(500).json({
+        success: false,
+        data: 'Can\'t create receiptline'
+      })
+      return
     }
   }
 

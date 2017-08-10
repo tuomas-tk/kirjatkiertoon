@@ -241,6 +241,7 @@ export default {
       axios.post('/admin/receive/set/received', {
         book: this.book.id,
         code: this.code,
+        seller: this.seller.id,
         token: auth.getToken()
       }).then(response => {
         console.log('ok')

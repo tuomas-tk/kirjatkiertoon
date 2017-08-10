@@ -23,7 +23,10 @@ npm run server
 
 For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
 
-## User role numbers
+
+# Users
+
+## User role
 
 0 - Nothing, not used
 1 - School account, allows to look for books, and buy by entering own name+email
@@ -33,7 +36,10 @@ For detailed explanation on how things work, checkout the [guide](http://vuejs-t
 15 - Primary admin account - to make deals and send payments for school
 42 - SUPER-ADMIN - Can do anything, can also answer to the Ultimate Question of Life, The Universe, and Everything
 
-## Status of book
+
+# Books
+
+## Book status
 
 0 - Available to buy
 1 - Bought, not brought to school yet
@@ -41,8 +47,39 @@ For detailed explanation on how things work, checkout the [guide](http://vuejs-t
 3 - Sold, book delivered to buyer
 4 - Money delivered to seller
 
-## Action types
+
+# Actions
+
+Actions are used to send emails to users
+
+## Action type
 The object of the action in parentheses
 
-1  - User bought a book (book)
-10 - Seller's book has been sold (book)
+1   - User bought a book          (book)
+10  - Seller's book has been sold (book)
+100 - Send receipt by email       (receipt)
+
+
+# Receipts
+
+## Receipt type
+
+1 - Receipt for buyer buying books
+2 - Receipt for seller leaving books to school
+3 - Receipt for seller receiving money
+
+## Receipt status
+
+0 - Open receipt, new lines can be added
+1 - Closed receipt, new lines can't be added
+
+
+# Receipt lines
+
+## Receipt line type
+
+1 - User pays for a book
+2 - Seller leaves book to school
+3 - Seller receives a payment for their book
+100 - Alennus
+110 - Lisämaksu
