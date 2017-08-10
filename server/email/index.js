@@ -1,11 +1,12 @@
 require('dotenv').config()
-const { Pool, Client } = require('pg')
+const db = require('./../db')
 const nodemailer = require('nodemailer')
-const Template_1 = require('./templates/1-thank-you-buyer');
-const Template_10 = require('./templates/10-book-sold');
+const Template_1 = require('./templates/1-thank-you-buyer')
+const Template_10 = require('./templates/10-book-sold')
+const Template_100 = require('./templates/100-receipt')
 
-const TIMEOUT = 15 * 60 * 1000
-const CONTINUOUS = false
+const TIMEOUT = 15 * 60 * 1000 // 15 min (in milliseconds)
+const CONTINUOUS = process.env.EMAILING_MODE == 'CONTINUOUS'
 
 // create reusable transporter object using the default SMTP transport
 let transporter = nodemailer.createTransport({
@@ -18,17 +19,11 @@ let transporter = nodemailer.createTransport({
   }
 }, {
   from: '"KirjatKiertoon.fi" <kirjatkiertoon@firmatverkkoon.fi>'
-});
-
-// pools will use environment variables
-// for connection information
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
 })
 
 
 function loop() {
-  pool.query('SELECT actions.*, users.email FROM actions LEFT JOIN users on actions."user"=users.id WHERE email_waiting ORDER BY time ASC').then(res => {
+  db.query('SELECT actions.*, users.email FROM actions LEFT JOIN users on actions."user"=users.id WHERE email_waiting ORDER BY time ASC').then(res => {
     console.log('Actions waiting: ' + res.rowCount)
     for (let i=0; i<res.rows.length; i++) {
       console.log('Processing action ' + i)
@@ -42,6 +37,9 @@ function loop() {
         case 10:
           template = new Template_10(action)
           break
+        case 100:
+          template = new Template_100(action)
+          break
       }
 
       if (template == null) {
@@ -49,7 +47,7 @@ function loop() {
         break
       }
 
-      template.runQueries(pool)
+      template.runQueries()
         .then(function () {
           return {
             from: '"KirjatKiertoon.fi" <kirjatkiertoon@firmatverkkoon.fi>',
@@ -67,7 +65,7 @@ function loop() {
             }
             console.log('Message %s sent: %s', info.messageId, info.response);
 
-            pool.query(
+            db.query(
               'UPDATE actions SET email_waiting = FALSE, email_sent = NOW() WHERE id=$1',
               [action.id]
             ).then(() => {

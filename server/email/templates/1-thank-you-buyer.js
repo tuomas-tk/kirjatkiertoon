@@ -1,4 +1,5 @@
 const BaseTemplate = require('./Template')
+const db = require('./../../db')
 
 class Template extends BaseTemplate {
   constructor(action) {
@@ -102,20 +103,20 @@ td {
 `
   }
 
-  runQueries(pool) {
-    return pool.query('SELECT * FROM USERS WHERE id=$1', [this._user])
+  runQueries() {
+    return db.query('SELECT * FROM USERS WHERE id=$1', [this._user])
       .then(res => {
         if (res != null && res.rowCount > 0) {
           this._data.user = res.rows[0]
         }
       })
-      .then(() => pool.query('SELECT * FROM books WHERE id=$1', [this._object]))
+      .then(() => db.query('SELECT * FROM books WHERE id=$1', [this._object]))
       .then(res => {
         if (res != null && res.rowCount > 0) {
           this._data.book = res.rows[0]
         }
       })
-      .then(() => pool.query('SELECT * FROM books WHERE "buyer"=$1 AND id<>$2 AND status=1', [this._user, this._object]))
+      .then(() => db.query('SELECT * FROM books WHERE "buyer"=$1 AND id<>$2 AND status=1', [this._user, this._object]))
       .then(res => {
         if (res != null && res.rowCount > 0) {
           this._data.old_books = res.rows
