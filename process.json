@@ -2,17 +2,11 @@
   "apps" : [
     {
       "name" : "kirjatkiertoon-web",
-      "script" : "npm run server",
-      "env_production" : {
-        "NODE_ENV": "production"
-      }
+      "script" : "npm run server"
     },
     {
       "name" : "kirjatkiertoon-email",
-      "script" : "npm run email",
-      "env_production" : {
-        "NODE_ENV": "production"
-      }
+      "script" : "npm run email"
     },
   ]
 }
