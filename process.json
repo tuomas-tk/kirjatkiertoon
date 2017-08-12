@@ -4,14 +4,15 @@
       "name": "kirjatkiertoon-web",
       "cwd": "/node/kirjatkiertoon",
       "script": "npm",
-      "args": "run server"
+      "args": "run server",
+      "max_restarts": 10
     },
     {
       "name": "kirjatkiertoon-email",
       "cwd": "/node/kirjatkiertoon",
       "script": "npm",
       "args": "run email",
-      "autorestart": true
+      "max_restarts": 10
     },
   ]
 }
