@@ -15,10 +15,12 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use((req, res, next) => {
-  console.log(req.url)
-  next()
-})
+if (process.env.NODE_ENV != 'production') {
+  app.use((req, res, next) => {
+    console.log(req.url)
+    next()
+  })
+}
 
 // API
 app.use('/api/login', login);
@@ -40,5 +42,6 @@ app.use('/api/admin', admin);
 app.use(express.static(__dirname + '/../dist'));
 
 app.listen(process.env.PORT || 3000, function () {
-  console.log('KirjatKiertoon listening on port ' + (process.env.PORT || '3000'))
+  console.log('KirjatKiertoon.fi listening on port ' + (process.env.PORT || '3000'))
+  console.log('Environment: ' + process.env.NODE_ENV)
 })

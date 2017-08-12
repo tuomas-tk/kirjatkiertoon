@@ -1,0 +1,18 @@
+{
+  "apps" : [
+    {
+      "name" : "kirjatkiertoon-web",
+      "script" : "npm run server",
+      "env_production" : {
+        "NODE_ENV": "production"
+      }
+    },
+    {
+      "name" : "kirjatkiertoon-email",
+      "script" : "npm run email",
+      "env_production" : {
+        "NODE_ENV": "production"
+      }
+    },
+  ]
+}
