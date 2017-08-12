@@ -8,6 +8,7 @@ export default {
   props: ['passcode'],
   computed: {
     formatted: function () {
+      if (this.passcode === null) return ''
       if (this.passcode.length > 4) {
         return this.passcode.substring(0, 4) + ' ' + this.passcode.substring(4)
       }

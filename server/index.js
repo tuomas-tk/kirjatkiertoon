@@ -2,6 +2,7 @@ require('dotenv').config()
 var express = require('express');
 var bodyParser = require('body-parser');
 
+var receipt   = require('./receipt');
 var login   = require('./login');
 var auth    = require('./auth');
 var user    = require('./user');
@@ -21,6 +22,7 @@ app.use((req, res, next) => {
 
 // API
 app.use('/api/login', login);
+app.use('/api/receipt', receipt);
 app.use('/api/*', auth);
 
 app.post('/api/test', (req, res, next) => {

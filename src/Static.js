@@ -33,5 +33,8 @@ module.exports = {
   COURSES,
   APP_FEE,
   OPERATION_FEE,
-  TOTAL_FEE
+  TOTAL_FEE,
+  'VAT': {
+    'book': 0.10
+  }
 }

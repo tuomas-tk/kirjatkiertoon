@@ -419,11 +419,11 @@ router.post('/deliver/set/delivered', async (req, res) => {
   if (findReceipt.rowCount === 0) {         // No existing receipts, create new
     const createReceipt = await db.query(`
       INSERT INTO receipts
-        ("user", type, status)
+        ("user", type, status, cash)
       VALUES
-        ($1,     1,    0     )
+        ($1,     1,    0,      $2  )
       RETURNING id `,
-      [req.body.buyer]
+      [req.body.buyer, req.body.receivedMoney]
     )
 
     if (createReceipt.rowCount != 1) {
@@ -521,30 +521,6 @@ router.post('/receipt/email', async (req, res) =>  {
     res.status(500).json({
       success: false,
       data: 'Can\'t add action'
-    })
-    return
-  }
-
-  res.json({
-    success: true
-  })
-})
-
-router.post('/receipt/open', async (req, res) =>  {
-  if (res.locals.user.type < 10) {
-    return res.status(403).json({ success: false })
-  }
-
-  const checkReceipt = await db.query(`
-    SELECT COUNT(*) FROM receipts
-    WHERE id = $1 AND status = 1`,
-    [req.body.receipt]
-  )
-
-  if (checkReceipt.rows[0].count != 1) {
-    res.status(404).json({
-      success: false,
-      data: 'No receipt found'
     })
     return
   }
