@@ -5,8 +5,10 @@ const Template_1 = require('./templates/1-thank-you-buyer')
 const Template_10 = require('./templates/10-book-sold')
 const Template_100 = require('./templates/100-receipt')
 
-const TIMEOUT = 15 * 60 * 1000 // 15 min (in milliseconds)
-const CONTINUOUS = process.env.EMAILING_MODE == 'CONTINUOUS'
+var TIMEOUT = -1
+if (process.env.EMAIL_INTERVAL > 0) {
+  TIMEOUT = process.env.EMAIL_INTERVAL * 60 * 1000
+}
 
 // create reusable transporter object using the default SMTP transport
 let transporter = nodemailer.createTransport({
@@ -81,7 +83,7 @@ function loop() {
     console.log(err)
   })
 
-  if (CONTINUOUS)
+  if (TIMEOUT > 0)
     setTimeout(loop, TIMEOUT)
 }
 
