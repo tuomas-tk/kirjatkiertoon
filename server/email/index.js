@@ -3,6 +3,7 @@ const db = require('./../db')
 const nodemailer = require('nodemailer')
 const Template_1 = require('./templates/1-thank-you-buyer')
 const Template_10 = require('./templates/10-book-sold')
+const Template_15 = require('./templates/15-reminder-books-sold')
 const Template_100 = require('./templates/100-receipt')
 
 var TIMEOUT = -1
@@ -38,6 +39,9 @@ function loop() {
           break
         case 10:
           template = new Template_10(action)
+          break
+        case 15:
+          template = new Template_15(action)
           break
         case 100:
           template = new Template_100(action)
