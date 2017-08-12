@@ -1,12 +1,15 @@
 {
-  "apps" : [
+  "apps": [
     {
-      "name" : "kirjatkiertoon-web",
-      "script" : "npm run server"
+      "name": "kirjatkiertoon-web",
+      "script": "npm",
+      "args": "run server"
     },
     {
-      "name" : "kirjatkiertoon-email",
-      "script" : "npm run email"
+      "name": "kirjatkiertoon-email",
+      "script": "npm",
+      "args": "run email",
+      "autorestart": true
     },
   ]
 }
