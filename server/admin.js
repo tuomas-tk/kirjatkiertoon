@@ -197,7 +197,8 @@ router.post('/receive/get/code', async (req, res) => {
      COALESCE(
        (
          SELECT code FROM books
-         WHERE code IS NOT NULL
+         WHERE code IS NOT NULL AND
+          code != ''
          ORDER BY code DESC
          LIMIT 1
        )::integer,
@@ -404,41 +405,24 @@ router.post('/deliver/set/delivered', async (req, res) => {
     }
   }
 
-  const findReceipt = await db.query(`
-    SELECT id
-    FROM receipts
-    WHERE
-      type = 1 AND
-      status = 0 AND
-      "user" = $1
-    ORDER BY id DESC LIMIT 1`,
-    [req.body.buyer]
+  const createReceipt = await db.query(`
+    INSERT INTO receipts
+      ("user", type, status, cash)
+    VALUES
+      ($1,     1,    0,      $2  )
+    RETURNING id `,
+    [req.body.buyer, req.body.receivedMoney]
   )
 
-  var receiptID
-  if (findReceipt.rowCount === 0) {         // No existing receipts, create new
-    const createReceipt = await db.query(`
-      INSERT INTO receipts
-        ("user", type, status, cash)
-      VALUES
-        ($1,     1,    0,      $2  )
-      RETURNING id `,
-      [req.body.buyer, req.body.receivedMoney]
-    )
-
-    if (createReceipt.rowCount != 1) {
-      res.status(500).json({
-        success: false,
-        data: 'Can\'t create receipt'
-      })
-      return
-    }
-
-    receiptID = createReceipt.rows[0].id
-
-  } else {                                  // Existing receipt found, using it
-    receiptID = findReceipt.rows[0].id
+  if (createReceipt.rowCount != 1) {
+    res.status(500).json({
+      success: false,
+      data: 'Can\'t create receipt'
+    })
+    return
   }
+
+  var receiptID = createReceipt.rows[0].id
 
   for (var i=0; i < success.length; i++) {
     // Create receipt line for this book
@@ -459,12 +443,31 @@ router.post('/deliver/set/delivered', async (req, res) => {
     }
   }
 
+  const updateReceipt = await db.query(`
+    UPDATE receipts
+    SET status = 1
+    WHERE
+      id = $1 AND
+      status = 0 AND
+      "user" = $2`,
+    [receiptID, req.body.buyer]
+  )
+
+  if (updateReceipt.rowCount != 1) {
+    res.status(500).json({
+      success: false,
+      data: 'Can\'t close receipt'
+    })
+    return
+  }
+
   res.json({
     success: (failed.length === 0),
     data: {
       success: success,
       successCodes: successCodes,
-      failed: failed
+      failed: failed,
+      receipt: receiptID
     }
   })
 })

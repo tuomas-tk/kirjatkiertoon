@@ -137,17 +137,46 @@
       </table>
     </div>
   </div>
-  <div class="box box-3 center" v-if="step == 3">
-    <h2>Luovutus ostajalle onnistui!</h2>
-    <div v-if="buyer.email">
-      <h3>Ostaja saa tositteen sähköpostilla, osoitteeseen {{ buyer.email }}</h3>
+  <div class="box box-3" v-if="step == 3">
+    <h3>Millä tavalla ostaja haluaa kuitin?</h3>
+    <div v-if="buyer.email" class="receipt-option">
+      <p>
+        Sähköpostilla, osoitteeseen {{ buyer.email }}
+      </p>
+      <a href="#" class="button" v-on:click.prevent="sendReceipt()">Lähetä</a>
     </div>
-    <div v-else>
-      <h3>Myyjä ei ole antanut sähköpostiosoitettaan, eli tositteen lähettäminen ei onnistu</h3>
+    <div v-else class="receipt-option">
+      <p>
+        Ostajan sähköpostiosoite ei ole tiedossa
+      </p>
     </div>
-    <br><br>
-    <a href="#" class="button" v-on:click.prevent="step = 0; search = ''; buyerResults = []; buyer = {}; booksAvailable = []; booksComing = []; selectedBooks = []; receivedMoney = ''">Luovuta kirjoja</a><br>
+    <div class="receipt-option">
+      <p>
+        Sähköpostilla, osoitteeseen:
+        <input type="email" v-model="receiptEmail" placeholder="matti.meikalainen@example.fi" size="30" />
+      </p>
+      <p>
+        (Syöttämäsi osoite merkitään myyjän tietohin)
+      </p>
+      <a href="#" class="button" v-on:click.prevent="sendReceipt(receiptEmail)">Lähetä</a>
+    </div>
+    <div class="receipt-option">
+      <p>
+        Tulostettuna
+      </p>
+      <a href="#" class="button" v-on:click.prevent="openReceipt()">Tulosta kuitti</a>
+    </div>
+    <div class="receipt-option">
+      <p>
+        Ohita kuitin lähetys
+      </p>
+      <a href="#" class="button" v-on:click.prevent="step = 4">Ohita</a>
+    </div>
+  </div>
+  <div class="box" v-if="step == 4">
+    <h2>Kuitti lähetetty</h2>
     <router-link to="/admin/receive" class="button">Vastaanota kirjoja</router-link>
+    <a href="#" class="button" v-on:click.prevent="step = 0; search = ''; buyerResults = []; buyer = {}; booksAvailable = []; booksComing = []; selectedBooks = []; receivedMoney = ''">Luovuta kirjoja</a>
   </div>
 </div>
 </template>
@@ -171,7 +200,9 @@ export default {
       booksAvailable: [],
       booksComing: [],
       selectedBooks: [],
-      receivedMoney: ''
+      receivedMoney: '',
+      receipt: null,
+      receiptEmail: ''
     }
   },
   created () {
@@ -278,9 +309,26 @@ export default {
         token: auth.getToken()
       }).then(response => {
         this.step = 3
+        this.receipt = response.data.data.receipt
       }).catch(error => {
         if (error.response.status === 400) {
           console.log('Invalid token')
+        } else {
+          console.log('Error ' + error.response.status)
+        }
+      })
+    },
+    sendReceipt: function (email) {
+      axios.post('/admin/receipt/email', {
+        user: this.buyer.id,
+        receipt: this.receipt,
+        email: email,
+        token: auth.getToken()
+      }).then(response => {
+        this.step = 4
+      }).catch(error => {
+        if (error.response.status === 400) {
+          console.log(error.response.data.data)
         } else {
           console.log('Error ' + error.response.status)
         }
@@ -381,4 +429,15 @@ export default {
   }
 }
 
+.box-3 {
+  .receipt-option {
+    border: 1px solid #aaaaaa
+    padding: 1em
+    margin-top: 1em
+
+    a {
+      margin: 0
+    }
+  }
+}
 </style>

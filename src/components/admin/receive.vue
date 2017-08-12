@@ -120,7 +120,7 @@
     <a href="#" class="button" v-on:click.prevent="step = 2; code = ''">Hylkää</a>
     <a href="#" class="button" v-on:click.prevent="accept()">Hyväksy</a>
   </div>
-  <div class="box center" v-if="step == 4">
+  <div class="box" v-if="step == 4">
     <h3>Kirja {{ code }} lisätty vastaanotettavaksi</h3>
 
     <a href="#" class="button" v-on:click.prevent="code = ''; bookResults = []; step = 1; loadBooks()">Vastaanota toinen kirja samalta myyjältä</a><br><br>
