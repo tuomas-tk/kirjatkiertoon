@@ -99,9 +99,9 @@ router.post('/add/user', async (req, res) => {
       email = $1 AND
       $1 <> '' `,
     [data.email]
-  ).count != 0
+  )
 
-  if (emailInUse) {
+  if (emailInUse.rows[0].count != 0) {
     res.status(409).json({
       success: false,
       data: 'Email already in use'
