@@ -55,9 +55,11 @@ Actions are used to send emails to users
 ## Action type
 The object of the action in parentheses
 
-1   - User bought a book          (book)
-10  - Seller's book has been sold (book)
-100 - Send receipt by email       (receipt)
+1   - User bought a book                    (book)
+5   - Reminder for books brought by user    (-)
+6   - Reminder for books available for user (-)
+10  - Seller's book has been sold           (book)
+100 - Send receipt by email                 (receipt)
 
 
 # Receipts

@@ -2,6 +2,8 @@ require('dotenv').config()
 const db = require('./../db')
 const nodemailer = require('nodemailer')
 const Template_1 = require('./templates/1-thank-you-buyer')
+const Template_5 = require('./templates/5-reminder-books-bought')
+const Template_6 = require('./templates/6-reminder-books-available')
 const Template_10 = require('./templates/10-book-sold')
 const Template_15 = require('./templates/15-reminder-books-sold')
 const Template_100 = require('./templates/100-receipt')
@@ -36,6 +38,12 @@ function loop() {
       switch (action.type) {
         case 1:
           template = new Template_1(action)
+          break
+        case 5:
+          template = new Template_5(action)
+          break
+        case 6:
+          template = new Template_6(action)
           break
         case 10:
           template = new Template_10(action)
