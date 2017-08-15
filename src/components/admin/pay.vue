@@ -223,7 +223,11 @@ export default {
         total += this.bookResults[i].price - TOTAL_FEE
       }
       for (let i = 0; i < this.discountResults.length; i++) {
-        total -= this.discountResults[i].amount
+        if (this.discountResults[i].type < 110) {
+          total += this.discountResults[i].amount
+        } else {
+          total -= this.discountResults[i].amount
+        }
       }
       return total
     }

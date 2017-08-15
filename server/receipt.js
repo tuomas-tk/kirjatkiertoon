@@ -126,7 +126,7 @@ router.get('/:token', async (req, res) => {
       break
     case 3:
       doc.text('Myyntihinta', columns[5], yCoord)
-      doc.text('Tulot myyjälle', columns[6], yCoord)
+      doc.text('Tuotto', columns[6], yCoord)
       break
   }
 
@@ -138,35 +138,50 @@ router.get('/:token', async (req, res) => {
   var totalVAT = 0
   var totalPrice = 0
   for (var i=0; i < lines.length; i++) {
-    doc.text(lines[i].code, columns[0], yCoord)
-    doc.text(lines[i].course, columns[1], yCoord)
-    doc.text(lines[i].name, columns[2], yCoord)
-    doc.text((lines[i].publisher || '-') + ', ' + (lines[i].year || '-'), columns[3], yCoord)
-    doc.text(lines[i].condition + '/5', columns[4], yCoord)
-    switch (receipt.type) {
-      case 1:
-        var VAT = lines[i].price / (1 + Static.VAT.book) * Static.VAT.book
-        var price = lines[i].price // contains VAT
-        totalVAT += VAT
-        totalPrice += price
-        doc.text((VAT / 100.0).toFixed(2) + ' €', columns[5], yCoord)
-        doc.text((price / 100).toFixed(2) + ' €', columns[6], yCoord)
-        break
-      case 2:
-        doc.text((lines[i].price / 100.0).toFixed(2) + ' €', columns[6], yCoord)
-        break
-      case 3:
-        doc.text((lines[i].price / 100.0).toFixed(2) + ' €', columns[5], yCoord)
-        doc.text(((lines[i].price - Static.TOTAL_FEE)/100.0).toFixed(2) + ' €', columns[6], yCoord)
-        if (lines[i].type === 3) {
-          totalPrice += lines[i].price - Static.TOTAL_FEE/100.0
-        } else if (lines[i].type === 100) {
-          totalPrice += lines[i].amount
-        } else if (lines[i].type === 110) {
-          totalPrice -= lines[i].amount
-        }
-        break
+    if (lines[i].type < 100) {
+      doc.text(lines[i].code, columns[0], yCoord)
+      doc.text(lines[i].course, columns[1], yCoord)
+      doc.text(lines[i].name, columns[2], yCoord)
+      doc.text((lines[i].publisher || '-') + ', ' + (lines[i].year || '-'), columns[3], yCoord)
+      doc.text(lines[i].condition + '/5', columns[4], yCoord)
+      switch (receipt.type) {
+        case 1:
+          var VAT = lines[i].price / (1 + Static.VAT.book) * Static.VAT.book
+          var price = lines[i].price // contains VAT
+          totalVAT += VAT
+          totalPrice += price
+          doc.text((VAT / 100.0).toFixed(2) + ' €', columns[5], yCoord)
+          doc.text((price / 100).toFixed(2) + ' €', columns[6], yCoord)
+          break
+        case 2:
+          doc.text((lines[i].price / 100.0).toFixed(2) + ' €', columns[6], yCoord)
+          break
+        case 3:
+          doc.text((lines[i].price / 100.0).toFixed(2) + ' €', columns[5], yCoord)
+          doc.text(((lines[i].price - Static.TOTAL_FEE)/100.0).toFixed(2) + ' €', columns[6], yCoord)
+          if (lines[i].type === 3) {
+            totalPrice += Math.round(lines[i].price - Static.TOTAL_FEE)
+          } else if (lines[i].type === 100) {
+            totalPrice += lines[i].amount
+          } else if (lines[i].type === 110) {
+            totalPrice -= lines[i].amount
+          }
+          break
+      }
+    } else if (lines[i].type === 100){
+      yCoord += 5
+      doc.text('LISÄTILITYS', columns[0], yCoord)
+      doc.text(lines[i].comment, columns[2], yCoord)
+      doc.text('+ ' + (lines[i].amount/100.0).toFixed(2) + ' €', columns[6], yCoord)
+      totalPrice += lines[i].amount
+    } else if (lines[i].type === 110) {
+      yCoord += 5
+      doc.text('LISÄVÄHENNYS', columns[0], yCoord)
+      doc.text(lines[i].comment, columns[2], yCoord)
+      doc.text('- ' + (lines[i].amount/100.0).toFixed(2) + ' €', columns[6], yCoord)
+      totalPrice -= lines[i].amount
     }
+
     yCoord += 15
   }
 
@@ -183,8 +198,8 @@ router.get('/:token', async (req, res) => {
       doc.text('ALV 10%:', columns[5], yCoord)
       doc.text(((totalVAT)/100.0).toFixed(2) + ' €', columns[6], yCoord)
       yCoord += 15
-      doc.text('YHTEENSÄ:', columns[5], yCoord)
-      doc.text((totalPrice/100.0).toFixed(2) + ' €', columns[6], yCoord)
+      doc.font('Times-Bold').text('YHTEENSÄ:', columns[5], yCoord)
+      doc.text((totalPrice/100.0).toFixed(2) + ' €', columns[6], yCoord).font('Times-Roman')
       yCoord += 15
       doc.text('Käteinen:', columns[5], yCoord)
       doc.text((receipt.cash/100.0).toFixed(2) + ' €', columns[6], yCoord)
@@ -201,8 +216,10 @@ router.get('/:token', async (req, res) => {
 
     case 3:
       yCoord += 15
+      doc.font('Times-Bold')
       doc.text('YHTEENSÄ:', columns[5], yCoord)
       doc.text((totalPrice/100.0).toFixed(2) + ' €', columns[6], yCoord)
+      doc.font('Times-Roman')
       yCoord += 15
       break
   }
