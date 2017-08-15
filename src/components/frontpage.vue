@@ -116,9 +116,17 @@
           <h3>Myyntituottojen tilitys myyjille</h3>
           <b>Valmiina tilitettäväksi:</b>
           <div class="number">
-            {{ dashboard.count4 }}<span>myyjää</span>
+            {{ dashboard.usercount3 }}<span>myyjää</span>
           </div>
           <router-link to="/admin/pay" class="button btn-m btn-block"><i class="fa fa-sign-out fa-fw"></i> Tilitä tuottoja</router-link>
+          </table>
+        </div>
+        <div class="section-22">
+          <h3>Tilitetty</h3>
+          <div class="number">
+            {{ dashboard.count4 }}<span>kirjaa</span>
+          </div>
+          <router-link to="/admin/books?status=4" class="button btn-m btn-block"><i class="fa fa-bars fa-fw"></i> Näytä</router-link>
           </table>
         </div>
       </div>
