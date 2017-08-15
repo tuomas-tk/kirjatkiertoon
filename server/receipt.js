@@ -41,7 +41,7 @@ router.get('/:token', async (req, res) => {
   const user = userResult.rows[0]
 
   const lineResult = await db.query(
-    'SELECT * FROM receiptlines JOIN books ON receiptlines.object = books.id WHERE receipt = $1',
+    'SELECT * FROM receiptlines LEFT JOIN books ON receiptlines.object = books.id WHERE receipt = $1',
     [receiptID]
   )
   if (lineResult.rowCount === 0) {
@@ -94,7 +94,7 @@ router.get('/:token', async (req, res) => {
       doc.text('on tuonut toimitusta varten koululle seuraavat kirjat:')
       break
     case 3:
-      doc.text('on vastaanottanut sovitun maksun seuraavista kirjoista:')
+      doc.text('on vastaanottanut sovitun maksun seuraavista palvelun kautta myymistään kirjoista:')
       break
   }
 
@@ -126,7 +126,7 @@ router.get('/:token', async (req, res) => {
       break
     case 3:
       doc.text('Myyntihinta', columns[5], yCoord)
-      doc.text('Saatu maksu', columns[6], yCoord)
+      doc.text('Tulot myyjälle', columns[6], yCoord)
       break
   }
 
@@ -158,6 +158,13 @@ router.get('/:token', async (req, res) => {
       case 3:
         doc.text((lines[i].price / 100.0).toFixed(2) + ' €', columns[5], yCoord)
         doc.text(((lines[i].price - Static.TOTAL_FEE)/100.0).toFixed(2) + ' €', columns[6], yCoord)
+        if (lines[i].type === 3) {
+          totalPrice += lines[i].price - Static.TOTAL_FEE/100.0
+        } else if (lines[i].type === 100) {
+          totalPrice += lines[i].amount
+        } else if (lines[i].type === 110) {
+          totalPrice -= lines[i].amount
+        }
         break
     }
     yCoord += 15
@@ -193,6 +200,10 @@ router.get('/:token', async (req, res) => {
       break
 
     case 3:
+      yCoord += 15
+      doc.text('YHTEENSÄ:', columns[5], yCoord)
+      doc.text((totalPrice/100.0).toFixed(2) + ' €', columns[6], yCoord)
+      yCoord += 15
       break
   }
 

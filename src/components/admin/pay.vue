@@ -5,7 +5,6 @@
     <h3>Syötä myyjän nimi, sähköpostiosoite tai tunnuskoodi</h3>
     <input type="text" id="search-input" v-model="search" autocomplete="off" autofocus placeholder="Matti Meikäläinen" />
     <h3>Valitse oikea myyjä</h3>
-    <p>"Tilitettävä" sarakkeen tiedot muodossa [toimitettu]/[myyty]/[ilmoitettu]
     <div class="table">
       <table>
         <thead>
@@ -89,8 +88,8 @@
         <tbody>
           <tr class="newdiscount">
             <td><select v-model="newline.type">
-              <option value="100">Alennus</option>
-              <option value="110">Lisämaksu</option>
+              <option value="100">Lisäys tilitykseen</option>
+              <option value="110">Vähennys tilitykseen</option>
             </select></td>
             <td><input type="text" v-model="newline.comment" placeholder="" /></td>
             <td><input type="text" v-model="newline.amount" placeholder="" /></td>
