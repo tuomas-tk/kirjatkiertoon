@@ -472,6 +472,198 @@ router.post('/deliver/set/delivered', async (req, res) => {
   })
 })
 
+// PAY --------------------------------------------------------------
+
+router.post('/pay/get/sellers', async (req, res) => {
+  if (res.locals.user.type < 10) {
+    return res.status(403).json({ success: false })
+  }
+
+  const result = await db.query(`
+    SELECT id, firstname, lastname, email, passcode,
+    (SELECT COUNT(*) FROM books WHERE books."user"=users.id AND status=3) as status3,
+    (SELECT COUNT(*) FROM books WHERE books."user"=users.id AND status=2) as status2,
+    (SELECT COUNT(*) FROM books WHERE books."user"=users.id AND status=1) as status1
+    FROM users
+    WHERE
+      type < 10 AND type >= 5 AND
+      (
+        firstname || \' \' || lastname ILIKE $1 OR
+        email                          ILIKE $1 OR
+        passcode                       ILIKE $1
+      )
+    ORDER BY lastname ASC, firstname ASC
+    LIMIT 5`,
+    ['%' + (req.body.search || '') + '%']
+  )
+
+  res.json({
+    success: true,
+    data: result.rows
+  })
+})
+
+router.post('/pay/get/books', async (req, res) => {
+  if (res.locals.user.type < 10) {
+    return res.status(403).json({ success: false })
+  }
+
+  const books = await db.query(`
+    SELECT id, course, name, price, condition, info, publisher, year FROM books WHERE
+    "user" = $1 AND
+    status = 3
+    ORDER BY id ASC`,
+    [req.body.seller]
+  )
+
+  const createRecipt = await db.query(`
+    INSERT INTO receipts
+    (type, status, "user") VALUES
+    (3,    0,      $1    )
+    RETURNING id`,
+    [req.body.seller]
+  )
+  if (createRecipt.rowCount != 1) {
+    res.status(500).json({
+      success: false,
+      data: 'Can\'t add receipt'
+    })
+    return
+  }
+  const receiptID = createRecipt.rows[0].id
+
+  for (let i = 0; i < books.rows.length; i++) {
+    let addLine = await db.query(`
+      INSERT INTO receiptlines
+      (receipt, type, object) VALUES
+      ($1,      3,    $2    )`,
+      [receiptID, books.rows[i].id]
+    )
+
+    if (addLine.rowCount != 1) {
+      res.status(500).json({
+        success: false,
+        data: 'Can\'t add receiptline'
+      })
+      return
+    }
+  }
+
+  res.json({
+    success: true,
+    data: {
+      books: books.rows,
+      receipt: receiptID,
+    }
+  })
+})
+
+router.post('/pay/add/discount', async (req, res) => {
+  if (res.locals.user.type < 10) {
+    return res.status(403).json({ success: false })
+  }
+
+  const result = await db.query(`
+    INSERT INTO receiptlines
+    (receipt, type, comment, amount) VALUES
+    ($1, $2, $3, $4)`,
+    [req.body.receipt, req.body.type, req.body.comment, req.body.amount]
+  )
+  if (result.rowCount != 1) {
+    res.status(500).json({
+      success: false,
+      data: 'Can\'t add discount'
+    })
+    return
+  } else {
+    res.json({
+      success: true
+    })
+  }
+})
+
+router.post('/pay/delete/discount', async (req, res) => {
+  if (res.locals.user.type < 10) {
+    return res.status(403).json({ success: false })
+  }
+
+  const result = await db.query(`
+    DELETE FROM receiptlines
+    WHERE id = $1 AND receipt = $2`,
+    [req.body.id, req.body.receipt]
+  )
+  if (result.rowCount != 1) {
+    res.status(400).json({
+      success: false,
+      data: 'Can\'t delete discount'
+    })
+  } else {
+    res.json({
+      success: true
+    })
+  }
+})
+
+router.post('/pay/get/discounts', async (req, res) => {
+  if (res.locals.user.type < 10) {
+    return res.status(403).json({ success: false })
+  }
+
+  const result = await db.query(`
+    SELECT * FROM receiptlines WHERE
+    receipt = $1 AND
+    type >= 100
+    ORDER BY id ASC`,
+    [req.body.receipt]
+  )
+
+  res.json({
+    success: true,
+    data: result.rows
+  })
+})
+
+router.post('/pay/set/paid', async (req, res) => {
+  if (res.locals.user.type < 10) {
+    return res.status(403).json({ success: false })
+  }
+
+  const receiptLines = await db.query(`
+    SELECT object FROM receiptlines
+    WHERE receipt = $1 AND type = 3`,
+    [req.body.receipt]
+  )
+
+  for (let i = 0; i < receiptLines.rows.length; i++) {
+    let updateBook = await db.query(`
+      UPDATE books SET status=4
+      WHERE id = $1`,
+      [receiptLines.rows[i].object]
+    )
+  }
+
+  const result = await db.query(`
+    UPDATE receipts SET
+    status = 1
+    WHERE id = $1`,
+    [req.body.receipt]
+  )
+
+  if (result.rowCount != 1) {
+    res.status(400).json({
+      success: false,
+      data: 'Can\'t update receipt'
+    })
+    return
+  }
+
+  res.json({
+    success: true
+  })
+})
+
+
+// RECEIPT EMAIL ---------------------------------------------------------------
 
 router.post('/receipt/email', async (req, res) =>  {
   if (res.locals.user.type < 10) {

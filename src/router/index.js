@@ -10,6 +10,7 @@ import sellNew from '@/components/sell-new'
 import profile from '@/components/profile'
 import adminReceive from '@/components/admin/receive'
 import adminDeliver from '@/components/admin/deliver'
+import adminPay from '@/components/admin/pay'
 import adminBookList from '@/components/admin/book-list'
 import adminUserList from '@/components/admin/user-list'
 import superConsole from '@/components/super'
@@ -83,6 +84,12 @@ var router = new Router({
       path: '/admin/deliver',
       name: 'adminDeliver',
       component: adminDeliver,
+      meta: { requiresAuthLevel: 10 }
+    },
+    {
+      path: '/admin/pay',
+      name: 'adminPay',
+      component: adminPay,
       meta: { requiresAuthLevel: 10 }
     },
     {

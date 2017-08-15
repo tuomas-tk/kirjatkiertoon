@@ -39,6 +39,7 @@ router.post('/get/dashboard', async (req, res) => {
       ( SELECT COUNT(*) FROM books WHERE status=1 )  as count1,
       ( SELECT COUNT(*) FROM books WHERE status=2 )  as count2,
       ( SELECT COUNT(*) FROM books WHERE status=3 )  as count3,
+      ( SELECT COUNT(DISTINCT "user") FROM books WHERE status=3 ) as count4,
       ( SELECT SUM(price) FROM books WHERE status=0 )  as price0,
       ( SELECT SUM(price) FROM books WHERE status=1 )  as price1,
       ( SELECT SUM(price) FROM books WHERE status=2 )  as price2,

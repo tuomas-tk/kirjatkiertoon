@@ -112,6 +112,15 @@
           </div>
           <router-link to="/admin/books?status=3" class="button btn-m btn-block"><i class="fa fa-bars fa-fw"></i> Näytä</router-link>
         </div>
+        <div class="section-22">
+          <h3>Myyntituottojen tilitys myyjille</h3>
+          <b>Valmiina tilitettäväksi:</b>
+          <div class="number">
+            {{ dashboard.count4 }}<span>myyjää</span>
+          </div>
+          <router-link to="/admin/pay" class="button btn-m btn-block"><i class="fa fa-sign-out fa-fw"></i> Tilitä tuottoja</router-link>
+          </table>
+        </div>
       </div>
     </div>
 

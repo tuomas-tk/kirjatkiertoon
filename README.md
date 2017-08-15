@@ -83,5 +83,5 @@ The object of the action in parentheses
 1 - User pays for a book
 2 - Seller leaves book to school
 3 - Seller receives a payment for their book
-100 - Alennus
-110 - Lisämaksu
+100 - Discount
+110 - Extra expense
