@@ -102,9 +102,9 @@ router.get('/:token', async (req, res) => {
     56,
     110,
     150,
-    250,
-    350,
-    400,
+    280,
+    380,
+    410,
     490,
     595.28 - 42
   ]
@@ -141,7 +141,12 @@ router.get('/:token', async (req, res) => {
     if (lines[i].type < 100) {
       doc.text(lines[i].code, columns[0], yCoord)
       doc.text(lines[i].course, columns[1], yCoord)
-      doc.text(lines[i].name, columns[2], yCoord)
+      doc.text(lines[i].name, columns[2], yCoord, {
+        width: columns[3] - columns[2],
+        height: 10,
+        lineBreak: false,
+        ellipsis: true
+      }) // tämä
       doc.text((lines[i].publisher || '-') + ', ' + (lines[i].year || '-'), columns[3], yCoord)
       doc.text(lines[i].condition + '/5', columns[4], yCoord)
       switch (receipt.type) {
@@ -217,7 +222,7 @@ router.get('/:token', async (req, res) => {
     case 3:
       yCoord += 15
       doc.font('Times-Bold')
-      doc.text('YHTEENSÄ:', columns[5], yCoord)
+      doc.text('YHTEENSÄ', columns[5], yCoord)
       doc.text((totalPrice/100.0).toFixed(2) + ' €', columns[6], yCoord)
       doc.font('Times-Roman')
       yCoord += 15
