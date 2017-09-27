@@ -15,7 +15,7 @@ NIMI:   {{ book.name }}
 HINTA:  {{ (book.price / 100)|number_format(2, ',') }} €
 SELITE: {{ book.info }}
 
-Toimita kirja HETI KOULUN ALKAESSA koululle!
+Toimita kirja koululle MAHDOLLISIMMAN PIAN!
 
 {% if old_books %}
 Muistathan myös nämä, jo aiemmin myydyt kirjasi, jotka pitää myös toimittaa koululle:
@@ -50,7 +50,7 @@ KirjatKiertoon.fi  /  FirmatVerkkoon.fi
   </tr>
 </table>
 <p>
-<b>Toimita kirja HETI KOULUN ALKAESSA koululle!</b><br>
+<b>Toimita kirja koululle mahdollisimman pian!</b><br>
 </p>
 {% if old_books %}
 <hr />

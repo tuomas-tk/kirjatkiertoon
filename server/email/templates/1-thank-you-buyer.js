@@ -14,8 +14,7 @@ KURSSI: {{ book.course }}
 NIMI:   {{ book.name }}
 HINTA:  {{ (book.price / 100)|number_format(2, ',') }} €
 
-Saat kirjan maksua vastaan koululta koulun alkaessa elokuussa.
-Maksu vain käteisellä!
+Saat uuden viestin kun kirja on noudettavissa koululta käteismaksua vastaan.
 
 {% if old_books %}
 {% for b in old_books %}
@@ -26,8 +25,6 @@ Olet jo aiemmin ostanut nämä kirjat, jotka myös odottavat toimitusta koululle
 
 Kiitos että olet käyttänyt KirjatKiertoon.fi -palvelua!
 Voit lähettää palautetta ja kehitysehdotuksia vastaamalla tähän viestiin
-
-!!! TERVETULOA NURMEKSEN LUKIOON !!!
 
 Terveisin,
 Tuomas Karjalainen
@@ -50,8 +47,7 @@ KirjatKiertoon.fi  /  FirmatVerkkoon.fi
   </tr>
 </table>
 <p>
-<b>Saat kirjan maksua vastaan koululta koulun alkaessa elokuussa.</b><br>
-Maksu vain käteisellä!
+<b>Saat uuden viestin kun kirja on noudettavissa koululta käteismaksua vastaan.</b>
 </p>
 {% if old_books %}
 <hr />
@@ -76,7 +72,6 @@ Maksu vain käteisellä!
 <b>Kiitos että olet käyttänyt KirjatKiertoon.fi -palvelua!</b><br>
 Voit lähettää palautetta ja kehitysehdotuksia vastaamalla tähän viestiin.
 </p>
-<h3>Tervetuloa Nurmeksen lukioon!</h3>
 <p>
 Terveisin,<br>
 Tuomas Karjalainen<br>
