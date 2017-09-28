@@ -31,7 +31,8 @@ router.post('/get/books', async (req, res) => {
      (
       (COALESCE(sell_user.firstname,\'\') ILIKE $5 AND COALESCE(sell_user.lastname,\'\') ILIKE $6 AND COALESCE(sell_user.email,\'\') ILIKE $7 AND COALESCE(sell_user.passcode,\'\') ILIKE $8) OR
       (COALESCE( buy_user.firstname,\'\') ILIKE $5 AND COALESCE( buy_user.lastname,\'\') ILIKE $6 AND COALESCE( buy_user.email,\'\') ILIKE $7 AND COALESCE( buy_user.passcode,\'\') ILIKE $8)
-     )
+     ) AND
+    sell_user.school = $9
     ORDER BY id DESC`, [
       (req.body.book.course || '%'),
       '%'+(req.body.book.name || '')+'%',
@@ -40,7 +41,8 @@ router.post('/get/books', async (req, res) => {
       '%'+(req.body.person.firstname || '')+'%',
       '%'+(req.body.person.lastname || '')+'%',
       '%'+(req.body.person.email || '')+'%',
-      '%'+(req.body.person.passcode || '')+'%'
+      '%'+(req.body.person.passcode || '')+'%',
+      res.locals.user.school
     ]
   )
 
@@ -60,11 +62,13 @@ router.post('/get/users', async (req, res) => {
     SELECT * FROM users WHERE
     type < 100            AND
     firstname LIKE $1     AND
-    lastname  LIKE $2
+    lastname  LIKE $2     AND
+    ` + ((res.locals.user.type < 20) ? 'school' : '$3') + ` = $3
     ORDER BY lastname ASC`,
     [
       '%'+(req.body.firstname || '')+'%',
-      '%'+(req.body.lastname || '')+'%'
+      '%'+(req.body.lastname || '')+'%',
+      res.locals.user.school
     ]
   )
 
@@ -122,7 +126,7 @@ router.post('/add/user', async (req, res) => {
       (type, firstname, lastname, email, passcode, school)
     VALUES
       ($1, $2, $3, $4, $5, $6)`,
-    [data.type, data.firstname, data.lastname, data.email, passcode, 1]
+    [data.type, data.firstname, data.lastname, data.email, passcode, res.locals.user.school]
   )
 
   if (insertResult.rowCount != 1) {
@@ -154,10 +158,14 @@ router.post('/receive/get/sellers', async (req, res) => {
         firstname || \' \' || lastname ILIKE $1 OR
         email                          ILIKE $1 OR
         passcode                       ILIKE $1
-      )
+      ) AND
+      school = $2
     ORDER BY lastname ASC, firstname ASC
     LIMIT 5`,
-    ['%' + (req.body.search || '') + '%']
+    [
+      '%' + (req.body.search || '') + '%',
+      res.locals.user.school
+    ]
   )
 
   res.json({
@@ -165,7 +173,7 @@ router.post('/receive/get/sellers', async (req, res) => {
     data: result.rows
   })
 })
-
+//TODO: Continue to add school-column to WHEREs
 router.post('/receive/get/books', async (req, res) => {
   if (res.locals.user.type < 10) {
     return res.status(403).json({ success: false })
