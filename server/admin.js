@@ -173,18 +173,24 @@ router.post('/receive/get/sellers', async (req, res) => {
     data: result.rows
   })
 })
-//TODO: Continue to add school-column to WHEREs
+
 router.post('/receive/get/books', async (req, res) => {
   if (res.locals.user.type < 10) {
     return res.status(403).json({ success: false })
   }
 
   const result = await db.query(`
-    SELECT id, course, name, price, condition, info, publisher, year FROM books WHERE
-    "user" = $1 AND
-    status = 1
+    SELECT books.id, course, name, price, condition, info, publisher, year FROM books
+    LEFT JOIN users ON books."user" = users.id
+    WHERE
+      "user" = $1 AND
+      status = 1 AND
+      users.school = $2
     ORDER BY id ASC`,
-    [req.body.seller]
+    [
+      req.body.seller,
+      res.locals.user.school
+    ]
   )
 
   res.json({
@@ -200,22 +206,36 @@ router.post('/receive/get/code', async (req, res) => {
 
   const result = await db.query(`
     UPDATE books
-    SET code = next_code + 1
+    SET code = last_code + 1
     FROM
-     COALESCE(
-       (
-         SELECT code FROM books
-         WHERE code IS NOT NULL AND
-          code != ''
-         ORDER BY code DESC
-         LIMIT 1
-       )::integer,
-       99
-     ) AS next_code
-    WHERE id = $1 AND
-     status = 1
-    RETURNING next_code + 1 AS code`,
-    [req.body.book]
+      COALESCE(
+        (
+          SELECT code FROM books
+          LEFT JOIN users ON books."user" = users.id
+          WHERE
+            code IS NOT NULL AND
+            code != ''       AND
+            users.school = $2
+            ORDER BY code DESC
+            LIMIT 1
+          )::integer,
+          99
+        ) AS last_code
+    WHERE
+      id IN (
+        SELECT b.id FROM books b
+          LEFT JOIN users u
+            ON b."user" = u.id
+        WHERE
+          b.id = $1 AND
+          b.status = 1 AND
+          u.school = $2
+      )
+    RETURNING last_code + 1 AS code`,
+    [
+      req.body.book,
+      res.locals.user.school
+    ]
   )
 
   res.json({
@@ -232,8 +252,24 @@ router.post('/receive/set/received', async (req, res) =>  {
   const result = await db.query(`
     UPDATE books
     SET status = 2
-    WHERE id = $1 AND code = $2 AND "user" = $3`,
-    [req.body.book, req.body.code, req.body.seller]
+    WHERE
+      id IN (
+        SELECT b.id FROM books b
+        LEFT JOIN users u
+          ON b."user" = u.id
+        WHERE
+          b.id = $1 AND
+          b.code = $2 AND
+          b."user" = $3 AND
+          u.school = $4
+      )
+    `,
+    [
+      req.body.book,
+      req.body.code,
+      req.body.seller,
+      res.locals.user.school
+    ]
   )
 
   if (result.rowCount != 1) {
@@ -311,11 +347,21 @@ router.post('/receive/finish', async (req, res) =>  {
     UPDATE receipts
     SET status = 1
     WHERE
-      type = 2 AND
-      status = 0 AND
-      "user" = $1
+      id IN (
+        SELECT r.id FROM receipts r
+        LEFT JOIN users u
+          ON r."user" = u.id
+        WHERE
+          r.type = 2 AND
+          r.status = 0 AND
+          r."user" = $1 AND
+          u.school = $2
+      )
     RETURNING id`,
-    [req.body.seller]
+    [
+      req.body.seller,
+      res.locals.user.school
+    ]
   )
 
   if (updateReceipt.rowCount === 0) {
@@ -343,12 +389,16 @@ router.post('/deliver/get/buyers', async (req, res) => {
     SELECT id, firstname, lastname, email FROM users WHERE
     type < 10 AND type >= 2 AND
     (
-     firstname || \' \' || lastname ILIKE $1 OR
-     email                          ILIKE $1
-    )
+      firstname || \' \' || lastname ILIKE $1 OR
+      email                          ILIKE $1
+    ) AND
+    school = $2
     ORDER BY lastname ASC, firstname ASC
     LIMIT 5`,
-    ['%' + (req.body.search || '') + '%']
+    [
+      '%' + (req.body.search || '') + '%',
+      res.locals.user.school
+    ]
   )
 
   res.json({
@@ -360,6 +410,21 @@ router.post('/deliver/get/buyers', async (req, res) => {
 router.post('/deliver/get/books', async (req, res) => {
   if (res.locals.user.type < 10) {
     return res.status(403).json({ success: false })
+  }
+
+  const userResult = await db.query(`
+    SELECT id FROM users
+    WHERE
+      id     = $1 AND
+      school = $2
+    LIMIT 1`,
+    [
+      req.body.buyer,
+      res.locals.user.school
+    ]
+  )
+  if (userResult.rowCount != 1) {
+    return res.status(403).json({ sucess: false })
   }
 
   const availableResult = await db.query(`
@@ -390,6 +455,21 @@ router.post('/deliver/get/books', async (req, res) => {
 router.post('/deliver/set/delivered', async (req, res) => {
   if (res.locals.user.type < 10) {
     return res.status(403).json({ success: false })
+  }
+
+  const userResult = await db.query(`
+    SELECT id FROM users
+    WHERE
+      id     = $1 AND
+      school = $2
+    LIMIT 1`,
+    [
+      req.body.buyer,
+      res.locals.user.school
+    ]
+  )
+  if (userResult.rowCount != 1) {
+    return res.status(403).json({ sucess: false })
   }
 
   const books = req.body.books
@@ -499,10 +579,14 @@ router.post('/pay/get/sellers', async (req, res) => {
         firstname || \' \' || lastname ILIKE $1 OR
         email                          ILIKE $1 OR
         passcode                       ILIKE $1
-      )
+      ) AND
+      school = $2
     ORDER BY lastname ASC, firstname ASC
     LIMIT 5`,
-    ['%' + (req.body.search || '') + '%']
+    [
+      '%' + (req.body.search || '') + '%',
+      res.locals.user.school
+    ]
   )
 
   res.json({
@@ -514,6 +598,21 @@ router.post('/pay/get/sellers', async (req, res) => {
 router.post('/pay/get/books', async (req, res) => {
   if (res.locals.user.type < 10) {
     return res.status(403).json({ success: false })
+  }
+
+  const userResult = await db.query(`
+    SELECT id FROM users
+    WHERE
+      id     = $1 AND
+      school = $2
+    LIMIT 1`,
+    [
+      req.body.buyer,
+      res.locals.user.school
+    ]
+  )
+  if (userResult.rowCount != 1) {
+    return res.status(403).json({ sucess: false })
   }
 
   const books = await db.query(`
@@ -571,6 +670,25 @@ router.post('/pay/add/discount', async (req, res) => {
     return res.status(403).json({ success: false })
   }
 
+  const userCheckResult = await db.query(`
+    SELECT r.id FROM receipts r
+    LEFT JOIN users u
+      ON r."user" = u.id
+    WHERE
+      r.id     = $1 AND
+      r.type   = 3  AND
+      r.status = 0  AND
+      u.school = $2
+    LIMIT 1`,
+    [
+      req.body.receipt,
+      res.locals.user.school
+    ]
+  )
+  if (userCheckResult.rowCount != 1) {
+    return res.status(403).json({ sucess: false })
+  }
+
   const result = await db.query(`
     INSERT INTO receiptlines
     (receipt, type, comment, amount) VALUES
@@ -595,6 +713,25 @@ router.post('/pay/delete/discount', async (req, res) => {
     return res.status(403).json({ success: false })
   }
 
+  const userCheckResult = await db.query(`
+    SELECT r.id FROM receipts r
+    LEFT JOIN users u
+      ON r."user" = u.id
+    WHERE
+      r.id     = $1 AND
+      r.type   = 3  AND
+      r.status = 0  AND
+      u.school = $2
+    LIMIT 1`,
+    [
+      req.body.receipt,
+      res.locals.user.school
+    ]
+  )
+  if (userCheckResult.rowCount != 1) {
+    return res.status(403).json({ sucess: false })
+  }
+
   const result = await db.query(`
     DELETE FROM receiptlines
     WHERE id = $1 AND receipt = $2`,
@@ -617,6 +754,25 @@ router.post('/pay/get/discounts', async (req, res) => {
     return res.status(403).json({ success: false })
   }
 
+  const userCheckResult = await db.query(`
+    SELECT r.id FROM receipts r
+    LEFT JOIN users u
+      ON r."user" = u.id
+    WHERE
+      r.id     = $1 AND
+      r.type   = 3  AND
+      r.status = 0  AND
+      u.school = $2
+    LIMIT 1`,
+    [
+      req.body.receipt,
+      res.locals.user.school
+    ]
+  )
+  if (userCheckResult.rowCount != 1) {
+    return res.status(403).json({ sucess: false })
+  }
+
   const result = await db.query(`
     SELECT * FROM receiptlines WHERE
     receipt = $1 AND
@@ -634,6 +790,25 @@ router.post('/pay/get/discounts', async (req, res) => {
 router.post('/pay/set/paid', async (req, res) => {
   if (res.locals.user.type < 10) {
     return res.status(403).json({ success: false })
+  }
+
+  const userCheckResult = await db.query(`
+    SELECT r.id FROM receipts r
+    LEFT JOIN users u
+      ON r."user" = u.id
+    WHERE
+      r.id     = $1 AND
+      r.type   = 3  AND
+      r.status = 0  AND
+      u.school = $2
+    LIMIT 1`,
+    [
+      req.body.receipt,
+      res.locals.user.school
+    ]
+  )
+  if (userCheckResult.rowCount != 1) {
+    return res.status(403).json({ sucess: false })
   }
 
   const receiptLines = await db.query(`
@@ -679,9 +854,19 @@ router.post('/receipt/email', async (req, res) =>  {
   }
 
   const checkReceipt = await db.query(`
-    SELECT COUNT(*) FROM receipts
-    WHERE "user" = $1 AND id = $2 AND status = 1`,
-    [req.body.user, req.body.receipt]
+    SELECT COUNT(r.id) FROM receipts r
+    LEFT JOIN users u
+      ON r."user" = u.id
+    WHERE
+      r."user" = $1 AND
+      r.id = $2 AND
+      r.status = 1 AND
+      u.school = $3`,
+    [
+      req.body.user,
+      req.body.receipt,
+      res.locals.user.school
+    ]
   )
 
   if (checkReceipt.rows[0].count != 1) {
