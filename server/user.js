@@ -11,13 +11,20 @@ router.post('/get/profile', (req, res) => {
     data: res.locals.user
   });
 })
-
+// TODO add school
 router.post('/get/dashboard', async (req, res) => {
   const userType = res.locals.user.type
   var result
   if (userType === 1) {
-    result = await db.query(
-      'SELECT COUNT(*) as available FROM books WHERE status = 0'
+    result = await db.query(`
+      SELECT COUNT(books.id) as available
+      FROM books
+      LEFT JOIN users
+        ON books."user" = users.id
+      WHERE
+        books.status = 0 AND
+        users.school = $1`,
+      [res.locals.user.school]
     )
   } else if (userType >= 2 && userType < 10) {
     result = await db.query(

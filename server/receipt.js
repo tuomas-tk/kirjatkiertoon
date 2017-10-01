@@ -32,13 +32,23 @@ router.get('/:token', async (req, res) => {
 
   const userResult = await db.query(
     'SELECT * FROM users WHERE id = $1',
-    [receiptResult.rows[0].user]
+    [receipt.user]
   )
   if (receiptResult.rowCount != 1) {
     res.status(500).send('Käyttäjää ei löydy')
     return
   }
   const user = userResult.rows[0]
+
+  const schoolResult = await db.query(
+    'SELECT * FROM schools WHERE id = $1',
+    [user.school]
+  )
+  if (schoolResult.rowCount != 1) {
+    res.status(500).send('Koulua ei löydy')
+    return
+  }
+  const school = schoolResult.rows[0]
 
   const lineResult = await db.query(
     'SELECT * FROM receiptlines LEFT JOIN books ON receiptlines.object = books.id WHERE receipt = $1',
@@ -74,8 +84,8 @@ router.get('/:token', async (req, res) => {
 
   doc.font('Times-Roman').fontSize(12)
   doc.text('KirjatKiertoon.fi')
-  doc.text('Tuomas Karjalainen')
-  doc.text('Y-tunnus: 2839696-7')
+  doc.text(school.name)
+  doc.text('Järjestäjä: ' + school.organizer)
 
   doc.font('Times-Bold').text('KUITTI',  260 + 56, 56).font('Times-Roman')
   doc.text('\n' + time.getDate() + '.' + (time.getMonth() + 1) + '.' + time.getFullYear())
@@ -118,7 +128,8 @@ router.get('/:token', async (req, res) => {
   doc.text('Kunto', columns[4], yCoord)
   switch (receipt.type) {
     case 1:
-      doc.text('ALV', columns[5], yCoord)
+      if (school.vat)
+        doc.text('ALV', columns[5], yCoord)
       doc.text('Hinta', columns[6], yCoord)
       break
     case 2:
@@ -151,11 +162,13 @@ router.get('/:token', async (req, res) => {
       doc.text(lines[i].condition + '/5', columns[4], yCoord)
       switch (receipt.type) {
         case 1:
-          var VAT = lines[i].price / (1 + Static.VAT.book) * Static.VAT.book
-          var price = lines[i].price // contains VAT
-          totalVAT += VAT
-          totalPrice += price
-          doc.text((VAT / 100.0).toFixed(2) + ' €', columns[5], yCoord)
+          if (school.vat) {
+            var VAT = lines[i].price / (1 + Static.VAT.book) * Static.VAT.book
+            var price = lines[i].price // contains VAT
+            totalVAT += VAT
+            totalPrice += price
+            doc.text((VAT / 100.0).toFixed(2) + ' €', columns[5], yCoord)
+          }
           doc.text((price / 100).toFixed(2) + ' €', columns[6], yCoord)
           break
         case 2:
@@ -196,12 +209,14 @@ router.get('/:token', async (req, res) => {
     case 1:
       yCoord += 15
       doc.moveTo(columns[5], yCoord).lineTo(columns[7], yCoord).stroke()
-      yCoord += 5
-      doc.text('Veroton:', columns[5], yCoord)
-      doc.text(((totalPrice - totalVAT)/100.0).toFixed(2) + ' €', columns[6], yCoord)
-      yCoord += 15
-      doc.text('ALV 10%:', columns[5], yCoord)
-      doc.text(((totalVAT)/100.0).toFixed(2) + ' €', columns[6], yCoord)
+      if (school.vat) {
+        yCoord += 5
+        doc.text('Veroton:', columns[5], yCoord)
+        doc.text(((totalPrice - totalVAT)/100.0).toFixed(2) + ' €', columns[6], yCoord)
+        yCoord += 15
+        doc.text('ALV 10%:', columns[5], yCoord)
+        doc.text(((totalVAT)/100.0).toFixed(2) + ' €', columns[6], yCoord)
+      }
       yCoord += 15
       doc.font('Times-Bold').text('YHTEENSÄ:', columns[5], yCoord)
       doc.text((totalPrice/100.0).toFixed(2) + ' €', columns[6], yCoord).font('Times-Roman')
@@ -232,9 +247,9 @@ router.get('/:token', async (req, res) => {
 
   doc.moveTo(columns[0], 720).lineTo(columns[7], 720).stroke()
   doc.text('KirjatKiertoon.fi', 56, 730)
-  doc.text('Tuomas Karjalainen / FirmatVerkkoon.fi')
-  doc.text('kirjatkiertoon@firmatverkkoon.fi')
-  doc.text('044 324 6320')
+  doc.text(school.name)
+  doc.text('Järjestäjä: ' + school.organizer)
+  doc.text(school.contact)
   doc.pipe(res)
   doc.end()
 })
