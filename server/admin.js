@@ -607,12 +607,12 @@ router.post('/pay/get/books', async (req, res) => {
       school = $2
     LIMIT 1`,
     [
-      req.body.buyer,
+      req.body.seller,
       res.locals.user.school
     ]
   )
   if (userResult.rowCount != 1) {
-    return res.status(403).json({ sucess: false })
+    return res.status(403).json({ success: false })
   }
 
   const books = await db.query(`
