@@ -189,7 +189,7 @@ router.post('/buy/:id', async (req, res) => {
     WHERE
       id = $2 AND
       buyer IS NULL AND
-      (SELECT school FROM users WHERE id = books."user") = $3
+      (SELECT school FROM users WHERE id = books."user") = $3 AND
       "user" != $1
     RETURNING
       "user"
