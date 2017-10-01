@@ -162,11 +162,11 @@ router.get('/:token', async (req, res) => {
       doc.text(lines[i].condition + '/5', columns[4], yCoord)
       switch (receipt.type) {
         case 1:
+          var price = lines[i].price // contains VAT
+          totalPrice += price
           if (school.vat) {
-            var VAT = lines[i].price / (1 + Static.VAT.book) * Static.VAT.book
-            var price = lines[i].price // contains VAT
+            var VAT = price / (1 + Static.VAT.book) * Static.VAT.book
             totalVAT += VAT
-            totalPrice += price
             doc.text((VAT / 100.0).toFixed(2) + ' €', columns[5], yCoord)
           }
           doc.text((price / 100).toFixed(2) + ' €', columns[6], yCoord)
