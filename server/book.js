@@ -135,7 +135,7 @@ router.post('/buy/:id', async (req, res) => {
         lastname  = $2 AND
         email     = $3 AND
         type      = 2  AND
-        school    = $3
+        school    = $4
       LIMIT 1`,
       [
         req.body.firstname.trim(),
