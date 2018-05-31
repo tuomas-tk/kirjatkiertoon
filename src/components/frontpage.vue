@@ -135,6 +135,11 @@
     <div id="block-steps" v-if="authStatus < 10">
       <div class="maxwidth">
         <h2>Miten KirjatKiertoon.fi toimii?</h2>
+        <p class="column-50" style="display: block;">
+          Kirjat myydään saman lukion sisällä, jolloin ei mitään ei tarvitse
+          lähetellä ympäri Suomea. Myydyt kirjat annetaan koululla palvelun toiminnasta
+          vastaavalle taholle, joka jakaa ne sitten maksua vastaan ostajille.
+        </p>
         <div class="caption">MYYJÄ</div>
         <div class="caption-right">OSTAJA</div>
 

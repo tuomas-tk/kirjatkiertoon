@@ -3,7 +3,16 @@
     <div class="form">
       <h2>Kirjaudu sisään!</h2>
       <form v-on:submit.prevent="login">
-        <input type="text" class="input" placeholder="Tunnuskoodi" v-model="passcode">
+        <h3>Ostaja, <small>valitse koulu</small></h3>
+        <select v-model="school" v-on:change="passcode='';">
+          <option disabled value="">-- VALITSE KOULU --</option>
+          <option v-for="s in schools" :value="s.passcode">
+            {{ s.name }}
+          </option>
+        </select>
+        <strong>TAI</strong>
+        <h3>Myyjä, <small>syötä tunnuskoodi</small></h3>
+        <input type="text" class="input" placeholder="Tunnuskoodi" v-model="passcode" v-on:input="school='';">
         <input type="submit" class="submit button btn-m btn-block" value="Kirjaudu">
       </form>
       <p class="error" v-if="error===1">
@@ -11,9 +20,6 @@
       </p>
       <p class="error" v-if="error===2">
         Palvelimeen ei saada yhteyttä
-      </p>
-      <p>
-        Tunnuskoodin saat koulultasi palvelun toiminnasta vastaavalta taholta
       </p>
     </div>
   </div>
@@ -28,14 +34,23 @@ export default {
   name: 'login',
   data () {
     return {
+      schools: [
+        {
+          name: 'Nurmeksen lukio',
+          passcode: 'a3jv f3k7'
+        }
+      ],
+      school: '',
       passcode: null,
       error: 0
     }
   },
   methods: {
     login: function () {
+      var passcode = this.school
+      if (passcode === '') passcode = this.passcode
       axios.post('/login/', {
-        passcode: this.passcode.toLowerCase().replace(' ', '')
+        passcode: passcode.toLowerCase().replace(' ', '')
       }).then(response => {
         console.log('login success')
         // JSON responses are automatically parsed.
@@ -89,9 +104,30 @@ h2 {
 .form {
   @extend .box
 
-  padding: 1em 2em 2em 2em
-  max-width: 300px
+  padding: 1rem 2rem 2rem 2rem
+  max-width: 400px
   margin: 0 auto;
+
+  label {
+    display: block;
+  }
+
+  select {
+    width: 100%;
+    padding: .45em .75em
+    font-size: 1em
+  }
+
+  strong {
+    display: block;
+    text-align: center;
+    font-size: 1.5em;
+    border-top: 1px solid #aaa;
+    border-bottom: 1px solid #aaa;
+    background-color: #f0f0f0;
+    margin: 1em -2rem;
+    padding: .2em 0;
+  }
 
   .input {
     display: block
@@ -103,7 +139,7 @@ h2 {
   }
 
   p {
-    margin-top: 2em
+    margin-top: 1em
     color: #777777
     font-size: 14px
     font-weight: 700
