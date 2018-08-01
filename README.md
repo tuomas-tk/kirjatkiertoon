@@ -41,11 +41,12 @@ For detailed explanation on how things work, checkout the [guide](http://vuejs-t
 
 ## Book status
 
-0 - Available to buy
-1 - Bought, not brought to school yet
-2 - Book at school
-3 - Sold, book delivered to buyer
-4 - Money delivered to seller
+-1 - Deleted
+0  - Available to buy
+1  - Bought, not brought to school yet
+2  - Book at school
+3  - Sold, book delivered to buyer
+4  - Money delivered to seller
 
 
 # Actions

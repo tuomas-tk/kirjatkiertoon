@@ -1,6 +1,7 @@
 require('dotenv').config()
 const Router = require('express-promise-router')
 const db = require('./db')
+const bookData = require('./data/book')
 const router = new Router()
 
 module.exports = router
@@ -15,27 +16,11 @@ router.post('/get/own', async (req, res) => {
     return
   }
 
-  // Books with status 1 (bought, bring to school) are listed first, then the others with ascending statuses
-  const bookResult = await db.query(`
-    SELECT *
-    FROM books
-    WHERE
-      "user" = $1
-    ORDER BY
-      CASE status
-        WHEN 1
-          THEN 0
-        ELSE 1
-      END ASC,
-      status ASC,
-      id DESC
-    `,
-    [res.locals.user.id]
-  )
+  var result = await bookData.getOwn(res.locals.user.id)
 
   res.json({
     success: true,
-    data: bookResult.rows
+    data: result.rows
   })
 })
 
@@ -45,27 +30,11 @@ router.post('/get/bought', async (req, res) => {
     return res.status(400).json({ success: false });
   }
 
-  // Books with status 2 (get from school) are listed first, then the others with ascending statuses
-  const bookResult = await db.query(`
-    SELECT *
-    FROM books
-    WHERE
-      "buyer" = $1
-    ORDER BY
-      CASE status
-        WHEN 2
-          THEN 0
-        ELSE 1
-      END ASC,
-      status ASC,
-      id DESC
-    `,
-    [res.locals.user.id]
-  )
+  var result = await bookData.getBought(res.locals.user).rows
 
   res.json({
     success: true,
-    data: bookResult.rows
+    data: result
   })
 })
 
@@ -75,41 +44,26 @@ router.post('/get', async (req, res) => {
     return res.status(400).json({ success: false });
   }
 
-  const bookResult = await db.query(`
-    SELECT *
-    FROM books b
-    WHERE
-      b.buyer IS NULL AND
-      (SELECT school FROM users WHERE id = b."user") = $1
-    ORDER BY
-      b.price ASC,
-      b.id ASC`,
-    [res.locals.user.school]
-  )
+  var result = await bookData.getAvailableInSchool(res.locals.user.school).rows
 
   res.json({
     success: true,
-    data: bookResult.rows
+    data: result
   })
 })
 
 // `/get/:id` returns one book with given id from current users's school
 router.post('/get/:id', async (req, res) => {
-  if (res.locals.user.type < 1 || res.locals.user.type >= 10) {
+  var bookResult
+  if (res.locals.user.type < 1) { // Nobody
     return res.status(400).json({ success: false });
+  } else if (res.locals.user.type < 10) { // Buyers and sellers
+    bookResult = await bookData.getSingleAvailableOrOwnedInSchool(req.params.id, res.locals.user.id, res.locals.user.school)
+  } else if (res.locals.user.type < 42) { // Admins
+    bookResult = await bookData.getSingleInSchool(req.params.id, res.locals.user.school)
+  } else { // SuperAdmin
+    bookResult = await bookData.getSingle(req.params.id)
   }
-  const bookResult = await db.query(`
-    SELECT b.id, course, name, price, condition, status, info, publisher, year
-    FROM books b
-    WHERE
-      id = $1 AND
-      (SELECT school FROM users WHERE id = b."user") = $2
-    LIMIT 1`,
-    [
-      req.params.id,
-      res.locals.user.school
-    ]
-  )
 
   res.json({
     success: true,
@@ -178,28 +132,7 @@ router.post('/buy/:id', async (req, res) => {
   }
 
   // Update the book in the database
-  const updateBookResult = await db.query(`
-    UPDATE books
-    SET
-      buyer = $1,
-      status =  CASE
-                  WHEN status = 0 THEN 1
-                  ELSE status
-                END
-    WHERE
-      id = $2 AND
-      buyer IS NULL AND
-      (SELECT school FROM users WHERE id = books."user") = $3 AND
-      "user" != $1
-    RETURNING
-      "user"
-    `,
-    [
-      userID,
-      req.params.id,
-      res.locals.user.school
-    ]
-  )
+  const updateBookResult = await bookData.buyUnboughtInSchool(res.params.id, userID, res.locals.user.school)
 
   if (updateBookResult.rowCount != 1) {
     res.status(500).json({ success: false, data: 'Can\'t update book' })
@@ -229,18 +162,18 @@ router.post('/buy/:id', async (req, res) => {
 // `/add` **adds a new book** to the service
 router.post('/add', async (req, res) => {
 
-  if (res.locals.user.type < 5 || res.locals.user.type >= 10) {
-    return res.status(400).json({ success: false });
-  }
-
   var data = {
     course:    req.body.course,
     name:      req.body.name,
-    publisher: req.body.publisher,
-    year:      req.body.year,
     price:     req.body.price,
     condition: req.body.condition,
-    info:      req.body.info
+    status:    0,
+    info:      req.body.info,
+    user:      res.locals.user.id,
+    buyer:     null,
+    publisher: req.body.publisher,
+    year:      req.body.year,
+    code:      null
   };
 
   if (
@@ -257,14 +190,7 @@ router.post('/add', async (req, res) => {
     return
   }
 
-  const insertResult = await db.query(`
-    INSERT INTO books
-      (course, name, publisher, year, price, condition, info, "user", status)
-    values
-      ($1, $2, $3, $4, $5, $6, $7, $8, 0)
-    RETURNING id`,
-    [data.course, data.name, data.publisher, data.year, data.price, data.condition, data.info, res.locals.user.id]
-  )
+  const insertResult = await bookData.add(data)
 
   if (insertResult.rowCount != 1) {
     res.status(500).json({ success: false, data: 'Can\'t insert book' })
@@ -275,6 +201,84 @@ router.post('/add', async (req, res) => {
     success: true,
     data: {
       id: insertResult.rows[0].id
+    }
+  })
+})
+
+// `/edit` **edit an existing book**
+router.post('/edit/:id', async (req, res) => {
+
+  const oldBookResult = await bookData.getSingleInSchool(req.params.id, res.locals.user.school)
+
+  if (res.locals.user.type < 5 || oldBookResult.rowCount != 1) {
+    return res.status(400).json({ success: false });
+  }
+
+  var data = {
+    course:    req.body.course,
+    name:      req.body.name,
+    price:     req.body.price,
+    condition: req.body.condition,
+    info:      req.body.info,
+    publisher: req.body.publisher,
+    year:      req.body.year,
+    user:      req.body.user, // not used when user.type < 10
+    buyer:     req.body.buyer, // not used when user.type < 10
+    code:      req.body.code // not used when user.type < 10
+  };
+
+  if (
+    data.condition < 0 ||
+    data.condition > 5 ||
+    data.price < 500 ||
+    data.price > 10000 ||
+    data.course == "" ||
+    data.price == ""
+  ) {
+    res.status(400).json({ success: false })
+    return
+  }
+
+  var updateResult
+  if (res.locals.user.type < 10) { // Sellers
+    updateResult = await bookData.editOwn(req.params.id, res.locals.user.id, data)
+  } else if (res.locals.user.type < 42) { // Admins
+    updateResult = await bookData.editInSchool(req.params.id, res.locals.user.school, data)
+  } else { // SuperAdmin
+    updateResult = await bookData.edit(req.params.id, data)
+  }
+
+  if (updateResult.rowCount != 1) {
+    res.status(500).json({ success: false, data: 'Can\'t edit book' })
+    return
+  }
+
+  res.json({ success: true })
+})
+
+// `/delete/:id` **removes an existing book** from the service
+router.post('/delete/:id', async (req, res) => {
+  var result
+  if (res.locals.user.type < 5) { // buyers
+    res.status(400).json({ success: false })
+    return
+  } else if (res.locals.user.type < 10) { // sellers
+    result = await bookData.deleteOwnIfNotSold(req.params.id, res.locals.user.id)
+  } else if (res.locals.user.type < 42) { // admins
+    result = await bookData.deleteInSchool(req.params.id, res.locals.user.school)
+  } else { // SuperAdmin
+    result = await bookData.delete(req.params.id)
+  }
+
+  if (result.rowCount != 1) {
+    res.status(500).json({ success: false, data: 'Can\'t delete book' })
+    return
+  }
+
+  res.json({
+    success: true,
+    data: {
+      id: req.params.id
     }
   })
 })
