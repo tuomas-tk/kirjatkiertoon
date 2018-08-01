@@ -19,7 +19,7 @@
           <tr>
             <th>Kurssi</th>
             <th>Kirja</th>
-            <th>Hinta</th>
+            <th>Hinta <small>ostajalle</small></th>
             <th>Tila</th>
             <th></th>
           </tr>
@@ -38,8 +38,9 @@
               <span v-if="book.status == 1"><i class="fa fa-clock-o"></i><br>TOIMITA KOULULLE</span>
               <span v-if="book.status >= 2"><i class="fa fa-handshake-o"></i><br>MYYTY</span>
             </td>
-            <td>
+            <td class="buttons">
               <router-link class="button btn-s":to="{name: 'sellSingle', params: { id: book.id }}">Avaa</router-link>
+              <span class="button btn-s btn-red" @click="poista(book.id)" v-if="book.status == 0">Poista</span>
             </td>
           </tr>
         </tbody>
@@ -85,6 +86,21 @@ export default {
         }
       }).then(() => {
         EventBus.$emit('setLoading', false)
+      })
+    },
+    poista: function (id) {
+      var deleteConfirm = confirm('Haluatko varmasti poistaa kirjan?')
+      if (!deleteConfirm) return
+      axios.post('/book/delete/' + id, {
+        token: auth.getToken()
+      }).then(response => {
+        this.load()
+      }).catch(error => {
+        if (error.response.status === 400) {
+          console.log('Invalid token')
+        } else {
+          console.log('Error ' + error.response.status)
+        }
       })
     }
   },
@@ -141,6 +157,9 @@ table {
     i.fa-handshake-o {
       color: _color-green-900
     }
+  }
+  td.buttons {
+    text-align: right;
   }
 }
 </style>

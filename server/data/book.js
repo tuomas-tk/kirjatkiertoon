@@ -189,8 +189,7 @@ exports.deleteOwnIfNotSold = (id, userID) => {
   return db.query(`
     UPDATE books
     SET status = -1
-    WHERE id = $1 AND "user" = $2 AND status = 0
-    LIMIT 1`,
+    WHERE id = $1 AND "user" = $2 AND status = 0`,
     [id, userID]
   )
 }
@@ -201,8 +200,7 @@ exports.deleteInSchool = (id, schoolID) => {
     SET status = -1
     WHERE
       id = $1 AND
-      (SELECT school FROM users WHERE id = books."user") = $2
-    LIMIT 1`,
+      (SELECT school FROM users WHERE id = books."user") = $2`,
     [id, schoolID]
   )
 }
@@ -212,8 +210,7 @@ exports.delete = (id) => {
     UPDATE books
     SET status = -1
     WHERE
-      id = $1
-    LIMIT 1`,
+      id = $1`,
     [id]
   )
 }

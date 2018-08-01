@@ -272,13 +272,7 @@ router.post('/delete/:id', async (req, res) => {
 
   if (result.rowCount != 1) {
     res.status(500).json({ success: false, data: 'Can\'t delete book' })
-    return
+  } else {
+    res.json({ success: true })
   }
-
-  res.json({
-    success: true,
-    data: {
-      id: req.params.id
-    }
-  })
 })

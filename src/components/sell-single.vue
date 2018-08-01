@@ -43,7 +43,7 @@
           <div class="title">Kuvaus:</div>
           <p class="info" v-if="book.info">{{ book.info }}</p>
           <p class="info" v-else>Ei lisätietoja</p>
-          
+
         </div>
 
         <div class="title">Hinta:</div>
@@ -57,10 +57,16 @@
             <span v-if="book.status == 1"><i class="fa fa-clock-o"></i> <span>Kirjaa odotetaan koululla</span></span>
             <span v-if="book.status >= 2"><i class="fa fa-handshake-o"></i>   <span>Myyty</span></span>
           </div><br>
-          <!--<div class="button btn-m" :class="{'btn-disabled': book.status > 0}" @click="muokkaa" v-if="book.status == 0">Muokkaa</div>
-          <div class="button btn-m" :class="{'btn-disabled': book.status > 0}" @click="poista" v-if="book.status == 0">Poista ilmoitus</div>-->
+          <!--<div class="button btn-m" :class="{'btn-disabled': book.status > 0}" @click="muokkaa" v-if="book.status == 0">Muokkaa</div>-->
+          <div class="button btn-m btn-red" :class="{'btn-disabled': book.status > 0}" @click="deleteConfirmOpen = true" v-if="!deleteConfirmOpen">Poista ilmoitus</div>
+          <div class="box" v-show="deleteConfirmOpen">
+            <h3>Haluatko varmasti poistaa kirjan myynnistä?</h3>
+            <div class="button btn-m btn-red" @click="poista">Kyllä, poista</div>
+            <div class="button btn-m" @click="deleteConfirmOpen=false">Peruuta</div>
+            <div v-if="deleteError" class="delete-error">{{ deleteError }}</div>
+          </div>
           <br>
-          <div v-if="book.status > 0">Et voi muokata ilmoitusta myymisen jälkeen</div>
+          <div v-if="book.status > 0">Et voi poistaa ilmoitusta kirjan myymisen jälkeen. Jos et pysty toimittamaan kirjaa koska olet jo myynyt sen muualle, ota mahdollisimman pian yhteyttä palvelun ylläpitoon.</div>
         </div>
       </div>
     </div>
@@ -83,6 +89,8 @@ export default {
   data () {
     return {
       book: {},
+      deleteConfirmOpen: false,
+      deleteError: null,
       TOTAL_FEE: TOTAL_FEE
     }
   },
@@ -115,6 +123,24 @@ export default {
     },
     poista: function () {
       console.log('poista')
+      axios.post('/book/delete/' + this.id, {
+        token: auth.getToken()
+      }).then(response => {
+        if (response.data.success) {
+          alert('Kirjan poisto onnistui!')
+          this.back()
+        } else {
+          this.deleteError = 'Kirjan poisto ei onnistu'
+        }
+      }).catch(error => {
+        if (error.response.status === 400) {
+          console.log('Invalid token')
+          this.deleteError = 'Kirjan poisto ei onnistu, virhe 400'
+        } else {
+          console.log('Error ' + error.response.status)
+          this.deleteError = 'Kirjan poisto ei onnistu, virhe ' + error.response.status
+        }
+      })
     }
   }
 }
@@ -237,6 +263,20 @@ h2 {
     padding-left: .8em
   }
 }
+
+.box {
+  display: inline-block;
+  border: 1px solid #DDDDDD;
+  padding: 1em;
+  border-radius: 3px;
+
+
+  .delete-error {
+    color: _color-red-900;
+    font-weight: 700;
+  }
+}
+
 
 
 .fade {
