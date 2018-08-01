@@ -44,14 +44,10 @@
       </select>
 
       <h3>Kurssi:</h3>
-      <select v-model="course">
+      <select v-model="course" @change="updateQuery">
         <option value="">Kaikki</option>
         <option v-for="n in (this.courseCount[subject])">{{ subject }}{{ n }}</option>
       </select>
-
-      <!--<div class="bottom">
-        <router-link class="button btn-m":to="{name: 'buyList', params: {}}">Hae</router-link>
-      </div>-->
     </div>
   </div>
 
@@ -70,7 +66,7 @@
         <tr v-for="book in books" v-if="(subject == '' || (course == '' && book.course.startsWith(subject)) || (book.course == course))">
           <td>{{ book.course }}</td>
           <td class="name">
-            <router-link :to="{name: 'buySingle', params: { id: book.id }}">
+            <router-link :to="{name: 'buySingle', params: { id: book.id }, query: $route.query}">
               {{ book.name }}
             </router-link>
           </td>
@@ -107,8 +103,8 @@ export default {
   data () {
     return {
       books: [],
-      subject: '',
-      course: '',
+      subject: this.$route.query.subject || '',
+      course: this.$route.query.course || '',
       courseCount: COURSES,
       auth: auth
     }
@@ -150,13 +146,17 @@ export default {
       })
     },
     changeSubject: function () {
-      console.log('changeSubject')
       this.course = ''
+      this.updateQuery()
+    },
+    updateQuery: function () {
+      this.$router.push({ name: this.$route.name, query: {subject: this.subject, course: this.course} })
     }
   },
   computed: {
     selectedBook: function () {
       EventBus.$emit('setModalOpen', this.$route.params.id)
+      this.load()
       return this.$route.params.id
     }
   }

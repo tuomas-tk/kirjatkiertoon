@@ -25,13 +25,13 @@ exports.getOwn = (userID) => {
 
 // Returns all books current user has bought
 // Books with status 2 (get from school) are listed first, then the others with ascending statuses
-exports.getBought = (user) => {
+exports.getBought = (userID) => {
   return db.query(`
-    SELECT *
+    SELECT id, course, name, price, condition, status, info, publisher, year
     FROM books
     WHERE
       "buyer" = $1 AND
-      status >= 0
+      status >= 1
     ORDER BY
       CASE status
         WHEN 2
@@ -41,13 +41,13 @@ exports.getBought = (user) => {
       status ASC,
       id DESC
     `,
-    [user.id]
+    [userID]
   )
 }
 
 exports.getAvailableInSchool = (schoolID) => {
   return db.query(`
-    SELECT *
+    SELECT id, course, name, price, condition, status, info, publisher, year
     FROM books b
     WHERE
       b.buyer IS NULL AND
@@ -60,13 +60,18 @@ exports.getAvailableInSchool = (schoolID) => {
   )
 }
 
-exports.getSingleAvailableOrOwnedInSchool = (id, userID, schoolID) => {
+exports.getSingleAvailableInSchoolOrBoughtOrOwned = (id, userID, schoolID) => {
   return db.query(`
-    SELECT b.id, course, name, price, condition, status, info, publisher, year
+    SELECT b.id, course, name, price, condition, status, info, publisher, year,
+      CASE
+        WHEN buyer  = $2 THEN 'bought'
+        WHEN "user" = $2 THEN 'own'
+        ELSE null
+      END as userstatus
     FROM books b
     WHERE
       id = $1 AND
-      (status = 0 OR "user" = $2) AND
+      (status = 0 OR "user" = $2 OR "buyer" = $2) AND
       (SELECT school FROM users WHERE id = b."user") = $3
     LIMIT 1`,
     [

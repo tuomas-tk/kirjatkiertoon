@@ -2,8 +2,12 @@
   <div>
     <div class="modal-container">
       <div class="maxwidth" id="modal">
-        <router-link v-if="auth.id === book.buyer" to="/buy/bought" class="close"><i class="fa fa-times"></i> Sulje</router-link>
-        <router-link v-else to="/buy" @click.prevent="back" class="close"><i class="fa fa-times"></i> Sulje</router-link>
+        <router-link v-if="$route.name == 'boughtSingle'" :to="{name: 'boughtList', query: $route.query}" class="close">
+          <i class="fa fa-times"></i> Sulje
+        </router-link>
+        <router-link v-else :to="{name: 'buyList', query: $route.query}" class="close">
+          <i class="fa fa-times"></i> Sulje
+        </router-link>
 
         <h2>{{ book.name }}</h2>
 
@@ -50,7 +54,7 @@
         <div class="title">Hinta:</div>
         <div class="price"><currency :amount="book.price" /></div>
 
-        <div class="bottom" v-show="buyStatus == 0 && book.buyer !== auth.id">
+        <div class="bottom" v-show="buyStatus == 0 && book.userstatus === null">
           <div class="status">
             <span v-if="book.status == 0"><i class="fa fa-check"></i>   <span>Saatavilla</span></span>
             <span v-if="book.status == 1"><i class="fa fa-clock-o"></i> <span>Varattu</span></span>
@@ -87,7 +91,7 @@
           <a href="#" class="button btn-m" @click.prevent="buyStatus = 0">Peruuta</a>
           <a href="#" class="button btn-m" @click.prevent="confirm">Vahvista</a>
         </div>
-        <div class="bottom" v-show="buyStatus == 2 || book.buyer === auth.id">
+        <div class="bottom" v-show="buyStatus == 2 || book.userstatus == 'bought'">
           <div class="status">
             <span v-if="book.status == 1"><i class="fa fa-check"></i>   <span>Ostettu - odottaa saapumista</span></span>
             <span v-if="book.status == 2"><i class="fa fa-check"></i>   <span>Nouda koululta!</span></span>
@@ -131,6 +135,7 @@ export default {
   props: ['id'],
   created () {
     // console.log(this.$route.params.id)
+    console.log(this.$route)
     this.load()
   },
   methods: {
@@ -194,14 +199,11 @@ export default {
       }).then(() => {
         EventBus.$emit('setLoading', false)
       })
-    },
-    back: function () {
-      this.$router.go(-1)
     }
   },
   computed: {
     ownBook: function () {
-      return this.book.user === auth.id
+      return this.book.userstatue === 'own'
     }
   }
 }

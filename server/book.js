@@ -30,11 +30,11 @@ router.post('/get/bought', async (req, res) => {
     return res.status(400).json({ success: false });
   }
 
-  var result = await bookData.getBought(res.locals.user).rows
+  var result = await bookData.getBought(res.locals.user.id)
 
   res.json({
     success: true,
-    data: result
+    data: result.rows
   })
 })
 
@@ -44,11 +44,11 @@ router.post('/get', async (req, res) => {
     return res.status(400).json({ success: false });
   }
 
-  var result = await bookData.getAvailableInSchool(res.locals.user.school).rows
+  var result = await bookData.getAvailableInSchool(res.locals.user.school)
 
   res.json({
     success: true,
-    data: result
+    data: result.rows
   })
 })
 
@@ -58,7 +58,7 @@ router.post('/get/:id', async (req, res) => {
   if (res.locals.user.type < 1) { // Nobody
     return res.status(400).json({ success: false });
   } else if (res.locals.user.type < 10) { // Buyers and sellers
-    bookResult = await bookData.getSingleAvailableOrOwnedInSchool(req.params.id, res.locals.user.id, res.locals.user.school)
+    bookResult = await bookData.getSingleAvailableInSchoolOrBoughtOrOwned(req.params.id, res.locals.user.id, res.locals.user.school)
   } else if (res.locals.user.type < 42) { // Admins
     bookResult = await bookData.getSingleInSchool(req.params.id, res.locals.user.school)
   } else { // SuperAdmin
@@ -132,7 +132,7 @@ router.post('/buy/:id', async (req, res) => {
   }
 
   // Update the book in the database
-  const updateBookResult = await bookData.buyUnboughtInSchool(res.params.id, userID, res.locals.user.school)
+  const updateBookResult = await bookData.buyUnboughtInSchool(req.params.id, userID, res.locals.user.school)
 
   if (updateBookResult.rowCount != 1) {
     res.status(500).json({ success: false, data: 'Can\'t update book' })
