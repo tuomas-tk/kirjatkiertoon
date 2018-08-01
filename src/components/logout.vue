@@ -35,7 +35,8 @@ export default {
         auth.removeToken()
       } else {
         console.log('Error ' + error.response.status)
-        this.error = 'Virhe ' + error.response.status + '.'
+        this.error = 'Virhe ' + error.response.status + '. Sinut on silti kirjattu ulos.'
+        auth.removeToken()
       }
     })
   }

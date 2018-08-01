@@ -11,11 +11,9 @@
       <h3>Haluaisitko palvelun käyttöön myös sinun lukioosi?</h3>
       <a @click="yhteys" class="button btn-s">Ota yhteyttä!</a>
     </div>
-    <div v-else class="maxwidth">
 
-      <h1>Tervetuloa!</h1>
-
-      <div class="add-email box" v-if="!auth.email && auth.status >= 2">
+    <div class="maxwidth" v-else-if="!auth.email && auth.status >= 2">
+      <div class="add-email box">
         <h2>Lisää sähköpostiosoite heti!</h2>
         <p>
           <b>Saat sähköpostilla tiedon kun...</b>
@@ -32,6 +30,10 @@
           Emme <u>koskaan</u> lähetä turhia viestejä, tai luovuta sähköpostiosoitettasi ulkopuolisille!
         </small>
       </div>
+    </div>
+
+    <div v-else class="maxwidth">
+      <h1>Tervetuloa!</h1>
 
       <div class="dashboard" v-if="authStatus == 1">
         <div class="section">
@@ -125,6 +127,9 @@
           <h3>Tilitetty</h3>
           <div class="number">
             {{ dashboard.count4 }}<span>kirjaa</span>
+          </div>
+          <div class="price">
+            Hinta yhteensä: <currency :amount="dashboard.price4" />
           </div>
           <router-link to="/admin/books?status=4" class="button btn-m btn-block"><i class="fa fa-bars fa-fw"></i> Näytä</router-link>
           </table>
@@ -236,6 +241,7 @@ export default {
       scroll(0, document.getElementById('yhteys').offsetTop)
     },
     load: function () {
+      if (auth.getToken() == null) return
       EventBus.$emit('setLoading', true)
       axios.post('/user/get/dashboard', {
         token: auth.getToken()

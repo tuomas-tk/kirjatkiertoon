@@ -61,7 +61,7 @@ export default {
   name: 'app',
   data: () => ({
     auth: auth,
-    loading: true,
+    loading: false,
     menuActive: false,
     serverError: false
   }),
@@ -70,9 +70,13 @@ export default {
     EventBus.$on('setServerError', this.setServerError)
     EventBus.$on('hideNavigation', () => { this.menuActive = false })
     EventBus.$on('setModalOpen', this.setModalOpen)
+    auth.checkAuth().catch(err => {
+      console.log(err)
+    })
   },
   methods: {
     setLoading: function (status) {
+      console.log('setLoading: ' + status)
       this.loading = status
     },
     setServerError: function (status) {

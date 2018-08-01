@@ -133,14 +133,20 @@ var router = new Router({
 router.beforeEach((to, from, next) => {
   console.log('FR: ' + from.fullPath)
   console.log('TO: ' + to.fullPath)
-
   console.log('[ROUTER] Current AUTH-level: ' + auth.status)
+
+  if (to.meta.requiresAuthLevel == null || to.meta.requiresAuthLevel === undefined) {
+    next()
+    return
+  }
+
+  // these don't work when the app is loaded, because App.vue hasn't declared events yet
   EventBus.$emit('setLoading', true)
   EventBus.$emit('hideNavigation')
 
   auth.checkAuth()
   .then(() => {
-    if (to.meta.requiresAuthLevel != null && to.meta.requiresAuthLevel > auth.status) {
+    if (to.meta.requiresAuthLevel > auth.status) {
       console.log('Unsufficient AUTH-level (' + auth.status + ')')
       next({
         path: '/',

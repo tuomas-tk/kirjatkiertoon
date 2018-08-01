@@ -23,6 +23,7 @@ export default {
 
   // To log out, we just need to remove the token
   removeToken () {
+    console.log('Removing token')
     localStorage.removeItem(LOCALSTORAGE_TOKEN)
     this.status = 0
     this.firstname = null

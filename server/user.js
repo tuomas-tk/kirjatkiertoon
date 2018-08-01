@@ -51,7 +51,8 @@ router.post('/get/dashboard', async (req, res) => {
       ( SELECT SUM(price) FROM books WHERE status=0 )  as price0,
       ( SELECT SUM(price) FROM books WHERE status=1 )  as price1,
       ( SELECT SUM(price) FROM books WHERE status=2 )  as price2,
-      ( SELECT SUM(price) FROM books WHERE status=3 )  as price3`
+      ( SELECT SUM(price) FROM books WHERE status=3 )  as price3,
+      ( SELECT SUM(price) FROM books WHERE status=4 )  as price4`
     )
   } else if (userType === 42) {
     result = await db.query(
@@ -119,64 +120,41 @@ router.post('/get/dashboard', async (req, res) => {
     }
 
   });
-})
-
-router.post('/edit/profile', function(req, res) {
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({
-        success: false,
-        data: err
-      });
-    } else {
-      client.query('SELECT * FROM users WHERE id=$1', [res.locals.user.id], function(err, result) {
-        done();
-        if (err) {
-          console.error(err);
-          return res.status(500).json({
-            success: false,
-            data: err
-          });
-        }
-        if (result.rowCount !== 1) {
-          return res.status(400).json({
-            success: false
-          });
-        }
-        var original = result.rows[0]
-        if (req.body.firstname != null) {
-          original.firstname = req.body.firstname
-        }
-        if (req.body.lastname != null) {
-          original.lastname = req.body.lastname
-        }
-        if (req.body.email != null) {
-          original.email = req.body.email
-        }
-        client.query(
-          'UPDATE users SET firstname=$1, lastname=$2, email=$3 WHERE id=$4',
-          [original.firstname, original.lastname, original.email, res.locals.user.id],
-          function(err, result) {
-            done();
-            if (err) {
-              console.error(err);
-              return res.status(500).json({
-                success: false,
-                data: err
-              });
-            }
-            if (result.rowCount !== 1) {
-              return res.status(400).json({
-                success: false
-              });
-            }
-            return res.json({
-              success: true
-            });
-          }
-        );
-      });
-    }
-  });
 })*/
+
+router.post('/edit/profile', async (req, res) => {
+  var original = res.locals.user;
+  if (req.body.firstname != null) {
+    original.firstname = req.body.firstname.trim()
+  }
+  if (req.body.lastname != null) {
+    original.lastname = req.body.lastname.trim()
+  }
+  if (req.body.email != null) {
+    original.email = req.body.email.trim()
+  }
+
+  const updateResult = await db.query(`
+    UPDATE users
+    SET
+      firstname = $1,
+      lastname = $2,
+      email = $3
+    WHERE
+      id = $4`,
+    [
+      original.firstname,
+      original.lastname,
+      original.email,
+      original.id
+    ]
+  )
+  if (updateResult.rowCount != 1) {
+    return res.status(500).json({
+      success: false,
+      data: 'Can\'t update account details'
+    })
+  }
+
+  return res.json({ success: true });
+})
