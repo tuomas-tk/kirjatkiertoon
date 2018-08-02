@@ -228,6 +228,11 @@ router.post('/edit/:id', async (req, res) => {
     return
   }
 
+  if (data.year === '') data.year = null
+  if (data.user === '') data.user = null
+  if (data.buyer === '') data.buyer = null
+  if (data.code === '') data.code = null
+
   var updateResult
   if (res.locals.user.type < 10) { // Sellers
     updateResult = await bookData.editOwn(req.params.id, res.locals.user.id, data)

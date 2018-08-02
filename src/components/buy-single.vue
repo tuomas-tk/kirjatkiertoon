@@ -76,13 +76,13 @@
           <b>Meidän pitää tietää kenelle kirja tulee toimittaa</b>
           <form class="">
             <label>Etunimi:</label>
-            <input type="text" placeholder="Etunimi" v-model="buyer_info.firstname" />
+            <input type="text" placeholder="Etunimi" v-model.trim="buyer_info.firstname" />
             <label>Sukunimi:</label>
-            <input type="text" placeholder="Sukunimi" v-model="buyer_info.lastname" />
+            <input type="text" placeholder="Sukunimi" v-model.trim="buyer_info.lastname" />
             <label>Sähköposti:</label>
-            <input type="email" placeholder="Sähköpostiosoite" v-model="buyer_info.email" />
+            <input type="email" placeholder="Sähköpostiosoite" v-model.trim="buyer_info.email" />
           </form>
-          <b>Saat sähköpostiin ilmoituksen kun kirja on saatavilla koululta.</b><br>
+          <b>Saat sähköpostiin vahvistuksen oston rekisteröitymisestä, sekä ilmoituksen kun kirja on saatavilla koululta.</b><br>
           <a href="#" class="button btn-m" @click.prevent="buyStatus = 0">Peruuta</a>
           <a href="#" class="button btn-m" @click.prevent="confirm">Vahvista</a>
         </div>

@@ -185,11 +185,11 @@ export default {
       axios.post('/book/add/', {
         token: auth.getToken(),
         course: this.course,
-        name: this.name,
-        publisher: this.publisher,
-        year: this.year,
-        condition: this.condition,
-        info: this.info,
+        name: this.name.trim(),
+        publisher: this.publisher.trim(),
+        year: this.year.trim(),
+        condition: this.condition.trim(),
+        info: this.info.trim(),
         price: this.price_real
       }).then(response => {
         console.log('Success')

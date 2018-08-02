@@ -10,16 +10,16 @@
         <div class="left">
 
           <div class="title">Nimi:</div>
-          <input v-model="book.name" required />
+          <input v-model.trim="book.name" required />
 
           <div class="title">Kurssi:</div>
-          <input v-model="book.course" />
+          <input v-model.trim="book.course" />
 
           <div class="title">Kustantaja:</div>
-          <input v-model="book.publisher" />
+          <input v-model.trim="book.publisher" />
 
           <div class="title">Painovuosi:</div>
-          <input v-model="book.year" type="number" />
+          <input v-model.trim="book.year" type="number" />
 
         </div><div class="right">
 
@@ -39,16 +39,17 @@
           </div>
 
           <div class="title">Kuvaus:</div>
-          <textarea v-model="book.info"></textarea>
+          <textarea v-model.trim="book.info"></textarea>
 
           <div class="title">Hinta ostajalle:</div>
-          <input v-model.number="price_euros" type="number" min="5" max="100" required/>&nbsp;euroa
-          <input v-model.number="price_cents" type="number" min="0" max="90" step="10" required/>&nbsp;senttiä
+          <input v-model.number.trim="price_euros" type="number" min="5" max="100" required/>&nbsp;euroa
+          <input v-model.number.trim="price_cents" type="number" min="0" max="90" step="10" required/>&nbsp;senttiä
           <div class="title">Myyjä saa rahaa:</div>
           <div class="price"><currency :amount="book.price - TOTAL_FEE" /></div>
         </div>
 
         <div class="danger" v-if="isAdmin">
+          <h3>Vaaralliset asetukset: muuta vain jos tiedät mitä teet</h3>
           <div class="title">Tila:</div>
           <select v-model="book.status">
             <option value="-1">Poistettu</option>
@@ -69,13 +70,13 @@
           </div>
 
           <div class="title">Myyjän id-numero:</div>
-          <input v-model="book.user"/>
+          <input v-model.number.trim="book.user"/>
 
           <div class="title">Ostajan id-numero:</div>
-          <input v-model="book.buyer"/>
+          <input v-model.number.trim="book.buyer"/>
 
           <div class="title">Säilytyskoodi:</div>
-          <input v-model="book.code"/>
+          <input v-model.number.trim="book.code"/>
         </div>
 
 
@@ -165,10 +166,10 @@ export default {
       }).catch(error => {
         if (error.response.status === 400) {
           console.log('Invalid token')
-          this.apiError = 'Kirjan poisto ei onnistu, virhe 400'
+          this.apiError = 'Kirjan tallentaminen ei onnistu, virhe 400'
         } else {
           console.log('Error ' + error.response.status)
-          this.apiError = 'Kirjan poisto ei onnistu, virhe ' + error.response.status
+          this.apiError = 'Kirjan tallentaminen ei onnistu, virhe ' + error.response.status
         }
       }).then(() => {
         setTimeout(() => {
@@ -333,8 +334,18 @@ textarea {
 
 div.danger {
   border: 1px solid _color-red-900
+  background-color: lighten(_color-red-500, 40)
   border-radius: 3px
   padding: 0 1em 1em 1em
+
+  h3 {
+    font-size: 1em
+    background-color: _color-red-900
+    color: white
+    text-align: center
+    margin: 0 -1em
+    border-radius: 1px 1px 0 0
+  }
 }
 
 .bottom {
