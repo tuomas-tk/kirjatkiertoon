@@ -105,7 +105,7 @@ td {
           this._data.user = res.rows[0]
         }
       })
-      .then(() => db.query('SELECT * FROM books WHERE id=$1', [this._object]))
+      .then(() => db.query('SELECT * FROM books WHERE id=$1 and status>=0', [this._object]))
       .then(res => {
         if (res != null && res.rowCount > 0) {
           this._data.book = res.rows[0]

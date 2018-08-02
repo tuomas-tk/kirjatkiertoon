@@ -92,7 +92,7 @@ td {
           this._data.user = res.rows[0]
         }
       })
-      .then(() => db.query('SELECT * FROM books WHERE "buyer"=$1 AND status<2', [this._user]))
+      .then(() => db.query('SELECT * FROM books WHERE "buyer"=$1 AND status>=0 AND status<2', [this._user]))
       .then(res => {
         if (res != null && res.rowCount > 0) {
           this._data.books = res.rows
