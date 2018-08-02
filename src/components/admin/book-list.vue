@@ -177,7 +177,7 @@ import axios from 'axios'
 import auth from '../../api/auth'
 import { EventBus } from '../../EventBus'
 import Currency from '../currency'
-import EditBook from './edit-book'
+import EditBook from '../edit-book'
 import { COURSES, TOTAL_FEE } from '../../Static'
 
 export default {

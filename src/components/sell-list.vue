@@ -40,7 +40,7 @@
             </td>
             <td class="buttons">
               <router-link class="button btn-s":to="{name: 'sellSingle', params: { id: book.id }}">Avaa</router-link>
-              <span class="button btn-s btn-red" @click="poista(book.id)" v-if="book.status == 0">Poista</span>
+              <!--<span class="button btn-s btn-red" @click="poista(book.id)" v-if="book.status == 0">Poista</span>-->
             </td>
           </tr>
         </tbody>
@@ -48,6 +48,7 @@
     </div>
 
     <sell-single :id="selectedBook" v-if="selectedBook" />
+    <edit-book :id="selectedEditBook" v-if="selectedEditBook" />
   </div>
 </template>
 <script>
@@ -56,12 +57,14 @@ import auth from '../api/auth'
 import { EventBus } from '../EventBus'
 import Currency from './currency'
 import SellSingle from './sell-single'
+import EditBook from './edit-book'
 
 export default {
   name: 'sell-list',
   components: {
     'currency': Currency,
-    'sell-single': SellSingle
+    'sell-single': SellSingle,
+    'edit-book': EditBook
   },
   data () {
     return {
@@ -106,7 +109,17 @@ export default {
   },
   computed: {
     selectedBook: function () {
+      console.log(this.$route.params.id)
       EventBus.$emit('setModalOpen', this.$route.params.id)
+      if (this.$route.name !== 'sellSingle') {
+        return null
+      }
+      return this.$route.params.id
+    },
+    selectedEditBook: function () {
+      console.log(this.$route.params.id)
+      EventBus.$emit('setModalOpen', this.$route.params.id)
+      if (this.$route.name !== 'editSingle') return null
       return this.$route.params.id
     }
   }

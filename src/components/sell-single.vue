@@ -59,6 +59,7 @@
           </div><br>
           <!--<div class="button btn-m" :class="{'btn-disabled': book.status > 0}" @click="muokkaa" v-if="book.status == 0">Muokkaa</div>-->
           <div class="button btn-m btn-red" :class="{'btn-disabled': book.status > 0}" @click="() => {if (book.status == 0) deleteConfirmOpen = true}" v-if="!deleteConfirmOpen">Poista ilmoitus</div>
+          <router-link :to="{name: 'editSingle', params: {id: $route.params.id}}" class="button btn-m" :class="{'btn-disabled': book.status > 0}" v-if="!deleteConfirmOpen">Muokkaa tietoja</router-link>
           <div class="box" v-show="deleteConfirmOpen">
             <h3>Haluatko varmasti poistaa kirjan myynnistä?</h3>
             <div class="button btn-m" @click="deleteConfirmOpen=false">Peruuta</div>
@@ -66,7 +67,7 @@
             <div v-if="deleteError" class="delete-error">{{ deleteError }}</div>
           </div>
           <br>
-          <div v-if="book.status > 0">Et voi poistaa ilmoitusta jos kirja on jo myyty. Jos et pysty toimittamaan kirjaa koska olet jo myynyt sen muualle, ota mahdollisimman pian yhteyttä palvelun ylläpitoon.</div>
+          <div v-if="book.status > 0">Et voi poistaa tai ilmoitusta kun kirja on jo myyty. Jos et pysty toimittamaan kirjaa koska olet jo myynyt sen muualle, ota mahdollisimman pian yhteyttä palvelun ylläpitoon.</div>
         </div>
       </div>
     </div>

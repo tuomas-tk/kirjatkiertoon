@@ -2,9 +2,10 @@
   <div>
     <div class="modal-container">
       <div class="maxwidth" id="modal">
-        <router-link :to="{name: 'adminBookList', query: $route.query}" class="close"><i class="fa fa-times"></i> Sulje</router-link>
+        <router-link v-if="isAdmin" :to="{name: 'adminBookList', query: $route.query}" class="close"><i class="fa fa-times"></i> Sulje</router-link>
+        <router-link v-else :to="{name: 'sellSingle', params: {id: $route.params.id}}" class="close"><i class="fa fa-times"></i> Sulje</router-link>
 
-        <h2>{{ book.name}}</h2>
+        <h2>Muokkaa: {{ book.name}}</h2>
 
         <div class="left">
 
@@ -19,6 +20,8 @@
 
           <div class="title">Painovuosi:</div>
           <input v-model="book.year" type="number" />
+
+        </div><div class="right">
 
           <div class="title">Kunto:</div>
           <div class="condition">
@@ -35,11 +38,17 @@
             </select>
           </div>
 
-        </div><div class="right">
-
           <div class="title">Kuvaus:</div>
           <textarea v-model="book.info"></textarea>
 
+          <div class="title">Hinta ostajalle:</div>
+          <input v-model.number="price_euros" type="number" min="5" max="100" required/>&nbsp;euroa
+          <input v-model.number="price_cents" type="number" min="0" max="90" step="10" required/>&nbsp;senttiä
+          <div class="title">Myyjä saa rahaa:</div>
+          <div class="price"><currency :amount="book.price - TOTAL_FEE" /></div>
+        </div>
+
+        <div class="danger" v-if="isAdmin">
           <div class="title">Tila:</div>
           <select v-model="book.status">
             <option value="-1">Poistettu</option>
@@ -69,19 +78,22 @@
           <input v-model="book.code"/>
         </div>
 
-        <div class="title">Hinta ostajalle:</div>
-        <input v-model.number="price_euros" type="number" min="5" max="100" required/> euroa
-        <input v-model.number="price_cents" type="number" min="0" max="90" step="10" required/> senttiä
-        <div class="title">Myyjä saa rahaa:</div>
-        <div class="price"><currency :amount="book.price - TOTAL_FEE" /></div>
 
-        <div class="bottom">
+        <div v-if="!isAdmin" class="bottom status block">
+          <span v-if="book.status === -1"><i class="fa fa-trash"></i>   <span>Poistettu</span></span>
+          <span v-if="book.status === 0"><i class="fa fa-check"></i>   <span>Myynnissä</span></span>
+          <span v-if="book.status === 1"><i class="fa fa-clock-o"></i> <span>Kirjaa odotetaan koululla</span></span>
+          <span v-if="book.status >= 2"><i class="fa fa-handshake-o green"></i>   <span>Myyty</span></span>
+        </div>
+
+        <div class="bottom" v-if="isEditable">
           <div v-if="apiMessage" class="api-message">{{ apiMessage }}</div>
           <div v-if="apiError" class="api-error">{{ apiError }}</div>
-          <router-link :to="{name: 'adminBookList', query: $route.query}" class="button btn-m" v-if="!deleteConfirmOpen"><i class="fa fa-undo"></i> &nbsp; Peruuta</router-link>
+          <router-link :to="{name: 'adminBookList', query: $route.query}" class="button btn-m" v-if="!deleteConfirmOpen && isAdmin"><i class="fa fa-undo"></i> &nbsp; Peruuta</router-link>
+          <router-link :to="{name: 'sellSingle', params: {id: $route.params.id}}" class="button btn-m" v-else-if="!deleteConfirmOpen"><i class="fa fa-undo"></i> &nbsp; Peruuta</router-link>
           <div class="button btn-m" @click="save" v-if="!deleteConfirmOpen"><i class="fa fa-floppy-o"></i> &nbsp; Tallenna</div>
           <br>
-          <div class="button btn-s btn-red"  @click="deleteConfirmOpen = true" v-if="!deleteConfirmOpen"><i class="fa fa-trash"></i> &nbsp; Poista kirja</div>
+          <div class="button btn-s btn-red"  @click="deleteConfirmOpen = true" v-if="!deleteConfirmOpen && isAdmin"><i class="fa fa-trash"></i> &nbsp; Poista kirja</div>
           <div class="box" v-show="deleteConfirmOpen">
             <h3>Haluatko varmasti poistaa kirjan palvelusta?</h3>
             <strong>Tätä tarvitsee tehdä <u>hyvin harvoin</u></strong>
@@ -90,6 +102,7 @@
             <div class="button btn-m btn-red" @click="poista">Kyllä, poista</div>
           </div>
         </div>
+        <div v-else class="api-error bottom">Et voi poistaa tai muokata ilmoitusta jos kirja on jo myyty. Jos et pysty toimittamaan kirjaa koska olet jo myynyt sen muualle, ota mahdollisimman pian yhteyttä palvelun ylläpitoon.</div>
       </div>
     </div>
     <div class="fade"></div>
@@ -98,10 +111,10 @@
 
 <script>
 import axios from 'axios'
-import auth from '../../api/auth'
-import {EventBus} from '../../EventBus'
-import Currency from '../currency'
-import {TOTAL_FEE} from '../../Static'
+import auth from '../api/auth'
+import {EventBus} from '../EventBus'
+import Currency from './currency'
+import {TOTAL_FEE} from '../Static'
 
 export default {
   name: 'edit-book',
@@ -210,6 +223,13 @@ export default {
         if (newValue === null || newValue === '') newValue = 0
         this.book.price = this.price_euros * 100 + parseInt(newValue)
       }
+    },
+    isAdmin: function () {
+      // return false
+      return this.$route.name === 'adminBookSingle'
+    },
+    isEditable: function () {
+      return this.isAdmin || this.book.status === 0
     }
   }
 }
@@ -217,7 +237,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="stylus" scoped>
-@import '../../styles/vars'
+@import '../styles/vars'
 
 .modal-container {
   position: fixed
@@ -245,6 +265,9 @@ export default {
     color: #444444
     vertical-align: -.1em
     padding-right: .2em
+  }
+  &:hover, &:active {
+    text-decoration: underline;
   }
 }
 
@@ -308,6 +331,12 @@ textarea {
   color: #444444
 }
 
+div.danger {
+  border: 1px solid _color-red-900
+  border-radius: 3px
+  padding: 0 1em 1em 1em
+}
+
 .bottom {
   text-align: center
 }
@@ -320,6 +349,11 @@ textarea {
   padding-left: 1em;
   vertical-align: top
 
+  &.block {
+    display: block
+    margin: 1em 0
+  }
+
   i.fa {
     font-size: 3em
   }
@@ -329,7 +363,7 @@ textarea {
   i.fa-check {
     color: _color-deep-purple-700
   }
-  i.fa-sign-in {
+  i.fa-sign-in, i.fa-clock-o {
     color: _color-orange-900
   }
   i.fa-sign-out {
@@ -337,6 +371,10 @@ textarea {
   }
   i.fa-handshake-o {
     color: _color-amber-700
+
+    &.green {
+      color: _color-green-900
+    }
   }
   i.fa-thumbs-up {
     color: _color-green-900
