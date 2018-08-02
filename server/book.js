@@ -214,18 +214,7 @@ router.post('/edit/:id', async (req, res) => {
     return res.status(400).json({ success: false });
   }
 
-  var data = {
-    course:    req.body.course,
-    name:      req.body.name,
-    price:     req.body.price,
-    condition: req.body.condition,
-    info:      req.body.info,
-    publisher: req.body.publisher,
-    year:      req.body.year,
-    user:      req.body.user, // not used when user.type < 10
-    buyer:     req.body.buyer, // not used when user.type < 10
-    code:      req.body.code // not used when user.type < 10
-  };
+  var data = req.body.data
 
   if (
     data.condition < 0 ||

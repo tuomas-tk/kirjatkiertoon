@@ -77,6 +77,7 @@
               <option value="1">Toimitettava koululle</option>
               <option value="2">Noudettava koululta</option>
               <option value="3">Toimitettu ostajalle</option>
+              <option value="4">Tilitetty myyjälle</option>
             </select>
           </td>
         </tr>
@@ -127,6 +128,7 @@
           <th>Kunto</th>
           <th>Myyjä</th>
           <th>Ostaja</th>
+          <th>Tila</th>
           <th></th>
         </tr>
       </thead>
@@ -135,7 +137,7 @@
           <td>{{ book.code }}</td>
           <td>{{ book.course }}</td>
           <td class="name">
-            <router-link :to="{name: 'buySingle', params: { id: book.id }}">
+            <router-link :to="{name: 'adminBookSingle', params: { id: book.id }, query: $route.query}">
               {{ book.name }}
             </router-link>
           </td>
@@ -150,15 +152,23 @@
           <td>
             {{ book.buyer }}
           </td>
+          <td class="status">
+            <span v-if="book.status == -1"><i class="fa fa-trash"></i><br>POISTETTU</span>
+            <span v-if="book.status == 0"><i class="fa fa-check"></i><br>MYYNNISSÄ</span>
+            <span v-if="book.status == 1"><i class="fa fa-sign-in"></i><br>TOIMITA KOULULLE</span>
+            <span v-if="book.status == 2"><i class="fa fa-sign-out"></i><br>NOUDA KOULULTA</span>
+            <span v-if="book.status == 3"><i class="fa fa-handshake-o"></i><br>TILITÄ</span>
+            <span v-if="book.status == 4"><i class="fa fa-thumbs-up"></i><br>TILITETTY</span>
+          </td>
           <td>
-            <router-link class="button btn-s" :to="{name: 'adminBookSingle', params: { id: book.id }}">Avaa</router-link>
+            <router-link class="button btn-s" :to="{name: 'adminBookSingle', params: { id: book.id }, query: $route.query}">Avaa</router-link>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <buy-single :id="selectedBook" v-if="selectedBook" />
+  <edit-book :id="selectedBook" v-if="selectedBook" />
 </div>
 </template>
 
@@ -167,13 +177,13 @@ import axios from 'axios'
 import auth from '../../api/auth'
 import { EventBus } from '../../EventBus'
 import Currency from '../currency'
-import BuySingle from '../buy-single'
+import EditBook from './edit-book'
 import { COURSES, TOTAL_FEE } from '../../Static'
 
 export default {
   components: {
     'currency': Currency,
-    'buy-single': BuySingle
+    'edit-book': EditBook
   },
   data () {
     return {
@@ -307,6 +317,35 @@ export default {
 
   a.button {
     margin: .4em 0
+  }
+
+
+    /*<span v-if="book.status == -1"><i class="fa fa-trash"></i><br>POISTETTU</span>
+    <span v-if="book.status == 0"><i class="fa fa-check"></i><br>MYYNNISSÄ</span>
+    <span v-if="book.status == 1"><i class="fa fa-sign-in"></i><br>TOIMITA KOULULLE</span>
+    <span v-if="book.status == 2"><i class="fa fa-sign-out"></i><br>NOUDA KOULULTA</span>
+    <span v-if="book.status == 3"><i class="fa fa-money"></i><br>TILITÄ</span>
+    <span v-if="book.status == 4"><i class="fa fa-check-double"></i><br>TILITETTY</span>*/
+
+  td.status {
+    i.fa-trash {
+      color: #AAAAAA
+    }
+    i.fa-check {
+      color: _color-deep-purple-700
+    }
+    i.fa-sign-in {
+      color: _color-orange-900
+    }
+    i.fa-sign-out {
+      color: _color-green-900
+    }
+    i.fa-handshake-o {
+      color: _color-amber-700
+    }
+    i.fa-thumbs-up {
+      color: _color-green-900
+    }
   }
 }
 

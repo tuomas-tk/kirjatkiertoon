@@ -3,13 +3,13 @@
     <div class="modal-container">
       <div class="maxwidth" id="modal">
         <router-link to="/sell" @click="back" class="close"><i class="fa fa-times"></i> Sulje</router-link>
+        <router-link v-if="$route.name == 'editSingle'" :to="{name: 'sellList'}" class="close">
+          <i class="fa fa-times"></i> Sulje
+        </router-link>
+        <router-link v-else :to="{name: 'adminEditBookSingle', query: $route.query}" class="close">
+          <i class="fa fa-times"></i> Sulje
+        </router-link>
         <h2>{{ book.name }}</h2>
-
-
-        <div class="waiting" v-if="book.status == 1">
-          <h2>Kirjasi halutaan ostaa!</h2>
-          <p>Toimita kirja koulullesi, kirjamyynnistä vastaavalle taholle.</p>
-        </div>
 
         <div class="left">
 
@@ -61,8 +61,8 @@
           <div class="button btn-m btn-red" :class="{'btn-disabled': book.status > 0}" @click="() => {if (book.status == 0) deleteConfirmOpen = true}" v-if="!deleteConfirmOpen">Poista ilmoitus</div>
           <div class="box" v-show="deleteConfirmOpen">
             <h3>Haluatko varmasti poistaa kirjan myynnistä?</h3>
-            <div class="button btn-m" @click="deleteConfirmOpen=false">Peruuta</div>
             <div class="button btn-m btn-red" @click="poista">Kyllä, poista</div>
+            <div class="button btn-m" @click="deleteConfirmOpen=false">Peruuta</div>
             <div v-if="deleteError" class="delete-error">{{ deleteError }}</div>
           </div>
           <br>
@@ -82,7 +82,7 @@ import Currency from './currency'
 import {TOTAL_FEE} from '../Static'
 
 export default {
-  name: 'sell-single',
+  name: 'edit-single',
   components: {
     'currency': Currency
   },

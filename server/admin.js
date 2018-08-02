@@ -33,7 +33,7 @@ router.post('/get/books', async (req, res) => {
       (COALESCE( buy_user.firstname,\'\') ILIKE $5 AND COALESCE( buy_user.lastname,\'\') ILIKE $6 AND COALESCE( buy_user.email,\'\') ILIKE $7 AND COALESCE( buy_user.passcode,\'\') ILIKE $8)
      ) AND
     sell_user.school = $9
-    ORDER BY id DESC`, [
+    ORDER BY status ASC, course ASC`, [
       (req.body.book.course || '%'),
       '%'+(req.body.book.name || '')+'%',
       '%'+(req.body.book.code || '')+'%',

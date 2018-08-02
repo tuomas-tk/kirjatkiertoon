@@ -69,6 +69,12 @@ var router = new Router({
       meta: { requiresAuthLevel: 5 }
     },
     {
+      path: '/sell/edit/:id',
+      name: 'editSingle',
+      component: sellList,
+      meta: { requiresAuthLevel: 5 }
+    },
+    {
       path: '/profile',
       name: 'profile',
       component: profile,

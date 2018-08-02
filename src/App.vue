@@ -33,10 +33,10 @@
     </div>
     <footer>
       KirjatKiertoon.fi <br>
-      &copy; 2017 Tuomas Karjalainen / <a href="https://FirmatVerkkoon.fi">FirmatVerkkoon.fi</a>
+      &copy; {{ (new Date()).getFullYear() }} Tuomas Karjalainen / <a href="https://FirmatVerkkoon.fi">FirmatVerkkoon.fi</a>
     </footer>
     <div id="loading" :class="{show: loading}">
-      <span>Loading</span>
+      <span>Ladataan</span>
     </div>
     <div id="servererror" :class="{show: serverError}">
       <div class="box">
