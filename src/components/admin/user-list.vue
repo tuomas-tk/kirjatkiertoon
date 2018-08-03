@@ -21,7 +21,7 @@
       </div>
     </div>
 
-    <div class="addeduser" v-if="added.passcode">
+    <div class="addeduser" v-if="added.type">
       <h2>Käyttäjän lisäys onnistui!</h2>
       <table>
         <tr>
@@ -34,7 +34,7 @@
         </tr>
         <tr>
           <th>Tyyppi</th>
-          <td>{{ added.type }}</td>
+          <td>{{ getRoleName(added.type) }} ({{ added.type }})</td>
         </tr>
         <tr>
           <th>Sähköposti</th>
@@ -42,7 +42,7 @@
         </tr>
         <tr>
           <th>Tunnuskoodi</th>
-          <td class="passcode">{{ added.passcode }}</td>
+          <td class="passcode"><passcode :passcode="added.passcode" :hidden="false"/></td>
         </tr>
       </table>
     </div>
@@ -53,38 +53,31 @@
     <table>
       <thead>
         <tr>
+          <th>ID</th>
           <th>Etunimi</th>
           <th>Sukunimi</th>
-          <th>Email</th>
+          <th>Sähköposti</th>
           <th>Tunnuskoodi</th>
+          <th>Tyyppi</th>
           <th></th>
         </tr>
+        <editable-user-row @user-added="userAdded"/>
       </thead>
       <tbody>
-        <tr class="newuser">
-          <td><input type="text" v-model="newuser.firstname" placeholder="Matti" /></td>
-          <td><input type="text" v-model="newuser.lastname" placeholder="Meikäläinen" /></td>
-          <td><input type="text" v-model="newuser.email" placeholder="matti.meikalainen@example.com" /></td>
-          <td><select v-model="newuser.type">
-            <option value="1">Yleinen ostotili</option>
-            <option value="2">Vain ostaja</option>
-            <option value="5">Ostaja ja myyjä</option>
-            <option value="10">Järjestäjä</option>
-          </select></td>
-          <td>
-            <a href="#" class="button btn-s" @click.prevent="save">Tallenna</a>
-            <div v-if="emailInUse">Sähköpostiosoite on jo käytössä</div>
-          </td>
-        </tr>
-        <tr v-for="user in users">
-          <td>{{ user.firstname }}</td>
-          <td>{{ user.lastname }}</td>
-          <td>{{ user.email }}</td>
-          <td class="passcode"><passcode :passcode="user.passcode" /></td>
-          <td>
-            <a href="#" class="button btn-s" @click.prevent="edit">Muokkaa</a>
-          </td>
-        </tr>
+        <template v-for="user in users">
+          <editable-user-row v-if="editing.includes(user.id)" :initialUser="user" :updating="true" @user-added="userAdded()" @cancel="cancel(user.id)"/>
+          <tr v-else>
+            <td class="passcode">#{{ user.id }}</td>
+            <td>{{ user.firstname }}</td>
+            <td>{{ user.lastname }}</td>
+            <td>{{ user.email }}</td>
+            <td class="passcode"><passcode :passcode="user.passcode" /></td>
+            <td>{{ getRoleName(user.type) }} ({{ user.type }})</td>
+            <td>
+              <a href="#" class="button btn-s btn-block" @click.prevent="editing.push(user.id)"><i class="fa fa-pencil fa-2x"></i></a>
+            </td>
+          </tr>
+        </template>
       </tbody>
     </table>
   </div>
@@ -96,22 +89,20 @@ import axios from 'axios'
 import auth from '../../api/auth'
 import { EventBus } from '../../EventBus'
 import Passcode from '../passcode'
+import EditableUserRow from './editable-user-row'
+import { GET_ROLE_NAME } from '../../Static'
 
 export default {
   components: {
-    'passcode': Passcode
+    'passcode': Passcode,
+    'editable-user-row': EditableUserRow
   },
   data () {
     return {
       users: [],
       firstname: this.$route.query.firstname || '',
       lastname: this.$route.query.lastname || '',
-      newuser: {
-        firstname: '',
-        lastname: '',
-        email: '',
-        type: '2'
-      },
+      editing: [],
       added: {
         firstname: '',
         lastname: '',
@@ -119,7 +110,7 @@ export default {
         type: '',
         passcode: ''
       },
-      emailInUse: false
+      error: null
     }
   },
   created () {
@@ -133,9 +124,11 @@ export default {
     load: function () {
       EventBus.$emit('setLoading', true)
       console.log('load: ' + this.$route.fullPath)
+      this.firstname = this.$route.query.firstname
+      this.lastname = this.$route.query.lastname
       axios.post('/admin/get/users', {
-        firstname: this.$route.query.firstname,
-        lastname: this.$route.query.lastname,
+        firstname: this.firstname,
+        lastname: this.lastname,
         token: auth.getToken()
       }).then(response => {
         this.users = response.data.data
@@ -149,41 +142,16 @@ export default {
         EventBus.$emit('setLoading', false)
       })
     },
-    edit: function () {
+    userAdded: function (newUser) {
+      this.added = newUser
+      this.load()
     },
-    save: function () {
-      this.emailInUse = false
-      EventBus.$emit('setLoading', true)
-      console.log('load: ' + this.$route.fullPath)
-      axios.post('/admin/add/user', {
-        firstname: this.newuser.firstname,
-        lastname: this.newuser.lastname,
-        email: this.newuser.email,
-        type: this.newuser.type,
-        token: auth.getToken()
-      }).then(response => {
-        this.added.firstname = response.data.data.firstname
-        this.added.lastname = response.data.data.lastname
-        this.added.email = response.data.data.email
-        this.added.passcode = response.data.data.passcode
-        this.added.type = response.data.data.type
-
-        this.newuser.firstname = ''
-        this.newuser.lastname = ''
-        this.newuser.email = ''
-        this.load()
-      }).catch(error => {
-        if (error.response.status === 400) {
-          console.log('Invalid token')
-        } else if (error.response.status === 409) {
-          this.emailInUse = true
-        } else {
-          console.log('Error ' + error.response.status)
-        }
-      }).then(() => {
-        EventBus.$emit('setLoading', false)
-      })
-    }
+    cancel: function (userID) {
+      const i = this.editing.indexOf(userID)
+      if (i !== -1) this.editing.splice(i, 1)
+      this.load()
+    },
+    getRoleName: GET_ROLE_NAME
   }
 }
 </script>
@@ -261,8 +229,7 @@ div.addeduser {
       padding: 0.2em 0.5em
     }
     td.passcode {
-      font-size: 1.5em
-      font-family: monospace
+      font-size: 1.3em
     }
   }
 }
@@ -270,28 +237,22 @@ div.addeduser {
 #table {
   font-size: 0.8em
 
-  td {
-    padding: 0 .2em !important
+  thead th {
+    border-bottom-left-radius: 0
+    border-bottom-right-radius: 0
   }
 
-  tr.newuser {
-
-    td {
-      border-bottom: 3px solid #aaaaaa !important
-      padding: 1em
-
-      input {
-        width: 100%
-        font-size: 1.3em
-        padding: 0.5em
-        box-sizing: border-box
-      }
-    }
+  td {
+    padding: 0 .2em
   }
 
   td.passcode {
     font-size: 1.5em
     font-family: monospace
+  }
+
+  a.button {
+    margin: .4em 0
   }
 }
 

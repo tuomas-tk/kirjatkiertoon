@@ -25,12 +25,23 @@ const COURSES = {
   'KU': 4
 }
 
+const GET_ROLE_NAME = function (id) {
+  if (id < 1) return 'Tuntematon'
+  if (id < 2) return 'Yleinen ostotili'
+  if (id < 5) return 'Ostaja'
+  if (id < 10) return 'Myyjä'
+  if (id < 15) return 'Järjestäjä'
+  if (id < 42) return 'Pääjärjestäjä'
+  return 'SuperAdmin'
+}
+
 const APP_FEE = 100
 const OPERATION_FEE = 100
 const TOTAL_FEE = APP_FEE + OPERATION_FEE
 
 module.exports = {
   COURSES,
+  GET_ROLE_NAME,
   APP_FEE,
   OPERATION_FEE,
   TOTAL_FEE,

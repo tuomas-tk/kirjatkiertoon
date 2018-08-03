@@ -2,6 +2,7 @@ require('dotenv').config()
 const Router = require('express-promise-router')
 const db = require('./db')
 const router = new Router()
+const userData = require('./data/user')
 
 module.exports = router
 
@@ -80,14 +81,22 @@ router.post('/get/users', async (req, res) => {
 
 router.post('/add/user', async (req, res) => {
 
-  var data = {
-    firstname: req.body.firstname.trim(),
+  var data = req.body
+    /*firstname: req.body.firstname.trim(),
     lastname: req.body.lastname.trim(),
     email: req.body.email.trim(),
     type: req.body.type
-  }
+  }*/
+  if (data.firstname) data.firstname = data.firstname.trim()
+  if (data.lastname) data.lastname = data.lastname.trim()
+  if (data.email) data.email = data.email.trim()
+  if (data.passcode) data.passcode = data.passcode.trim()
 
-  if (data.type == null || data.type == '' || data.firstname == null || data.firstname == '') {
+  if (data.lastname === '') data.lastname = null
+  if (data.passcode === '') data.passcode = null
+  if (data.email === '') data.email = null
+
+  if (!data.type || !data.firstname || (data.type != 1 && !data.lastname)) {
     res.status(400).json({ success: false })
     return
   }
@@ -113,20 +122,12 @@ router.post('/add/user', async (req, res) => {
     return
   }
 
-  //var identifier = crypto.randomBytes(128).toString('hex');
-  var possible = "abcdefghijklmnopqrstuvwxyz1234567890"; // 36 characters
-
-  var passcode = '';
-  for( var i=0; i < 8; i++ ) {
-    passcode += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-
   const insertResult = await db.query(`
     INSERT INTO users
       (type, firstname, lastname, email, passcode, school)
     VALUES
       ($1, $2, $3, $4, $5, $6)`,
-    [data.type, data.firstname, data.lastname, data.email, passcode, res.locals.user.school]
+    [data.type, data.firstname, data.lastname, data.email, data.passcode, res.locals.user.school]
   )
 
   if (insertResult.rowCount != 1) {
@@ -140,10 +141,79 @@ router.post('/add/user', async (req, res) => {
       firstname: data.firstname,
       lastname: data.lastname,
       email: data.email,
-      type: data.type,
-      passcode: passcode
+      passcode: data.passcode,
+      type: data.type
     }
   });
+})
+
+router.post('/edit/user/:id(\\d+)', async (req, res) => {
+
+  var data = req.body
+
+  if (data.firstname) data.firstname = data.firstname.trim()
+  if (data.lastname) data.lastname = data.lastname.trim()
+  if (data.email) data.email = data.email.trim()
+  if (data.passcode) data.passcode = data.passcode.trim()
+
+  if (data.lastname === '') data.lastname = null
+  if (data.passcode === '') data.passcode = null
+  if (data.email === '') data.email = null
+
+  if (!data.type || !data.firstname || (data.type != 1 && !data.lastname)) {
+    res.status(400).json({ success: false })
+    return
+  }
+  data.type = parseInt(data.type)
+  if (isNaN(data.type)) {
+    return res.status(400).json({ succees: false, data: 'Type is not a number' })
+  }
+
+
+  var oldUserResult
+  if (res.locals.user.type < 10 || res.locals.user.type < data.type) {
+    return res.status(403).json({ success: false })
+  } else if (res.locals.user.type < 42) {
+    oldUserResult = await userData.getSingleInSchool(req.params.id, res.locals.user.school)
+  } else {
+    oldUserResult = await userData.getSingle(req.params.id)
+  }
+
+  if (oldUserResult.rowCount != 1) return res.status(403).json({ success: false })
+
+  if (data.email && oldUserResult.rows[0].email !== data.email) {
+    const emailInUse = await db.query(`
+      SELECT COUNT(*)
+      FROM users
+      WHERE
+        email = $1 AND
+        id <> $2 `,
+      [data.email, req.params.id]
+    )
+
+    if (emailInUse.rows[0].count != 0) {
+      res.status(409).json({
+        success: false,
+        data: 'Email already in use'
+      })
+      return
+    }
+  }
+
+  data.school = oldUserResult.rows[0].school
+
+  var updateResult
+  if (res.locals.user.type < 42) {
+    updateResult = await userData.editInSchool(req.params.id, res.locals.user.school, data)
+  } else {
+    updateResult = await userData.edit(req.params.id, data)
+  }
+
+  if (updateResult.rowCount != 1) {
+    res.status(500).json({ success: false })
+    return
+  }
+  res.json({ success: true });
 })
 
 router.post('/receive/get/sellers', async (req, res) => {

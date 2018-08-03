@@ -1,11 +1,20 @@
 <template>
-  <span class="passcode-text">{{ formatted }}</span>
+  <span class="passcode-text" :class="{'hidden': hidden}">{{ formatted }}</span>
 </template>
 
 <script>
 export default {
   name: 'passcode',
-  props: ['passcode'],
+  props: {
+    'passcode': {
+      type: String,
+      default: ''
+    },
+    'hidden': {
+      type: Boolean,
+      default: true
+    }
+  },
   computed: {
     formatted: function () {
       if (this.passcode === null) return ''
@@ -23,13 +32,15 @@ export default {
   height: 100%
   font-size: 1.2em
   font-family: monospace
-  color: transparent
   text-align: center
   background-color: #bbbbbb
   transition: color 0.4s
 
-  &:hover {
-    color: initial
+  &.hidden {
+    color: transparent
+    &:hover, &:active {
+      color: initial
+    }
   }
 }
 </style>

@@ -54,6 +54,7 @@ exports.getAvailableInSchool = (schoolID) => {
       b.status = 0 AND
       (SELECT school FROM users WHERE id = b."user") = $1
     ORDER BY
+      b.course ASC,
       b.price ASC,
       b.id ASC`,
     [schoolID]
