@@ -3,7 +3,7 @@
     <div class="form">
       <h2>Kirjaudu sisään!</h2>
       <form v-on:submit.prevent="login">
-        <h3>Ostaja, <small>valitse koulu</small></h3>
+        <h3>Ei tunnuskoodia? <small>Valitse koulu:</small></h3>
         <select v-model="school" v-on:change="passcode='';">
           <option disabled value="">-- VALITSE KOULU --</option>
           <option v-for="s in schools" :value="s.passcode">
@@ -11,8 +11,8 @@
           </option>
         </select>
         <strong>TAI</strong>
-        <h3>Myyjä, <small>syötä tunnuskoodi</small></h3>
-        <input type="text" class="input" placeholder="Tunnuskoodi" v-model="passcode" v-on:input="school='';">
+        <h3>Syötä tunnuskoodi</h3>
+        <input type="text" class="input" placeholder="XXXX XXXX" v-model="passcode" v-on:input="school='';">
         <input type="submit" class="submit button btn-m btn-block" value="Kirjaudu">
       </form>
       <p class="error" v-if="error===1">

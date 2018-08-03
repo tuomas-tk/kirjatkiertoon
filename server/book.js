@@ -88,7 +88,8 @@ router.post('/buy/:id', async (req, res) => {
         firstname = $1 AND
         lastname  = $2 AND
         email     = $3 AND
-        type      = 2  AND
+        type      > 1  AND
+        type      < 10 AND
         school    = $4
       LIMIT 1`,
       [
