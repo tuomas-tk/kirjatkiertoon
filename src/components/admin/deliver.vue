@@ -93,9 +93,10 @@
         <div class="price"><currency :amount="selectedPrice" /></div>
         <h3>Syötä saamasi rahasumma:</h3>
         <input type="text" v-model="receivedMoney" placeholder="0.00" size="10"> <span class="input-currency">€</span>
-        <h3>Anna vaihtorahaa: <currency :amount="giveBack" /></h3>
+        <h3 v-if="giveBack >= 0">Anna vaihtorahaa: <currency :amount="giveBack" /></h3>
+        <h3 v-else>Maksettava tilisiirrolla: <currency :amount="-giveBack" /></h3>
 
-        <a href="#" class="button" v-on:click.prevent="deliver()" :class="{'btn-disabled': giveBack < 0}">Luovuta kirjat</a>
+        <a href="#" class="button" v-on:click.prevent="deliver()" :class="{'btn-disabled': receivedMoney === ''}">Luovuta kirjat</a>
       </div>
     </div>
     <a href="#" class="button" v-on:click.prevent="step = 0; receivedMoney = ''; selectedBooks = []; search = ''">Peruuta</a>
@@ -301,11 +302,12 @@ export default {
          .replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + '<br />' + '$2')
     },
     deliver: function () {
-      if (this.giveBack < 0) return
+      if (this.receivedMoney === '') return
       axios.post('/admin/deliver/set/delivered', {
         books: this.selectedBooks,
         buyer: this.buyer.id,
         receivedMoney: this.receivedMoney * 100,
+        bankMoney: this.selectedPrice - this.receivedMoney * 100,
         token: auth.getToken()
       }).then(response => {
         this.step = 3

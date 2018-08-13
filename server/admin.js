@@ -565,11 +565,11 @@ router.post('/deliver/set/delivered', async (req, res) => {
 
   const createReceipt = await db.query(`
     INSERT INTO receipts
-      ("user", type, status, cash)
+      ("user", type, status, cash, bank)
     VALUES
-      ($1,     1,    0,      $2  )
+      ($1,     1,    0,      $2,   $3  )
     RETURNING id `,
-    [req.body.buyer, req.body.receivedMoney]
+    [req.body.buyer, req.body.receivedMoney, req.body.bankMoney]
   )
 
   if (createReceipt.rowCount != 1) {

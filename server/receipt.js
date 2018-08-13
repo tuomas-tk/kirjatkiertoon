@@ -98,7 +98,11 @@ router.get('/:token', async (req, res) => {
   doc.font('Times-Bold')
   switch (receipt.type) {
     case 1:
-      doc.text('on ostanut, maksanut, vastaanottanut sekä hyväksynyt seuraavat kirjat:', )
+      if (receipt.status == 1) {
+        doc.text('on ostanut, sitoutunut maksamaan, vastaanottanut sekä hyväksynyt seuraavat kirjat:')
+      } else {
+        doc.text('on ostanut, maksanut, vastaanottanut sekä hyväksynyt seuraavat kirjat:')
+      }
       break
     case 2:
       doc.text('on tuonut toimitusta varten koululle seuraavat kirjat:')
@@ -220,12 +224,21 @@ router.get('/:token', async (req, res) => {
       yCoord += 15
       doc.font('Times-Bold').text('YHTEENSÄ:', columns[5], yCoord)
       doc.text((totalPrice/100.0).toFixed(2) + ' €', columns[6], yCoord).font('Times-Roman')
-      yCoord += 15
-      doc.text('Käteinen:', columns[5], yCoord)
-      doc.text((receipt.cash/100.0).toFixed(2) + ' €', columns[6], yCoord)
-      yCoord += 15
-      doc.text('Takaisin:', columns[5], yCoord)
-      doc.text(((receipt.cash - totalPrice)/100.0).toFixed(2) + ' €', columns[6], yCoord)
+      if (receipt.cash > 0) {
+        yCoord += 15
+        doc.text('Käteinen:', columns[5], yCoord)
+        doc.text((receipt.cash/100.0).toFixed(2) + ' €', columns[6], yCoord)
+        if (receipt.cash - totalPrice > 0) {
+          yCoord += 15
+          doc.text('Takaisin:', columns[5], yCoord)
+          doc.text(((receipt.cash - totalPrice)/100.0).toFixed(2) + ' €', columns[6], yCoord)
+        }
+      }
+      if (receipt.bank > 0) {
+        yCoord += 15
+        doc.text('Tilisiirto:', columns[5], yCoord)
+        doc.text((receipt.bank/100.0).toFixed(2) + ' €', columns[6], yCoord)
+      }
       break
 
     case 2:

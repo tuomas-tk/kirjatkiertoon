@@ -75,6 +75,7 @@ The object of the action in parentheses
 
 0 - Open receipt, new lines can be added
 1 - Closed receipt, new lines can't be added
+2 - Closed receipt, bank transfer completed
 
 
 # Receipt lines

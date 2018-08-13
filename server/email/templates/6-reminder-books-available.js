@@ -9,13 +9,14 @@ class Template extends BaseTemplate {
 Hei {{ user.firstname }}!
 -  -  -  -  -  -  -  -  -
 
-KirjatKiertoon.fi -palvelun kautta ostamasi kirjat ovat nyt saatavilla!
+Nämä KirjatKiertoon.fi -palvelun kautta ostamasi kirjat ovat nyt saatavilla!
 
 {% for b in books %}
  - {{ b.course }} - {{ b.name }} - {{ (b.price/100)|number_format(2, ',') }} €
 {% endfor %}
 
-Kirjojen hinta on yhteensä {{ (totalPrice/100)|number_format(2, ',') }} €. Käteismaksu!
+Kirjojen hinta on yhteensä {{ (totalPrice/100)|number_format(2, ',') }} €.
+Voit maksaa käteisellä kirjojen haun yhteydessä, tai tilisiirrolla sen jälkeen.
 
 - - - - - - - - - -
 
@@ -47,7 +48,8 @@ KirjatKiertoon.fi  /  FirmatVerkkoon.fi
   {% endfor %}
 </table>
 <h2>
-Kirjojen hinta on yhteensä {{ (totalPrice/100)|number_format(2, ',') }} €. Käteismaksu!
+Kirjojen hinta on yhteensä {{ (totalPrice/100)|number_format(2, ',') }} €.
+Voit maksaa käteisellä kirjojen haun yhteydessä, tai tilisiirrolla sen jälkeen.
 </h2>
 <hr />
 <p>
