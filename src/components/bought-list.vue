@@ -31,7 +31,7 @@
           <td class="status">
             <span v-if="book.status == 1"><i class="fa fa-clock-o"></i><br>ODOTTAA SAAPUMISTA</span>
             <span v-if="book.status == 2"><i class="fa fa-exclamation-triangle"></i><br>NOUDA KOULULTA</span>
-            <span v-if="book.status == 3"><i class="fa fa-check"></i><br>OSTETTU</span>
+            <span v-if="book.status >= 3"><i class="fa fa-check"></i><br>OSTETTU</span>
           </td>
           <td>
             <router-link class="button btn-s":to="{name: 'boughtSingle', params: { id: book.id }}">Avaa</router-link>
