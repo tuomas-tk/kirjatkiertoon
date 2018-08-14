@@ -98,7 +98,7 @@ router.get('/:token', async (req, res) => {
   doc.font('Times-Bold')
   switch (receipt.type) {
     case 1:
-      if (receipt.status == 1) {
+      if (receipt.status == 1 && receipt.bank) {
         doc.text('on ostanut, sitoutunut maksamaan, vastaanottanut sekä hyväksynyt seuraavat kirjat:')
       } else {
         doc.text('on ostanut, maksanut, vastaanottanut sekä hyväksynyt seuraavat kirjat:')
