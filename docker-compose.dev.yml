@@ -6,3 +6,4 @@ services:
       - .dev.env
     volumes:
       - .:/app
+      - /app/node_modules

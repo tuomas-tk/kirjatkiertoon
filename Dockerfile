@@ -6,15 +6,16 @@ RUN apt-get update && apt-get -y install cron
 # Set the working directory
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-ADD . /app
-
-RUN ls -l
-RUN whoami
+# Copy the npm things into the container at /app
+# By copying only these first Docker can cache node_modules
+ADD ./package.json /app/
+ADD ./package-lock.json /app/
 
 # Install any needed packages
 RUN npm install --production
 
+# Copy the rest of current directory contents into the container at /app
+ADD . /app
 
 # CRON
 # Give execution rights on the cron job

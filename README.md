@@ -2,7 +2,7 @@
 
 > A Vue.js project
 
-## Build Setup
+## Build Setup (old version)
 
 ``` bash
 # install dependencies
@@ -24,29 +24,48 @@ npm run server
 For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
 
 
+## Dockerized version
+### Installation
+1. install docker
+2. install docker-compose
+3. create a volume for database with
+   - `docker volume create --name=kirjatkiertoon-db`
+
+### Running
+#### Development
+##### Build the changed images
+`sudo docker-compose -f docker-compose.yml -f docker-compose.dev.yml build`
+##### Run the latest images without building
+`sudo docker-compose -f docker-compose.yml -f docker-compose.dev.yml up`
+##### Do both
+`sudo docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build`
+
+#### Production
+Just remove the part `-f docker-compose.dev.yml`
+
 # Users
 
 ## User role
 
-0 - Nothing, not used
-1 - School account, allows to look for books, and buy by entering own name+email
-2 - Account made by entering information on school-account.
-5 - Seller account, made by admins in admin console.
-10 - Admin account - limited to users and books
-15 - Primary admin account - to make deals and send payments for school
-42 - SUPER-ADMIN - Can do anything, can also answer to the Ultimate Question of Life, The Universe, and Everything
+    0 - Nothing, not used
+    1 - School account, allows to look  for books, and buy by entering own name+email
+    2 - Account made by entering information on school-account.
+    5 - Seller account, made by admins in admin console.
+    10 - Admin account - limited to users and books
+    15 - Primary admin account - to make deals and send payments for school
+    42 - SUPER-ADMIN - Can do anything, can also answer to the Ultimate Question of Life, The Universe, and Everything
 
 
 # Books
 
 ## Book status
 
--1 - Deleted
-0  - Available to buy
-1  - Bought, not brought to school yet
-2  - Book at school
-3  - Sold, book delivered to buyer
-4  - Money delivered to seller
+    -1 - Deleted
+    0  - Available to buy
+    1  - Bought, not brought to school yet
+    2  - Book at school
+    3  - Sold, book delivered to buyer
+    4  - Money delivered to seller
 
 
 # Actions
