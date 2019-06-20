@@ -18,8 +18,8 @@ services:
 
   postgres-db:
     image: "postgres:10.5-alpine"
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     restart: always
     volumes:
       - kirjatkiertoon-db:/var/lib/postgresql/data
