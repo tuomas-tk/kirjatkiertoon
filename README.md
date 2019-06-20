@@ -41,7 +41,13 @@ For detailed explanation on how things work, checkout the [guide](http://vuejs-t
 `sudo docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build`
 
 #### Production
-Just remove the part `-f docker-compose.dev.yml`
+Just remove the part `-f docker-compose.dev.yml` from the commands
+
+If you want to push to production, run
+
+`docker-machine env server-b`
+
+`docker-compose up --build -d`
 
 # Users
 
