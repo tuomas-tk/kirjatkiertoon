@@ -1,0 +1,3 @@
+*/5 * * * * cd /app && /usr/local/bin/node /app/server/email/index.js > /proc/1/fd/1 2>/proc/1/fd/2
+# * * * * * env > /proc/1/fd/1
+# Required comment

@@ -333,6 +333,7 @@ router.post('/receive/set/received', async (req, res) =>  {
           b."user" = $3 AND
           u.school = $4
       )
+    RETURNING buyer
     `,
     [
       req.body.book,
@@ -349,6 +350,8 @@ router.post('/receive/set/received', async (req, res) =>  {
     })
     return
   }
+
+  const buyerId = result.rows[0].buyer
 
   const findReceipt = await db.query(`
     SELECT id
@@ -401,6 +404,35 @@ router.post('/receive/set/received', async (req, res) =>  {
       data: 'Can\'t create receiptline'
     })
     return
+  }
+
+  // Insert action (email) to notify the buyer that they can get the books
+  // Check if there is already an action that hasn't been sent
+  const findAction = await db.query(`
+    SELECT COUNT(*) FROM actions WHERE
+      type=6 AND
+      "user"=$1 AND
+      email_waiting=TRUE`,
+    [buyerId]
+  )
+
+  if (findAction.rows[0].count == 0) { // No existing action, creating new
+    console.log("Not found, inserting action");
+    const insertAction = await db.query(`
+      INSERT INTO actions
+        (type, "user")
+        VALUES
+        (6,  $1)`,
+        [buyerId]
+    )
+
+    if (insertAction.rowCount != 1) {
+      res.status(500).json({
+        success: false,
+        data: 'Can\'t create email action for buyer'
+      })
+      return
+    }
   }
 
   res.json({

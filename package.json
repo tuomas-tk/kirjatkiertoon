@@ -10,8 +10,7 @@
     "lint": "eslint --ext .js,.vue src",
     "server": "node server/index.js",
     "email": "node server/email/index.js",
-    "doc": "docco server/*.js",
-    "postinstall": "db-migrate up"
+    "doc": "docco server/*.js"
   },
   "dependencies": {
     "axios": "^0.16.1",
